@@ -1,0 +1,23 @@
+{
+  "name": "cricketscoreapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "gulp watch & NODE_ENV=development nodemon build/index.js",
+    "start": "NODE_ENV=production node build/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.14.1",
+    "gulp": "^4.0.2"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "nodemon": "^2.0.20",
+    "typescript": "^4.9.5"
+  }
+}
