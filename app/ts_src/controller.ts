@@ -1,12 +1,15 @@
-const liveEvents = require('./LiveMatches/LiveMatches');
+import { LiveMatches } from "./LiveMatches/LiveMatches";
 
 const live = function (req, res) {
     console.log('live');
+    const liveMatchesObj = new LiveMatches();
+    const liveMatchesResponse = liveMatchesObj.getMatches();
+    console.log('liveMatchesResponse', liveMatchesResponse);
     // console.log(req);
     return res.status(200).send({
         status: true,
         message: 'Live Matches',
-        response: "conda"
+        response: liveMatchesResponse
     });
 };
 
