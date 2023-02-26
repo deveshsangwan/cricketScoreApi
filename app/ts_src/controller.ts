@@ -1,16 +1,27 @@
 import { LiveMatches } from "./LiveMatches/LiveMatches";
+import { MatchStats } from "./MatchStats/MatchStats";
 
-const live = function (req, res) {
-    console.log('live');
+const live = async (req, res) => {
     const liveMatchesObj = new LiveMatches();
-    const liveMatchesResponse = liveMatchesObj.getMatches();
-    console.log('liveMatchesResponse', liveMatchesResponse);
-    // console.log(req);
+    const liveMatchesResponse = await liveMatchesObj.getMatches();
+
     return res.status(200).send({
         status: true,
         message: 'Live Matches',
         response: liveMatchesResponse
     });
 };
+
+const matchStats = async (req, res) => {
+    const matchId = req.params.matchId;
+    const matchStatsObj = new MatchStats(matchId);
+    const matchStatsResponse = await matchStatsObj.getMatchStats();
+
+    return res.status(200).send({
+        status: true,
+        message: 'Match Stats',
+        response: matchStatsResponse
+    });
+}
 
 exports.live = live;
