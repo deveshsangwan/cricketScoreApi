@@ -15,7 +15,9 @@
     "gulp": "^4.0.2"
   },
   "dependencies": {
+    "body-parser": "^1.20.2",
     "express": "^4.18.2",
+    "express-http-context": "^1.2.4",
     "gulp-typescript": "^6.0.0-alpha.1",
     "nodemon": "^2.0.20",
     "typescript": "^4.9.5"
