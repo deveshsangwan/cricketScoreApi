@@ -13,6 +13,7 @@ exports.LiveMatches = void 0;
 const bluebird_1 = require("bluebird");
 const request = require('request');
 const cheerio = require('cheerio');
+const uuid = require('uuid-random');
 class LiveMatches {
     constructor() {
     }
@@ -20,8 +21,6 @@ class LiveMatches {
         return __awaiter(this, void 0, void 0, function* () {
             return new bluebird_1.Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 const scrapedData = yield this.scrapeData();
-                console.log("here=======================");
-                console.log("scrapedData=======================", scrapedData);
                 return resolve(scrapedData);
             }));
         });
@@ -35,24 +34,26 @@ class LiveMatches {
                         'User-Agent': 'request'
                     }
                 };
-                const matchUrls = [];
-                let response = request(options, (error, response, html) => {
+                const matchesData = {};
+                request(options, (error, response, html) => {
                     if (!error && response.statusCode == 200) {
                         const $ = cheerio.load(html);
-                        //const matches = [];
-                        //const matchesData = [];
-                        $('.cb-col-100 .cb-col .cb-schdl .cb-lv-scr-mtch-hdr').each((i, el) => {
-                            const match = $(el).find('.cb-lv-scrs-col').text();
-                            const matchData = $(el).find('.cb-lv-scrs-col').text();
+                        $('.cb-col-100 .cb-col .cb-schdl').each((i, el) => {
                             const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
-                            //matches.push(match);
-                            //matchesData.push(matchData);
-                            matchUrls.push(matchUrl);
+                            const matchData = $(el).find('.cb-billing-plans-text a').attr('title');
+                            if (matchUrl && matchData) {
+                                // random guid for match id
+                                const matchId = uuid();
+                                matchesData[matchId] = {
+                                    matchUrl,
+                                    matchData
+                                };
+                            }
                         });
-                        return resolve(matchUrls);
+                        return resolve(matchesData);
                     }
                     //return promise.resolve(matchUrls);
-                    return resolve(matchUrls);
+                    return reject(error);
                 });
             });
         });
