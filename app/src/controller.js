@@ -22,6 +22,7 @@ const live = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const matchStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const matchId = req.params.matchId;
+    console.log('matchId', matchId);
     const matchStatsObj = new MatchStats_1.MatchStats(matchId);
     const matchStatsResponse = yield matchStatsObj.getMatchStats();
     return res.status(200).send({
@@ -30,4 +31,7 @@ const matchStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         response: matchStatsResponse
     });
 });
-exports.live = live;
+module.exports = {
+    live,
+    matchStats
+};
