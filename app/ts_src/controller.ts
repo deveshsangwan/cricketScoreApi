@@ -14,6 +14,8 @@ const live = async (req, res) => {
 
 const matchStats = async (req, res) => {
     const matchId = req.params.matchId;
+    console.log('matchId', matchId);
+    
     const matchStatsObj = new MatchStats(matchId);
     const matchStatsResponse = await matchStatsObj.getMatchStats();
 
@@ -24,4 +26,7 @@ const matchStats = async (req, res) => {
     });
 }
 
-exports.live = live;
+module.exports = {
+    live,
+    matchStats
+};
