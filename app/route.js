@@ -21,5 +21,6 @@ module.exports = function (app) {
     app.use('/', router);
     router.get('/live', errorHandler(controller.live));
     router.get('/live/:matchId', errorHandler(controller.matchStats));
+    router.get('/live1', errorHandler(controller.live1));
 }
 
