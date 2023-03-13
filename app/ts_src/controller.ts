@@ -26,7 +26,19 @@ const matchStats = async (req, res) => {
     });
 }
 
+const live1 = async (req, res) => {
+    const matchStatsObj = new MatchStats();
+    const matchStatsResponse = await matchStatsObj.getMatchStats();
+
+    return res.status(200).send({
+        status: true,
+        message: 'Match Stats',
+        response: matchStatsResponse
+    });
+}
+
 module.exports = {
     live,
-    matchStats
+    matchStats,
+    live1
 };
