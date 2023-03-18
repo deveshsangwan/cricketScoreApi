@@ -32,7 +32,8 @@ class MatchStats {
                     }
                 }
                 else {
-                    const scrapedData = yield this.scrapeData(this.matchId);
+                    const url = liveMatchesResponse[this.matchId].matchUrl;
+                    const scrapedData = yield this.scrapeData(url);
                     return resolve(scrapedData);
                 }
                 return resolve(data);
@@ -45,14 +46,11 @@ class MatchStats {
                 if (!this.matchId)
                     return reject('Match Id is required');
                 const options = {
-                    //url: 'https://www.cricbuzz.com' + this.matchId,
                     url: 'https://www.cricbuzz.com' + url,
-                    //url: 'https://www.cricbuzz.com/live-cricket-scores/50160/wa-vs-vic-30th-match-sheffield-shield-2022-23',
                     headers: {
                         'User-Agent': 'request'
                     }
                 };
-                let matchStats = {};
                 let tournamentName = yield this.getTournamentName(options);
                 // replace www with m in options.url
                 options.url = options.url.replace('www', 'm');
