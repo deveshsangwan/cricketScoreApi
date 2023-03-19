@@ -22,8 +22,8 @@ class MatchStats {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 let data = [];
                 const liveMatchesObj = new LiveMatches();
-                const liveMatchesResponse = yield liveMatchesObj.getMatches();
-                if (this.matchId == "0") {
+                const liveMatchesResponse = yield liveMatchesObj.getMatches(this.matchId);
+                if (!this.matchId) {
                     for (let key in liveMatchesResponse) {
                         this.matchId = key;
                         const scrapedData = yield this.scrapeData(liveMatchesResponse[key].matchUrl);

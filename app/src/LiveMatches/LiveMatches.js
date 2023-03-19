@@ -14,13 +14,27 @@ const bluebird_1 = require("bluebird");
 const request = require('request');
 const cheerio = require('cheerio');
 const randomstring = require("randomstring");
+const mongo = require('../../core/baseModel');
 class LiveMatches {
     constructor() {
     }
-    getMatches() {
+    getMatches(matchId = 0) {
         return __awaiter(this, void 0, void 0, function* () {
             return new bluebird_1.Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                if (matchId) {
+                }
+                const matches = yield mongo.findAll();
+                console.log('matches', matches);
                 const scrapedData = yield this.scrapeData();
+                // insert scraped data into db
+                let dataToInsert = [];
+                for (let key in scrapedData) {
+                    dataToInsert.push({
+                        _id: key,
+                        matchUrl: scrapedData[key].matchUrl
+                    });
+                }
+                const insert = yield mongo.insertMany(dataToInsert);
                 return resolve(scrapedData);
             }));
         });
