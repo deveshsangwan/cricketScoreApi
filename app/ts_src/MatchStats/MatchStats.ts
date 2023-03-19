@@ -13,9 +13,9 @@ export class MatchStats {
             let data = [];
 
             const liveMatchesObj = new LiveMatches();
-            const liveMatchesResponse = await liveMatchesObj.getMatches();
+            const liveMatchesResponse = await liveMatchesObj.getMatches(this.matchId);
 
-            if (this.matchId == "0") {
+            if (!this.matchId) {
                 for (let key in liveMatchesResponse) {
                     this.matchId = key;
                     const scrapedData = await this.scrapeData(liveMatchesResponse[key].matchUrl);

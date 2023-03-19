@@ -1,6 +1,7 @@
 const app = require('express')();
 const bodyParser = require('body-parser');
 const httpContext = require('express-http-context');
+const Mongo = require('./core/mongo');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

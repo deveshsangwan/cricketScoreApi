@@ -2,14 +2,29 @@ import { Promise as promise } from 'bluebird';
 const request = require('request');
 const cheerio = require('cheerio');
 const randomstring = require("randomstring");
+const mongo = require('../../core/baseModel');
 
 export class LiveMatches {
     constructor() {
     }
 
-    public async getMatches(): Promise<{}> {
+    public async getMatches(matchId = 0): Promise<{}> {
         return new promise(async (resolve, reject) => {
+            if (matchId) {
+                
+            }
+            const matches = await mongo.findAll();
+            console.log('matches', matches);
             const scrapedData = await this.scrapeData();
+            // insert scraped data into db
+            let dataToInsert = [];
+            for (let key in scrapedData) {
+                dataToInsert.push({
+                    _id: key,
+                    matchUrl: scrapedData[key].matchUrl
+                });
+            }
+            const insert = await mongo.insertMany(dataToInsert);
             return resolve(scrapedData);
         });
     }
