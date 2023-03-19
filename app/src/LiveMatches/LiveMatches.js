@@ -13,7 +13,7 @@ exports.LiveMatches = void 0;
 const bluebird_1 = require("bluebird");
 const request = require('request');
 const cheerio = require('cheerio');
-const uuid = require('uuid-random');
+const randomstring = require("randomstring");
 class LiveMatches {
     constructor() {
     }
@@ -42,8 +42,10 @@ class LiveMatches {
                             const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
                             const matchData = $(el).find('.cb-billing-plans-text a').attr('title');
                             if (matchUrl && matchData) {
-                                // random guid for match id
-                                const matchId = uuid();
+                                const matchId = randomstring.generate({
+                                    length: 16,
+                                    charset: 'alphanumeric'
+                                });
                                 matchesData[matchId] = {
                                     matchUrl,
                                     matchData
