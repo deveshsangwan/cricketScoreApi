@@ -13,6 +13,8 @@ exports.MatchStats = void 0;
 const request = require('request');
 const cheerio = require('cheerio');
 const { LiveMatches } = require('../LiveMatches/LiveMatches');
+const mongo = require('../../core/baseModel');
+const _ = require('underscore');
 class MatchStats {
     constructor(matchId = "0") {
         this.matchId = matchId;
@@ -23,20 +25,52 @@ class MatchStats {
                 let data = [];
                 const liveMatchesObj = new LiveMatches();
                 const liveMatchesResponse = yield liveMatchesObj.getMatches(this.matchId);
-                if (!this.matchId) {
+                if (this.matchId === "0") {
                     for (let key in liveMatchesResponse) {
                         this.matchId = key;
                         const scrapedData = yield this.scrapeData(liveMatchesResponse[key].matchUrl);
+                        _.extend(scrapedData, { matchName: liveMatchesResponse[key].matchName });
                         data.push(scrapedData);
-                        //break;
+                        // save data to db if not already exists
+                        const mongoData = yield mongo.findById(this.matchId, true);
+                        if (!mongoData.length) {
+                            let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+                            // repalace key matchId with _id
+                            dataToInsert['_id'] = dataToInsert['matchId'];
+                            delete dataToInsert['matchId'];
+                            yield mongo.insert(dataToInsert, true);
+                        }
                     }
+                    if (!data.length) {
+                        return reject('No matches found');
+                    }
+                    return resolve(data);
                 }
-                else {
-                    const url = liveMatchesResponse[this.matchId].matchUrl;
-                    const scrapedData = yield this.scrapeData(url);
-                    return resolve(scrapedData);
+                else if (!!this.matchId) {
+                    let mongoData = yield mongo.findById(this.matchId, true);
+                    if (mongoData.length) {
+                        let returnObj = JSON.parse(JSON.stringify(mongoData[0]));
+                        // repalce key _id with matchId
+                        returnObj['matchId'] = returnObj['_id'];
+                        delete returnObj['_id'];
+                        delete returnObj['__v'];
+                        delete returnObj['createdAt'];
+                        return resolve(returnObj);
+                    }
+                    else if (_.has(liveMatchesResponse, 'matchId')) {
+                        const url = liveMatchesResponse.matchUrl;
+                        const scrapedData = yield this.scrapeData(url);
+                        _.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
+                        // insert data to db
+                        let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+                        dataToInsert['_id'] = dataToInsert['matchId'];
+                        delete dataToInsert['matchId'];
+                        yield mongo.insert(dataToInsert, true);
+                        return resolve(scrapedData);
+                    }
+                    return resolve('Match Id is invalid');
                 }
-                return resolve(data);
+                return resolve('Invalid request');
             }));
         });
     }
