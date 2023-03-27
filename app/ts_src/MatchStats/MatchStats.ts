@@ -1,6 +1,8 @@
 const request = require('request');
 const cheerio = require('cheerio');
 const { LiveMatches } = require('../LiveMatches/LiveMatches');
+const mongo = require('../../core/baseModel');
+const _ = require('underscore');
 
 export class MatchStats {
     private matchId: string;
@@ -15,19 +17,57 @@ export class MatchStats {
             const liveMatchesObj = new LiveMatches();
             const liveMatchesResponse = await liveMatchesObj.getMatches(this.matchId);
 
-            if (!this.matchId) {
+            if (this.matchId === "0") {
                 for (let key in liveMatchesResponse) {
                     this.matchId = key;
                     const scrapedData = await this.scrapeData(liveMatchesResponse[key].matchUrl);
+                    _.extend(scrapedData, { matchName: liveMatchesResponse[key].matchName });
                     data.push(scrapedData);
-                    //break;
+
+                    // save data to db if not already exists
+                    const mongoData = await mongo.findById(this.matchId, true);
+                    if (!mongoData.length) {
+                        let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+                        // repalace key matchId with _id
+                        dataToInsert['_id'] = dataToInsert['matchId'];
+                        delete dataToInsert['matchId'];
+                        await mongo.insert(dataToInsert, true);
+                    }
                 }
-            } else {
-                const url = liveMatchesResponse[this.matchId].matchUrl;
-                const scrapedData = await this.scrapeData(url);
-                return resolve(scrapedData);
+
+                if (!data.length) {
+                    return reject('No matches found');
+                }
+                return resolve(data);
+            } else if (!!this.matchId) {
+                let mongoData = await mongo.findById(this.matchId, true);
+                if (mongoData.length) {
+                    let returnObj = JSON.parse(JSON.stringify(mongoData[0]));
+                    // repalce key _id with matchId
+                    returnObj['matchId'] = returnObj['_id'];
+
+                    delete returnObj['_id'];
+                    delete returnObj['__v'];
+                    delete returnObj['createdAt'];
+
+                    return resolve(returnObj);
+                } else if (_.has(liveMatchesResponse, 'matchId')) {
+                    const url = liveMatchesResponse.matchUrl;
+                    const scrapedData = await this.scrapeData(url);
+                    _.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
+                    // insert data to db
+                    let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+                    dataToInsert['_id'] = dataToInsert['matchId'];
+                    delete dataToInsert['matchId'];
+                    await mongo.insert(dataToInsert, true);
+
+                    return resolve(scrapedData);
+                }
+
+                return resolve('Match Id is invalid');
             }
-            return resolve(data);
+
+            return resolve('Invalid request');
         });
     }
 
@@ -82,10 +122,10 @@ export class MatchStats {
                     const currentTeamDataArray = $('span.ui-bat-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
                     const otherTeamDataArray = $('span.ui-bowl-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
                     const currentBatsman = $('span.bat-bowl-miniscore').eq(0).text().replace('*', '');
-                    const [ currentBatsmanRuns, currentBatsmanBalls ] = $('td[class="cbz-grid-table-fix "]').eq(6).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
+                    const [currentBatsmanRuns, currentBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(6).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
                     const otherBatsman = $('span.bat-bowl-miniscore').eq(1).text();
-                    const [ otherBatsmanRuns, otherBatsmanBalls ] = $('td[class="cbz-grid-table-fix "]').eq(11).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
-                    
+                    const [otherBatsmanRuns, otherBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(11).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
+
                     matchData = {
                         matchId: this.matchId,
                         team1: !currentTeamDataArray[0] ? {} : {
