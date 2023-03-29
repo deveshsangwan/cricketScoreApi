@@ -36,7 +36,7 @@ export class MatchStats {
                 }
 
                 if (!data.length) {
-                    return reject('No matches found');
+                    return resolve('No matches found');
                 }
                 return resolve(data);
             } else if (!!this.matchId) {
@@ -73,7 +73,7 @@ export class MatchStats {
 
     public async scrapeData(url): Promise<{}> {
         return new Promise(async (resolve, reject) => {
-            if (!this.matchId) return reject('Match Id is required');
+            if (!this.matchId) return resolve('Match Id is required');
 
             const options = {
                 url: 'https://www.cricbuzz.com' + url,
@@ -95,7 +95,7 @@ export class MatchStats {
 
     public async getTournamentName(options): Promise<{}> {
         return new Promise((resolve, reject) => {
-            if (!this.matchId) return reject('Match Id is required');
+            if (!this.matchId) return resolve('Match Id is required');
 
             request(options, (error, response, html) => {
                 if (!error && response.statusCode == 200) {
@@ -133,13 +133,14 @@ export class MatchStats {
                             name: currentTeamDataArray[0],
                             score: currentTeamDataArray[1],
                             overs: currentTeamDataArray.length > 3 ? currentTeamDataArray[3] : currentTeamDataArray[2],
-                            wickets: currentTeamDataArray.length > 3 ? currentTeamDataArray[2] : 10,
+                            wickets: currentTeamDataArray.length > 3 ? currentTeamDataArray[2] : "10",
                         },
                         team2: !otherTeamDataArray[0] ? {} : {
+                            isBatting: false,
                             name: otherTeamDataArray[0],
                             score: otherTeamDataArray[1],
                             overs: otherTeamDataArray.length > 3 ? otherTeamDataArray[3] : otherTeamDataArray[2],
-                            wickets: otherTeamDataArray.length > 3 ? otherTeamDataArray[2] : 10,
+                            wickets: otherTeamDataArray.length > 3 ? otherTeamDataArray[2] : "10",
                         },
                         onBatting: {
                             player1: {
@@ -150,6 +151,7 @@ export class MatchStats {
                             },
                             player2: {
                                 name: otherBatsman,
+                                onStrike: false,
                                 runs: otherBatsmanRuns,
                                 balls: otherBatsmanBalls
                             }
