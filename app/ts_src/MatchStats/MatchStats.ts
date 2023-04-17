@@ -1,6 +1,8 @@
 const request = require('request');
 const cheerio = require('cheerio');
 const { LiveMatches } = require('../LiveMatches/LiveMatches');
+const mongo = require('../../core/baseModel');
+const _ = require('underscore');
 
 export class MatchStats {
     private matchId: string;
@@ -13,27 +15,65 @@ export class MatchStats {
             let data = [];
 
             const liveMatchesObj = new LiveMatches();
-            const liveMatchesResponse = await liveMatchesObj.getMatches();
+            const liveMatchesResponse = await liveMatchesObj.getMatches(this.matchId);
 
-            if (this.matchId == "0") {
+            if (this.matchId === "0") {
                 for (let key in liveMatchesResponse) {
                     this.matchId = key;
                     const scrapedData = await this.scrapeData(liveMatchesResponse[key].matchUrl);
+                    _.extend(scrapedData, { matchName: liveMatchesResponse[key].matchName });
                     data.push(scrapedData);
-                    //break;
+
+                    // save data to db if not already exists
+                    const mongoData = await mongo.findById(this.matchId, true);
+                    if (!mongoData.length) {
+                        let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+                        // repalace key matchId with _id
+                        dataToInsert['_id'] = dataToInsert['matchId'];
+                        delete dataToInsert['matchId'];
+                        await mongo.insert(dataToInsert, true);
+                    }
                 }
-            } else {
-                const url = liveMatchesResponse[this.matchId].matchUrl;
-                const scrapedData = await this.scrapeData(url);
-                return resolve(scrapedData);
+
+                if (!data.length) {
+                    return resolve('No matches found');
+                }
+                return resolve(data);
+            } else if (!!this.matchId) {
+                let mongoData = await mongo.findById(this.matchId, true);
+                if (mongoData.length) {
+                    let returnObj = JSON.parse(JSON.stringify(mongoData[0]));
+                    // repalce key _id with matchId
+                    returnObj['matchId'] = returnObj['_id'];
+
+                    delete returnObj['_id'];
+                    delete returnObj['__v'];
+                    delete returnObj['createdAt'];
+
+                    return resolve(returnObj);
+                } else if (_.has(liveMatchesResponse, 'matchId')) {
+                    const url = liveMatchesResponse.matchUrl;
+                    const scrapedData = await this.scrapeData(url);
+                    _.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
+                    // insert data to db
+                    let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+                    dataToInsert['_id'] = dataToInsert['matchId'];
+                    delete dataToInsert['matchId'];
+                    await mongo.insert(dataToInsert, true);
+
+                    return resolve(scrapedData);
+                }
+
+                return resolve('Match Id is invalid');
             }
-            return resolve(data);
+
+            return resolve('Invalid request');
         });
     }
 
     public async scrapeData(url): Promise<{}> {
         return new Promise(async (resolve, reject) => {
-            if (!this.matchId) return reject('Match Id is required');
+            if (!this.matchId) return resolve('Match Id is required');
 
             const options = {
                 url: 'https://www.cricbuzz.com' + url,
@@ -55,7 +95,7 @@ export class MatchStats {
 
     public async getTournamentName(options): Promise<{}> {
         return new Promise((resolve, reject) => {
-            if (!this.matchId) return reject('Match Id is required');
+            if (!this.matchId) return resolve('Match Id is required');
 
             request(options, (error, response, html) => {
                 if (!error && response.statusCode == 200) {
@@ -82,10 +122,10 @@ export class MatchStats {
                     const currentTeamDataArray = $('span.ui-bat-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
                     const otherTeamDataArray = $('span.ui-bowl-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
                     const currentBatsman = $('span.bat-bowl-miniscore').eq(0).text().replace('*', '');
-                    const [ currentBatsmanRuns, currentBatsmanBalls ] = $('td[class="cbz-grid-table-fix "]').eq(6).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
+                    const [currentBatsmanRuns, currentBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(6).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
                     const otherBatsman = $('span.bat-bowl-miniscore').eq(1).text();
-                    const [ otherBatsmanRuns, otherBatsmanBalls ] = $('td[class="cbz-grid-table-fix "]').eq(11).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
-                    
+                    const [otherBatsmanRuns, otherBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(11).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
+
                     matchData = {
                         matchId: this.matchId,
                         team1: !currentTeamDataArray[0] ? {} : {
@@ -93,13 +133,14 @@ export class MatchStats {
                             name: currentTeamDataArray[0],
                             score: currentTeamDataArray[1],
                             overs: currentTeamDataArray.length > 3 ? currentTeamDataArray[3] : currentTeamDataArray[2],
-                            wickets: currentTeamDataArray.length > 3 ? currentTeamDataArray[2] : 10,
+                            wickets: currentTeamDataArray.length > 3 ? currentTeamDataArray[2] : "10",
                         },
                         team2: !otherTeamDataArray[0] ? {} : {
+                            isBatting: false,
                             name: otherTeamDataArray[0],
                             score: otherTeamDataArray[1],
                             overs: otherTeamDataArray.length > 3 ? otherTeamDataArray[3] : otherTeamDataArray[2],
-                            wickets: otherTeamDataArray.length > 3 ? otherTeamDataArray[2] : 10,
+                            wickets: otherTeamDataArray.length > 3 ? otherTeamDataArray[2] : "10",
                         },
                         onBatting: {
                             player1: {
@@ -110,6 +151,7 @@ export class MatchStats {
                             },
                             player2: {
                                 name: otherBatsman,
+                                onStrike: false,
                                 runs: otherBatsmanRuns,
                                 balls: otherBatsmanBalls
                             }

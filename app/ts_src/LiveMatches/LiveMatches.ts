@@ -2,19 +2,32 @@ import { Promise as promise } from 'bluebird';
 const request = require('request');
 const cheerio = require('cheerio');
 const randomstring = require("randomstring");
+const mongo = require('../../core/baseModel');
+const _ = require('underscore');
 
 export class LiveMatches {
     constructor() {
     }
 
-    public async getMatches(): Promise<{}> {
+    public async getMatches(matchId = 0): Promise<{}> {
         return new promise(async (resolve, reject) => {
-            const scrapedData = await this.scrapeData();
+            if (matchId != 0) {
+                const mongoData = await mongo.findById(matchId);
+
+                if (mongoData.length) {
+                    mongoData[0]['matchId'] = mongoData[0]['_id'];
+                    delete mongoData[0]['_id'];
+                    return resolve(mongoData[0]);
+                }
+            }
+            const mongoData = await mongo.findAll();
+            const scrapedData = await this.scrapeData(mongoData);
+
             return resolve(scrapedData);
         });
     }
 
-    public async scrapeData(): Promise<{}> {
+    public async scrapeData(mongoData): Promise<{}> {
         return new promise((resolve, reject) => {
             const options = {
                 url: 'https://www.cricbuzz.com/cricket-match/live-scores',
@@ -23,28 +36,47 @@ export class LiveMatches {
                 }
             };
 
-            const matchesData = {};
+            const matchesData = {}, matchesData1 = {};
 
-            request(options, (error, response, html) => {
+            request(options, async (error, response, html) => {
                 if (!error && response.statusCode == 200) {
                     const $ = cheerio.load(html);
 
                     $('.cb-col-100 .cb-col .cb-schdl').each((i, el) => {
                         const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
-                        const matchData = $(el).find('.cb-billing-plans-text a').attr('title');
-                        if (matchUrl && matchData) {
+                        const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
+
+                        // if already exists in db, then add it to matchesData
+                        if (mongoData.length && mongoData.find((item) => item.matchUrl === matchUrl)) {
+                            const matchId = mongoData.find((item) => item.matchUrl === matchUrl)._id;
+                            matchesData1[matchId] = {
+                                matchUrl,
+                                matchName
+                            };
+                        } else if (matchUrl && matchName) {
                             const matchId = randomstring.generate({
                                 length: 16,
                                 charset: 'alphanumeric'
                             });
                             matchesData[matchId] = {
                                 matchUrl,
-                                matchData
+                                matchName
                             };
                         }
                     });
 
-                    return resolve(matchesData);
+                    // insert new matches into db
+                    let dataToInsert = [];
+                    for (let key in matchesData) {
+                        dataToInsert.push({
+                            _id: key,
+                            matchUrl: matchesData[key].matchUrl,
+                            matchName: matchesData[key].matchName
+                        });
+                    }
+                    await mongo.insertMany(dataToInsert);
+
+                    return resolve(_.extend(matchesData1, matchesData));
                 }
                 //return promise.resolve(matchUrls);
                 return reject(error);
