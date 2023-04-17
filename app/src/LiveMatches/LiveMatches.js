@@ -14,18 +14,29 @@ const bluebird_1 = require("bluebird");
 const request = require('request');
 const cheerio = require('cheerio');
 const randomstring = require("randomstring");
+const mongo = require('../../core/baseModel');
+const _ = require('underscore');
 class LiveMatches {
     constructor() {
     }
-    getMatches() {
+    getMatches(matchId = 0) {
         return __awaiter(this, void 0, void 0, function* () {
             return new bluebird_1.Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                const scrapedData = yield this.scrapeData();
+                if (matchId != 0) {
+                    const mongoData = yield mongo.findById(matchId);
+                    if (mongoData.length) {
+                        mongoData[0]['matchId'] = mongoData[0]['_id'];
+                        delete mongoData[0]['_id'];
+                        return resolve(mongoData[0]);
+                    }
+                }
+                const mongoData = yield mongo.findAll();
+                const scrapedData = yield this.scrapeData(mongoData);
                 return resolve(scrapedData);
             }));
         });
     }
-    scrapeData() {
+    scrapeData(mongoData) {
         return __awaiter(this, void 0, void 0, function* () {
             return new bluebird_1.Promise((resolve, reject) => {
                 const options = {
@@ -34,29 +45,47 @@ class LiveMatches {
                         'User-Agent': 'request'
                     }
                 };
-                const matchesData = {};
-                request(options, (error, response, html) => {
+                const matchesData = {}, matchesData1 = {};
+                request(options, (error, response, html) => __awaiter(this, void 0, void 0, function* () {
                     if (!error && response.statusCode == 200) {
                         const $ = cheerio.load(html);
                         $('.cb-col-100 .cb-col .cb-schdl').each((i, el) => {
                             const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
-                            const matchData = $(el).find('.cb-billing-plans-text a').attr('title');
-                            if (matchUrl && matchData) {
+                            const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
+                            // if already exists in db, then add it to matchesData
+                            if (mongoData.length && mongoData.find((item) => item.matchUrl === matchUrl)) {
+                                const matchId = mongoData.find((item) => item.matchUrl === matchUrl)._id;
+                                matchesData1[matchId] = {
+                                    matchUrl,
+                                    matchName
+                                };
+                            }
+                            else if (matchUrl && matchName) {
                                 const matchId = randomstring.generate({
                                     length: 16,
                                     charset: 'alphanumeric'
                                 });
                                 matchesData[matchId] = {
                                     matchUrl,
-                                    matchData
+                                    matchName
                                 };
                             }
                         });
-                        return resolve(matchesData);
+                        // insert new matches into db
+                        let dataToInsert = [];
+                        for (let key in matchesData) {
+                            dataToInsert.push({
+                                _id: key,
+                                matchUrl: matchesData[key].matchUrl,
+                                matchName: matchesData[key].matchName
+                            });
+                        }
+                        yield mongo.insertMany(dataToInsert);
+                        return resolve(_.extend(matchesData1, matchesData));
                     }
                     //return promise.resolve(matchUrls);
                     return reject(error);
-                });
+                }));
             });
         });
     }

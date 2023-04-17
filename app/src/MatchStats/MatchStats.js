@@ -13,6 +13,8 @@ exports.MatchStats = void 0;
 const request = require('request');
 const cheerio = require('cheerio');
 const { LiveMatches } = require('../LiveMatches/LiveMatches');
+const mongo = require('../../core/baseModel');
+const _ = require('underscore');
 class MatchStats {
     constructor(matchId = "0") {
         this.matchId = matchId;
@@ -22,21 +24,53 @@ class MatchStats {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 let data = [];
                 const liveMatchesObj = new LiveMatches();
-                const liveMatchesResponse = yield liveMatchesObj.getMatches();
-                if (this.matchId == "0") {
+                const liveMatchesResponse = yield liveMatchesObj.getMatches(this.matchId);
+                if (this.matchId === "0") {
                     for (let key in liveMatchesResponse) {
                         this.matchId = key;
                         const scrapedData = yield this.scrapeData(liveMatchesResponse[key].matchUrl);
+                        _.extend(scrapedData, { matchName: liveMatchesResponse[key].matchName });
                         data.push(scrapedData);
-                        //break;
+                        // save data to db if not already exists
+                        const mongoData = yield mongo.findById(this.matchId, true);
+                        if (!mongoData.length) {
+                            let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+                            // repalace key matchId with _id
+                            dataToInsert['_id'] = dataToInsert['matchId'];
+                            delete dataToInsert['matchId'];
+                            yield mongo.insert(dataToInsert, true);
+                        }
                     }
+                    if (!data.length) {
+                        return resolve('No matches found');
+                    }
+                    return resolve(data);
                 }
-                else {
-                    const url = liveMatchesResponse[this.matchId].matchUrl;
-                    const scrapedData = yield this.scrapeData(url);
-                    return resolve(scrapedData);
+                else if (!!this.matchId) {
+                    let mongoData = yield mongo.findById(this.matchId, true);
+                    if (mongoData.length) {
+                        let returnObj = JSON.parse(JSON.stringify(mongoData[0]));
+                        // repalce key _id with matchId
+                        returnObj['matchId'] = returnObj['_id'];
+                        delete returnObj['_id'];
+                        delete returnObj['__v'];
+                        delete returnObj['createdAt'];
+                        return resolve(returnObj);
+                    }
+                    else if (_.has(liveMatchesResponse, 'matchId')) {
+                        const url = liveMatchesResponse.matchUrl;
+                        const scrapedData = yield this.scrapeData(url);
+                        _.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
+                        // insert data to db
+                        let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+                        dataToInsert['_id'] = dataToInsert['matchId'];
+                        delete dataToInsert['matchId'];
+                        yield mongo.insert(dataToInsert, true);
+                        return resolve(scrapedData);
+                    }
+                    return resolve('Match Id is invalid');
                 }
-                return resolve(data);
+                return resolve('Invalid request');
             }));
         });
     }
@@ -44,7 +78,7 @@ class MatchStats {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 if (!this.matchId)
-                    return reject('Match Id is required');
+                    return resolve('Match Id is required');
                 const options = {
                     url: 'https://www.cricbuzz.com' + url,
                     headers: {
@@ -64,7 +98,7 @@ class MatchStats {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (!this.matchId)
-                    return reject('Match Id is required');
+                    return resolve('Match Id is required');
                 request(options, (error, response, html) => {
                     if (!error && response.statusCode == 200) {
                         const $ = cheerio.load(html);
@@ -98,13 +132,14 @@ class MatchStats {
                                 name: currentTeamDataArray[0],
                                 score: currentTeamDataArray[1],
                                 overs: currentTeamDataArray.length > 3 ? currentTeamDataArray[3] : currentTeamDataArray[2],
-                                wickets: currentTeamDataArray.length > 3 ? currentTeamDataArray[2] : 10,
+                                wickets: currentTeamDataArray.length > 3 ? currentTeamDataArray[2] : "10",
                             },
                             team2: !otherTeamDataArray[0] ? {} : {
+                                isBatting: false,
                                 name: otherTeamDataArray[0],
                                 score: otherTeamDataArray[1],
                                 overs: otherTeamDataArray.length > 3 ? otherTeamDataArray[3] : otherTeamDataArray[2],
-                                wickets: otherTeamDataArray.length > 3 ? otherTeamDataArray[2] : 10,
+                                wickets: otherTeamDataArray.length > 3 ? otherTeamDataArray[2] : "10",
                             },
                             onBatting: {
                                 player1: {
@@ -115,6 +150,7 @@ class MatchStats {
                                 },
                                 player2: {
                                     name: otherBatsman,
+                                    onStrike: false,
                                     runs: otherBatsmanRuns,
                                     balls: otherBatsmanBalls
                                 }
