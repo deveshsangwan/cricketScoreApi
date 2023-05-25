@@ -10,7 +10,7 @@ uses: docker/login-action@v1
 with:
 registry: ghcr.io
 username: ${{ github.actor }}
-password: ${{ secrets.GITHUB_TOKEN }}
+password: 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
 - name: Build the cricketScoreApi Docker image
 run: |
        docker build . --tag ghcr.io/deveshsangwan/cricketScoreApi:latest
