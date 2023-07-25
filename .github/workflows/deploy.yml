@@ -14,5 +14,4 @@ jobs:
         with:
           node-version: 18
       - run: npm install
-      - run: npm install -g nodemon
       - run: npm start
