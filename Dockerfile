@@ -1,18 +1,16 @@
-FROM alpine:3.16
+FROM node:alpine
 
 ENV NODE_VERSION 18.16.0
 
-RUN apk --no-cache add bash \
-    ghostscript \
-    qpdf \
-    && apk --no-cache --virtual build-dependencies add \
-    python \
-    make \
-    g++ \
-    && npm cache clean --force \	
-    && npm install \
-    && npm install -g nodemon \
-    && apk del build-dependencies
+WORKDIR /usr/app
+COPY ./ /usr/app
+
+RUN apk --no-cache add bash
+RUN apk --no-cache --virtual build-dependencies add
+RUN npm cache clean --force
+RUN npm install
+RUN npm install -g nodemon
+RUN apk del build-dependencies
 
 ENV NODE_PORT 3000
 
