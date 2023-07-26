@@ -15,4 +15,6 @@ jobs:
           node-version: 18
       - run: npm install
       - run: npm install pm2@latest -g
-      - run: pm2 start --name=crickety build/index.js
+      - run: pm2 ls
+      - run: pm2 restart crickety
+      - run: pm2 ls
