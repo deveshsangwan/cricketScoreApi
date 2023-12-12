@@ -42,11 +42,11 @@ export class LiveMatches {
                 const response = await axios(options);
                 if (response.status === 200) {
                     const $ = cheerio.load(response.data);
-            
+
                     $('.cb-col-100 .cb-col .cb-schdl').each((i, el) => {
                         const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
                         const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
-            
+
                         // if already exists in db, then add it to matchesData
                         if (mongoData.length && mongoData.find((item) => item.matchUrl === matchUrl)) {
                             const matchId = mongoData.find((item) => item.matchUrl === matchUrl)._id;
@@ -65,7 +65,7 @@ export class LiveMatches {
                             };
                         }
                     });
-            
+
                     // insert new matches into db
                     let dataToInsert = [];
                     for (let key in matchesData) {
@@ -76,7 +76,7 @@ export class LiveMatches {
                         });
                     }
                     await mongo.insertMany(dataToInsert);
-            
+
                     return resolve(_.extend(matchesData1, matchesData));
                 }
             } catch (error) {
