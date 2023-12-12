@@ -96,12 +96,12 @@ export class MatchStats {
     public async getTournamentName(options): Promise<{}> {
         return new Promise(async (resolve, reject) => {
             if (!this.matchId) return resolve('Match Id is required');
-    
+
             try {
                 const response = await axios(options);
                 if (response.status === 200) {
                     const $ = cheerio.load(response.data);
-    
+
                     $('.cb-col.cb-col-100.cb-bg-white').each((i, el) => {
                         const tournamentName = $(el).find('a').attr('title');
                         return resolve(tournamentName);
@@ -116,12 +116,12 @@ export class MatchStats {
     public async getMatchStatsByMatchId(options): Promise<{}> {
         return new Promise(async (resolve, reject) => {
             let matchData = {};
-    
+
             try {
                 const response = await axios(options);
                 if (response.status === 200) {
                     const $ = cheerio.load(response.data);
-    
+
                     // split the string by spaces, -, / and brackets
                     const currentTeamDataArray = $('span.ui-bat-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
                     const otherTeamDataArray = $('span.ui-bowl-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
@@ -129,7 +129,7 @@ export class MatchStats {
                     const [currentBatsmanRuns, currentBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(6).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
                     const otherBatsman = $('span.bat-bowl-miniscore').eq(1).text();
                     const [otherBatsmanRuns, otherBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(11).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
-    
+
                     matchData = {
                         matchId: this.matchId,
                         team1: !currentTeamDataArray[0] ? {} : {
@@ -162,7 +162,7 @@ export class MatchStats {
                         },
                         summary: $("div.cbz-ui-status").text().trim()
                     };
-    
+
                     return resolve(matchData);
                 }
             } catch (error) {
