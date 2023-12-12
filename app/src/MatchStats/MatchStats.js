@@ -10,9 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatchStats = void 0;
-const request = require('request');
+const axios = require('axios');
 const cheerio = require('cheerio');
-const { LiveMatches } = require('../LiveMatches/LiveMatches');
+const LiveMatches_1 = require("../LiveMatches/LiveMatches");
 const mongo = require('../../core/baseModel');
 const _ = require('underscore');
 class MatchStats {
@@ -23,7 +23,7 @@ class MatchStats {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 let data = [];
-                const liveMatchesObj = new LiveMatches();
+                const liveMatchesObj = new LiveMatches_1.LiveMatches();
                 const liveMatchesResponse = yield liveMatchesObj.getMatches(this.matchId);
                 if (this.matchId === "0") {
                     for (let key in liveMatchesResponse) {
@@ -96,28 +96,33 @@ class MatchStats {
     }
     getTournamentName(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 if (!this.matchId)
                     return resolve('Match Id is required');
-                request(options, (error, response, html) => {
-                    if (!error && response.statusCode == 200) {
-                        const $ = cheerio.load(html);
+                try {
+                    const response = yield axios(options);
+                    if (response.status === 200) {
+                        const $ = cheerio.load(response.data);
                         $('.cb-col.cb-col-100.cb-bg-white').each((i, el) => {
                             const tournamentName = $(el).find('a').attr('title');
                             return resolve(tournamentName);
                         });
                     }
-                });
-            });
+                }
+                catch (error) {
+                    return reject(error);
+                }
+            }));
         });
     }
     getMatchStatsByMatchId(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 let matchData = {};
-                request(options, (error, response, html) => {
-                    if (!error && response.statusCode == 200) {
-                        const $ = cheerio.load(html);
+                try {
+                    const response = yield axios(options);
+                    if (response.status === 200) {
+                        const $ = cheerio.load(response.data);
                         // split the string by spaces, -, / and brackets
                         const currentTeamDataArray = $('span.ui-bat-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
                         const otherTeamDataArray = $('span.ui-bowl-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
@@ -159,8 +164,11 @@ class MatchStats {
                         };
                         return resolve(matchData);
                     }
-                });
-            });
+                }
+                catch (error) {
+                    return reject(error);
+                }
+            }));
         });
     }
 }

@@ -1,6 +1,6 @@
-const request = require('request');
+const axios = require('axios');
 const cheerio = require('cheerio');
-const { LiveMatches } = require('../LiveMatches/LiveMatches');
+import { LiveMatches } from '../LiveMatches/LiveMatches';
 const mongo = require('../../core/baseModel');
 const _ = require('underscore');
 
@@ -94,30 +94,34 @@ export class MatchStats {
     }
 
     public async getTournamentName(options): Promise<{}> {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (!this.matchId) return resolve('Match Id is required');
-
-            request(options, (error, response, html) => {
-                if (!error && response.statusCode == 200) {
-                    const $ = cheerio.load(html);
-
+    
+            try {
+                const response = await axios(options);
+                if (response.status === 200) {
+                    const $ = cheerio.load(response.data);
+    
                     $('.cb-col.cb-col-100.cb-bg-white').each((i, el) => {
                         const tournamentName = $(el).find('a').attr('title');
                         return resolve(tournamentName);
                     });
                 }
-            });
+            } catch (error) {
+                return reject(error);
+            }
         });
     }
 
     public async getMatchStatsByMatchId(options): Promise<{}> {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             let matchData = {};
-
-            request(options, (error, response, html) => {
-                if (!error && response.statusCode == 200) {
-                    const $ = cheerio.load(html);
-
+    
+            try {
+                const response = await axios(options);
+                if (response.status === 200) {
+                    const $ = cheerio.load(response.data);
+    
                     // split the string by spaces, -, / and brackets
                     const currentTeamDataArray = $('span.ui-bat-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
                     const otherTeamDataArray = $('span.ui-bowl-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
@@ -125,7 +129,7 @@ export class MatchStats {
                     const [currentBatsmanRuns, currentBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(6).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
                     const otherBatsman = $('span.bat-bowl-miniscore').eq(1).text();
                     const [otherBatsmanRuns, otherBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(11).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
-
+    
                     matchData = {
                         matchId: this.matchId,
                         team1: !currentTeamDataArray[0] ? {} : {
@@ -158,10 +162,12 @@ export class MatchStats {
                         },
                         summary: $("div.cbz-ui-status").text().trim()
                     };
-
+    
                     return resolve(matchData);
                 }
-            });
+            } catch (error) {
+                return reject(error);
+            }
         });
     }
 }

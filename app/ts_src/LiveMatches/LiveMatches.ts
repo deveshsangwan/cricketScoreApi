@@ -1,5 +1,5 @@
 import { Promise as promise } from 'bluebird';
-const request = require('request');
+const axios = require('axios');
 const cheerio = require('cheerio');
 const randomstring = require("randomstring");
 const mongo = require('../../core/baseModel');
@@ -9,9 +9,9 @@ export class LiveMatches {
     constructor() {
     }
 
-    public async getMatches(matchId = 0): Promise<{}> {
+    public getMatches(matchId = "0"): Promise<{}> {
         return new promise(async (resolve, reject) => {
-            if (matchId != 0) {
+            if (matchId != "0") {
                 const mongoData = await mongo.findById(matchId);
 
                 if (mongoData.length) {
@@ -27,8 +27,8 @@ export class LiveMatches {
         });
     }
 
-    public async scrapeData(mongoData): Promise<{}> {
-        return new promise((resolve, reject) => {
+    public scrapeData(mongoData): Promise<{}> {
+        return new promise(async (resolve, reject) => {
             const options = {
                 url: 'https://www.cricbuzz.com/cricket-match/live-scores',
                 headers: {
@@ -38,14 +38,15 @@ export class LiveMatches {
 
             const matchesData = {}, matchesData1 = {};
 
-            request(options, async (error, response, html) => {
-                if (!error && response.statusCode == 200) {
-                    const $ = cheerio.load(html);
-
+            try {
+                const response = await axios(options);
+                if (response.status === 200) {
+                    const $ = cheerio.load(response.data);
+            
                     $('.cb-col-100 .cb-col .cb-schdl').each((i, el) => {
                         const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
                         const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
-
+            
                         // if already exists in db, then add it to matchesData
                         if (mongoData.length && mongoData.find((item) => item.matchUrl === matchUrl)) {
                             const matchId = mongoData.find((item) => item.matchUrl === matchUrl)._id;
@@ -64,7 +65,7 @@ export class LiveMatches {
                             };
                         }
                     });
-
+            
                     // insert new matches into db
                     let dataToInsert = [];
                     for (let key in matchesData) {
@@ -75,12 +76,12 @@ export class LiveMatches {
                         });
                     }
                     await mongo.insertMany(dataToInsert);
-
+            
                     return resolve(_.extend(matchesData1, matchesData));
                 }
-                //return promise.resolve(matchUrls);
+            } catch (error) {
                 return reject(error);
-            });
+            }
         });
     }
 }
