@@ -4,6 +4,11 @@ import { LiveMatches } from '../LiveMatches/LiveMatches';
 const mongo = require('../../core/baseModel');
 const _ = require('underscore');
 
+interface LiveMatchesResponse {
+    matchUrl?: string;
+    matchName?: string;
+    matchId?: string;
+}
 export class MatchStats {
     private matchId: string;
     constructor(matchId = "0") {
@@ -15,7 +20,7 @@ export class MatchStats {
             let data = [];
 
             const liveMatchesObj = new LiveMatches();
-            const liveMatchesResponse = await liveMatchesObj.getMatches(this.matchId);
+            const liveMatchesResponse:LiveMatchesResponse = await liveMatchesObj.getMatches(this.matchId);
 
             if (this.matchId === "0") {
                 for (let key in liveMatchesResponse) {
