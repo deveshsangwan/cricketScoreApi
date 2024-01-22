@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsc -p . -w & export NODE_ENV=development && nodemon build/index.js",
-    "start": "NODE_ENV=production node build/index.js"
+    "start": "NODE_ENV=production node build/index.js",
+    "build": "tsc -p . && export NODE_ENV=production"
   },
   "keywords": [],
   "author": "",
