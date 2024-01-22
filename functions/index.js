@@ -9,7 +9,7 @@
 
 global.__basedir = process.cwd() + '/';
 const functions = require('firebase-functions');
-const app = require('../app/app.js');
+const app = require(__basedir + 'app/app.js');
 
 // Export the app as a function that Firebase can use
 exports.app = functions.https.onRequest(app);
