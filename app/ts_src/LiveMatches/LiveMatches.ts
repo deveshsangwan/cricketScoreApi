@@ -27,7 +27,7 @@ export class LiveMatches {
         });
     }
 
-    public scrapeData(mongoData): Promise<{}> {
+    private scrapeData(mongoData): Promise<{}> {
         return new promise(async (resolve, reject) => {
             const options = {
                 url: 'https://www.cricbuzz.com/cricket-match/live-scores',
