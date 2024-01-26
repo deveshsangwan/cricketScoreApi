@@ -13,21 +13,31 @@
   },
   "main": "index.js",
   "dependencies": {
-    "firebase-admin": "^11.8.0",
-    "firebase-functions": "^4.3.1",
-    "axios": "^1.6.2",
+    "axios": "^1.6.5",
     "bluebird": "^3.7.2",
     "body-parser": "^1.20.2",
     "cheerio": "^1.0.0-rc.12",
     "express": "^4.18.2",
     "express-http-context": "^1.2.4",
     "mongoose": "^7.0.2",
+    "nconf": "^0.12.1",
     "randomstring": "^1.2.3",
     "typescript": "^5.1.6",
-    "underscore": "^1.13.6"
+    "underscore": "^1.13.6",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
-    "firebase-functions-test": "^3.1.0"
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^18.19.10",
+    "@types/sinon": "^17.0.2",
+    "chai": "^4.3.10",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "sinon": "^17.0.1",
+    "ts-node": "^10.9.2"
   },
   "private": true
 }
