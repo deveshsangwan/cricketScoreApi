@@ -1,4 +1,5 @@
 const Mongoose = require('mongoose');
+const { writeLogInfo, writeLogError } = require('../core/logger');
 
 // define model
 const liveMatches = new Mongoose.Schema({
@@ -53,88 +54,66 @@ const matchStats = new Mongoose.Schema({
     },
 });
 
-// find all matches
-const findAll = (stats = false) => {
-    if (stats) {
-        return new Promise(async (resolve, reject) => {
-            let response = await Mongoose.model('matchStats', matchStats).find({});
-            resolve(response);
-        }).catch(err => {
-            console.log("findAll MATCH_STATS error: ", err);
-        });
-    }
+const LiveMatches = Mongoose.model('liveMatches', liveMatches);
+const MatchStats = Mongoose.model('matchStats', matchStats);
 
-    return new Promise(async (resolve, reject) => {
-        let response = await Mongoose.model('liveMatches', liveMatches).find({});
-        resolve(response);
-    }).catch(err => {
-        console.log("findAll LIVE_MATCHES error: ", err);
-    });
-}
+// find all matches
+const findAll = async (modelName) => {
+    try {
+        const response = await Mongoose.model(modelName).find({});
+        return response;
+    } catch (err) {
+        const collectionName = modelName === 'matchStats' ? 'MATCH_STATS' : 'LIVE_MATCHES';
+        writeLogError([`findAll ${collectionName} error: `, err]);
+        throw err;
+    }
+};
 
 // find match by id
-const findById = (matchId, stats = false) => {
-    if (stats) {
-        return new Promise(async (resolve, reject) => {
-            let response = await Mongoose.model('matchStats', matchStats).find({ _id: matchId });
-            resolve(response);
-        }).catch(err => {
-            console.log("findById MATCH_STATS error: ", err);
-        });
+const findById = async (matchId, modelName) => {
+    try {
+        const response = await Mongoose.model(modelName).find({ _id: matchId });
+        return response;
+    } catch (err) {
+        const collectionName = modelName === 'matchStats' ? 'MATCH_STATS' : 'LIVE_MATCHES';
+        writeLogError([`findById ${collectionName} error: `, err]);
+        throw err;
     }
-    return new Promise(async (resolve, reject) => {
-        let response = await Mongoose.model('liveMatches', liveMatches).find({ _id: matchId });
-        resolve(response);
-    }).catch(err => {
-        console.log("findById LIVE_MATCHES error: ", err);
-    });
-}
+};
 
 // find id by match url
 const findIdByMatchUrl = (matchUrl) => {
     return new Promise((resolve, reject) => {
         Mongoose.model('liveMatches', liveMatches).find({ matchUrl: matchUrl });
     }).catch(err => {
-        console.log("findIdByMatchUrl error: ", err);
+        writeLogError(["findIdByMatchUrl error: ", err]);
     });
 }
 
 // insert one match
-const insert = (data, stats = false) => {
-    if (stats) {
-        return new Promise(async (resolve, reject) => {
-            let response = await Mongoose.model('matchStats', matchStats).create(data);
-            resolve(response);
-        }).catch(err => {
-            console.log("insert MATCH_STATS error: ", err);
-        });
+const insert = async (data, modelName) => {
+    try {
+        const response = await Mongoose.model(modelName).create(data);
+        return response;
+    } catch (err) {
+        const collectionName = modelName === 'matchStats' ? 'MATCH_STATS' : 'LIVE_MATCHES';
+        writeLogError([`insert ${collectionName} error: `, err]);
+        throw err;
     }
-    return new Promise(async (resolve, reject) => {
-        let response = await Mongoose.model('liveMatches', liveMatches).create(data);
-        resolve(response);
-    }).catch(err => {
-        console.log("insert LIVE_MATCHES error: ", err);
-    });
-}
+};
 
 
 // insert multiple matches
-const insertMany = (matches, stats = false) => {
-    if (stats) {
-        return new Promise(async (resolve, reject) => {
-            let response = await Mongoose.model('matchStats', matchStats).insertMany(matches);
-            resolve(response);
-        }).catch(err => {
-            console.log("insertMany MATCH_STATS error: ", err);
-        });
+const insertMany = async (matches, modelName) => {
+    try {
+        const response = await Mongoose.model(modelName).insertMany(matches);
+        return response;
+    } catch (err) {
+        const collectionName = modelName === 'matchStats' ? 'MATCH_STATS' : 'LIVE_MATCHES';
+        writeLogError([`insertMany ${collectionName} error: `, err]);
+        throw err;
     }
-    return new Promise(async (resolve, reject) => {
-        let response = await Mongoose.model('liveMatches', liveMatches).insertMany(matches);
-        resolve(response);
-    }).catch(err => {
-        console.log("insertMany LIVE_MATCHES error: ", err);
-    });
-}
+};
 
 
 module.exports = {
