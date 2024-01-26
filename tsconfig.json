@@ -7,8 +7,7 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "app/ts_src/**/*.ts",
-    "test/**/*.ts"
+    "app/ts_src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
