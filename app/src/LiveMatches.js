@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LiveMatches = void 0;
-const bluebird_1 = require("bluebird");
+const logger_1 = require("../core/logger");
 const axios = require('axios');
 const cheerio = require('cheerio');
 const randomstring = require("randomstring");
@@ -18,24 +18,31 @@ const mongo = require('../core/baseModel');
 const _ = require('underscore');
 class LiveMatches {
     constructor() {
+        this.tableName = 'liveMatches';
     }
     getMatches(matchId = "0") {
-        return new bluebird_1.Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            if (matchId != "0") {
-                const mongoData = yield mongo.findById(matchId);
-                if (mongoData.length) {
-                    mongoData[0]['matchId'] = mongoData[0]['_id'];
-                    delete mongoData[0]['_id'];
-                    return resolve(mongoData[0]);
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (matchId != "0") {
+                    const mongoData = yield mongo.findById(matchId, this.tableName);
+                    if (mongoData.length) {
+                        mongoData[0]['matchId'] = mongoData[0]['_id'];
+                        delete mongoData[0]['_id'];
+                        return Promise.resolve(mongoData[0]);
+                    }
                 }
+                const mongoData = yield mongo.findAll(this.tableName);
+                const scrapedData = yield this.scrapeData(mongoData);
+                return Promise.resolve(scrapedData);
             }
-            const mongoData = yield mongo.findAll();
-            const scrapedData = yield this.scrapeData(mongoData);
-            return resolve(scrapedData);
-        }));
+            catch (error) {
+                (0, logger_1.writeLogError)(['LiveMatches | getMatches | error', error]);
+                return Promise.reject(error);
+            }
+        });
     }
     scrapeData(mongoData) {
-        return new bluebird_1.Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const options = {
                 url: 'https://www.cricbuzz.com/cricket-match/live-scores',
                 headers: {
@@ -78,14 +85,15 @@ class LiveMatches {
                             matchName: matchesData[key].matchName
                         });
                     }
-                    yield mongo.insertMany(dataToInsert);
-                    return resolve(_.extend(matchesData1, matchesData));
+                    yield mongo.insertMany(dataToInsert, this.tableName);
                 }
+                return Promise.resolve(_.extend(matchesData1, matchesData));
             }
             catch (error) {
-                return reject(error);
+                (0, logger_1.writeLogError)(['LiveMatches | scrapeData | error', error]);
+                return Promise.reject(error);
             }
-        }));
+        });
     }
 }
 exports.LiveMatches = LiveMatches;

@@ -1,6 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 import { LiveMatches } from './LiveMatches';
+import { Utils } from './Utils';
 const mongo = require('../core/baseModel');
 const _ = require('underscore');
 import { writeLogInfo, writeLogError } from '../core/logger';
@@ -12,14 +13,20 @@ interface LiveMatchesResponse {
 }
 export class MatchStats {
     private matchId: string;
+    private tableName: string;
+    private liveMatchesObj: LiveMatches;
+    private utilsObj: Utils;
+
     constructor(matchId = "0") {
         this.matchId = matchId;
+        this.tableName = 'matchStats';
+        this.liveMatchesObj = new LiveMatches();
+        this.utilsObj = new Utils();
     }
 
     public async getMatchStats(): Promise<{}> {
         try {
-            const liveMatchesObj = new LiveMatches();
-            const liveMatchesResponse: LiveMatchesResponse = await liveMatchesObj.getMatches(this.matchId);
+            const liveMatchesResponse = await this.liveMatchesObj.getMatches(this.matchId);
 
             if (this.matchId === "0") {
                 return await this.getStatsForAllMatches(liveMatchesResponse);
@@ -29,8 +36,8 @@ export class MatchStats {
 
             return Promise.resolve('Invalid request');
         } catch (error) {
-            writeLogError(['matchStats | getMatchStats |', error]);
-            return Promise.resolve("Something went wrong");
+            writeLogError(['matchStats | getMatchStats | error', error]);
+            return Promise.reject("Something went wrong");
         }
     }
 
@@ -43,13 +50,13 @@ export class MatchStats {
             data.push(scrapedData);
 
             // save data to db if not already exists
-            const mongoData = await mongo.findById(this.matchId, true);
+            const mongoData = await mongo.findById(this.matchId, this.tableName);
             if (!mongoData.length) {
                 let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
                 // repalace key matchId with _id
                 dataToInsert['_id'] = dataToInsert['matchId'];
                 delete dataToInsert['matchId'];
-                await mongo.insert(dataToInsert, true);
+                await mongo.insert(dataToInsert, this.tableName);
             }
         }
 
@@ -60,7 +67,7 @@ export class MatchStats {
     }
 
     private async getStatsForSingleMatch(liveMatchesResponse: LiveMatchesResponse): Promise<{}> {
-        let mongoData = await mongo.findById(this.matchId, true);
+        let mongoData = await mongo.findById(this.matchId, this.tableName);
         if (mongoData.length) {
             let returnObj = JSON.parse(JSON.stringify(mongoData[0]));
             // repalce key _id with matchId
@@ -79,7 +86,7 @@ export class MatchStats {
             let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
             dataToInsert['_id'] = dataToInsert['matchId'];
             delete dataToInsert['matchId'];
-            await mongo.insert(dataToInsert, true);
+            await mongo.insert(dataToInsert, this.tableName);
 
             return Promise.resolve(scrapedData);
         }
