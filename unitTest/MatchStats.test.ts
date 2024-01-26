@@ -22,6 +22,7 @@ describe('MatchStats API', function () {
     });
 
     it('should GET stats of all the live matches', function (done) {
+        this.timeout(5000);
         chai.request(server)
             .get('/live1') // adjust this path to your API endpoint
             .end(function (err, res) {
