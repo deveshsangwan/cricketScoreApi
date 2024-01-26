@@ -20,7 +20,7 @@ export class MatchStats {
             let data = [];
 
             const liveMatchesObj = new LiveMatches();
-            const liveMatchesResponse:LiveMatchesResponse = await liveMatchesObj.getMatches(this.matchId);
+            const liveMatchesResponse: LiveMatchesResponse = await liveMatchesObj.getMatches(this.matchId);
 
             if (this.matchId === "0") {
                 for (let key in liveMatchesResponse) {
@@ -76,7 +76,7 @@ export class MatchStats {
         });
     }
 
-    public async scrapeData(url): Promise<{}> {
+    private scrapeData(url): Promise<{}> {
         return new Promise(async (resolve, reject) => {
             if (!this.matchId) return resolve('Match Id is required');
 
@@ -89,8 +89,6 @@ export class MatchStats {
 
             let tournamentName = await this.getTournamentName(options);
 
-            // replace www with m in options.url
-            options.url = options.url.replace('www', 'm');
             let response = await this.getMatchStatsByMatchId(options);
             response['tournamentName'] = tournamentName;
 
@@ -98,7 +96,7 @@ export class MatchStats {
         });
     }
 
-    public async getTournamentName(options): Promise<{}> {
+    private getTournamentName(options): Promise<{}> {
         return new Promise(async (resolve, reject) => {
             if (!this.matchId) return resolve('Match Id is required');
 
@@ -118,7 +116,7 @@ export class MatchStats {
         });
     }
 
-    public async getMatchStatsByMatchId(options): Promise<{}> {
+    private getMatchStatsByMatchId(options): Promise<{}> {
         return new Promise(async (resolve, reject) => {
             let matchData = {};
 
@@ -127,13 +125,16 @@ export class MatchStats {
                 if (response.status === 200) {
                     const $ = cheerio.load(response.data);
 
-                    // split the string by spaces, -, / and brackets
-                    const currentTeamDataArray = $('span.ui-bat-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
-                    const otherTeamDataArray = $('span.ui-bowl-team-scores').text().trim().split(/[/\s/\-/\(/\)]/).filter(Boolean);
-                    const currentBatsman = $('span.bat-bowl-miniscore').eq(0).text().replace('*', '');
-                    const [currentBatsmanRuns, currentBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(6).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
-                    const otherBatsman = $('span.bat-bowl-miniscore').eq(1).text();
-                    const [otherBatsmanRuns, otherBatsmanBalls] = $('td[class="cbz-grid-table-fix "]').eq(11).text().split('(').map((item) => item.replace(/[\(\)]/g, ''));
+                    let currentTeamScoreString = $('span.cb-font-20.text-bold').text().trim();
+                    let otherTeamScoreString = $('div.cb-text-gray.cb-font-16').text().trim();
+                    const currentTeamDataArray = currentTeamScoreString.includes('&') ? this.parseTeamDataForTestMatches(currentTeamScoreString) : currentTeamScoreString.split(/[/\s/\-/\(/\)]/).filter(Boolean);
+                    const otherTeamDataArray = otherTeamScoreString.includes('&') ? this.parseTeamDataForTestMatches(otherTeamScoreString) : otherTeamScoreString.split(/[/\s/\-/\(/\)]/).filter(Boolean);
+                    const currentBatsman = $('div.cb-col.cb-col-50').eq(1).find('a').text();
+                    const currentBatsmanRuns = $('div.cb-col.cb-col-10.ab.text-right').eq(0).text();
+                    const currentBatsmanBalls = $('div.cb-col.cb-col-10.ab.text-right').eq(1).text();
+                    const otherBatsman = $('div.cb-col.cb-col-50').eq(2).find('a').text();
+                    const otherBatsmanRuns = $('div.cb-col.cb-col-10.ab.text-right').eq(2).text();
+                    const otherBatsmanBalls = $('div.cb-col.cb-col-10.ab.text-right').eq(3).text();
 
                     matchData = {
                         matchId: this.matchId,
@@ -165,8 +166,17 @@ export class MatchStats {
                                 balls: otherBatsmanBalls
                             }
                         },
-                        summary: $("div.cbz-ui-status").text().trim()
+                        summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim()
                     };
+
+                    // add previousInnings data if present in team1 and team2
+                    if (currentTeamDataArray.length > 4) {
+                        matchData['team1']['previousInnings'] = this.appendPreviousInningsData(currentTeamDataArray[4]);
+                    }
+
+                    if (otherTeamDataArray.length > 4) {
+                        matchData['team2']['previousInnings'] = this.appendPreviousInningsData(otherTeamDataArray[4]);
+                    }
 
                     return resolve(matchData);
                 }
@@ -174,5 +184,39 @@ export class MatchStats {
                 return reject(error);
             }
         });
+    }
+
+    private parseTeamDataForTestMatches(scoreString): Array<any> {
+        // Regular expression pattern to capture team name, score, wickets, and overs
+        const pattern = /([A-Za-z\s]+)\s+(\d+(?:\/\d+)?)(?:\s+&\s+(\d+\/\d+\s+\(\d+(?:\.\d+)?\)))?/;
+        let teamName = "", firstInnings = "", secondInnings = "", firstInningsData = [], secondInningsData = [];
+
+        const matchData = scoreString.match(pattern);
+
+        if (matchData) {
+            [, teamName, firstInnings, secondInnings] = matchData;
+
+            // Process first innings
+            firstInningsData = firstInnings.split(/[/\s/\-/\(/\)]/).filter(Boolean);
+
+            // Process second innings if present
+            if (secondInnings) {
+                secondInningsData = secondInnings.split(/[/\s/\-/\(/\)]/).filter(Boolean);
+            }
+        } else {
+            console.log("Invalid score format");
+        }
+
+        return secondInningsData.length > 0 ? [teamName, ...secondInningsData, firstInningsData] : [teamName, ...firstInningsData];
+    }
+
+
+
+    private appendPreviousInningsData(dataArray) {
+        // dataArray is an array containing [ runs, wickets ], flatten it to an object { runs, wickets }. If only runs is present, then wickets will be 10
+        return {
+            runs: dataArray[0],
+            wickets: dataArray.length > 1 ? dataArray[1] : "10"
+        };
     }
 }
