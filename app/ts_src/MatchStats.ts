@@ -1,121 +1,144 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MatchStats = void 0;
 const axios = require('axios');
 const cheerio = require('cheerio');
-const LiveMatches_1 = require("../LiveMatches/LiveMatches");
-const mongo = require('../../core/baseModel');
+import { LiveMatches } from './LiveMatches';
+const mongo = require('../core/baseModel');
 const _ = require('underscore');
-class MatchStats {
+import { writeLogInfo, writeLogError } from '../core/logger';
+
+interface LiveMatchesResponse {
+    matchUrl?: string;
+    matchName?: string;
+    matchId?: string;
+}
+export class MatchStats {
+    private matchId: string;
     constructor(matchId = "0") {
         this.matchId = matchId;
     }
-    getMatchStats() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                let data = [];
-                const liveMatchesObj = new LiveMatches_1.LiveMatches();
-                const liveMatchesResponse = yield liveMatchesObj.getMatches(this.matchId);
-                if (this.matchId === "0") {
-                    for (let key in liveMatchesResponse) {
-                        this.matchId = key;
-                        const scrapedData = yield this.scrapeData(liveMatchesResponse[key].matchUrl);
-                        _.extend(scrapedData, { matchName: liveMatchesResponse[key].matchName });
-                        data.push(scrapedData);
-                        // save data to db if not already exists
-                        const mongoData = yield mongo.findById(this.matchId, true);
-                        if (!mongoData.length) {
-                            let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
-                            // repalace key matchId with _id
-                            dataToInsert['_id'] = dataToInsert['matchId'];
-                            delete dataToInsert['matchId'];
-                            yield mongo.insert(dataToInsert, true);
-                        }
-                    }
-                    if (!data.length) {
-                        return resolve('No matches found');
-                    }
-                    return resolve(data);
-                }
-                else if (!!this.matchId) {
-                    let mongoData = yield mongo.findById(this.matchId, true);
-                    if (mongoData.length) {
-                        let returnObj = JSON.parse(JSON.stringify(mongoData[0]));
-                        // repalce key _id with matchId
-                        returnObj['matchId'] = returnObj['_id'];
-                        delete returnObj['_id'];
-                        delete returnObj['__v'];
-                        delete returnObj['createdAt'];
-                        return resolve(returnObj);
-                    }
-                    else if (_.has(liveMatchesResponse, 'matchId')) {
-                        const url = liveMatchesResponse.matchUrl;
-                        const scrapedData = yield this.scrapeData(url);
-                        _.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
-                        // insert data to db
-                        let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
-                        dataToInsert['_id'] = dataToInsert['matchId'];
-                        delete dataToInsert['matchId'];
-                        yield mongo.insert(dataToInsert, true);
-                        return resolve(scrapedData);
-                    }
-                    return resolve('Match Id is invalid');
-                }
-                return resolve('Invalid request');
-            }));
-        });
+
+    public async getMatchStats(): Promise<{}> {
+        try {
+            const liveMatchesObj = new LiveMatches();
+            const liveMatchesResponse: LiveMatchesResponse = await liveMatchesObj.getMatches(this.matchId);
+
+            if (this.matchId === "0") {
+                return await this.getStatsForAllMatches(liveMatchesResponse);
+            } else if (!!this.matchId) {
+                return await this.getStatsForSingleMatch(liveMatchesResponse);
+            }
+
+            return Promise.resolve('Invalid request');
+        } catch (error) {
+            writeLogError(['matchStats | getMatchStats |', error]);
+            return Promise.resolve("Something went wrong");
+        }
     }
-    scrapeData(url) {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            if (!this.matchId)
-                return resolve('Match Id is required');
+
+    private async getStatsForAllMatches(liveMatchesResponse: LiveMatchesResponse): Promise<{}> {
+        let data = [];
+        for (let key in liveMatchesResponse) {
+            this.matchId = key;
+            const scrapedData = await this.scrapeData(liveMatchesResponse[key].matchUrl);
+            _.extend(scrapedData, { matchName: liveMatchesResponse[key].matchName });
+            data.push(scrapedData);
+
+            // save data to db if not already exists
+            const mongoData = await mongo.findById(this.matchId, true);
+            if (!mongoData.length) {
+                let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+                // repalace key matchId with _id
+                dataToInsert['_id'] = dataToInsert['matchId'];
+                delete dataToInsert['matchId'];
+                await mongo.insert(dataToInsert, true);
+            }
+        }
+
+        if (!data.length) {
+            return Promise.resolve('No matches found');
+        }
+        return Promise.resolve(data);
+    }
+
+    private async getStatsForSingleMatch(liveMatchesResponse: LiveMatchesResponse): Promise<{}> {
+        let mongoData = await mongo.findById(this.matchId, true);
+        if (mongoData.length) {
+            let returnObj = JSON.parse(JSON.stringify(mongoData[0]));
+            // repalce key _id with matchId
+            returnObj['matchId'] = returnObj['_id'];
+
+            delete returnObj['_id'];
+            delete returnObj['__v'];
+            delete returnObj['createdAt'];
+
+            return Promise.resolve(returnObj);
+        } else if (_.has(liveMatchesResponse, 'matchId')) {
+            const url = liveMatchesResponse.matchUrl;
+            const scrapedData = await this.scrapeData(url);
+            _.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
+            // insert data to db
+            let dataToInsert = JSON.parse(JSON.stringify(scrapedData));
+            dataToInsert['_id'] = dataToInsert['matchId'];
+            delete dataToInsert['matchId'];
+            await mongo.insert(dataToInsert, true);
+
+            return Promise.resolve(scrapedData);
+        }
+
+        return Promise.resolve('Match Id is invalid');
+    }
+
+    private async scrapeData(url): Promise<{}> {
+        try {
+            if (!this.matchId) return Promise.resolve('Match Id is required');
+
             const options = {
                 url: 'https://www.cricbuzz.com' + url,
                 headers: {
                     'User-Agent': 'request'
                 }
             };
-            let tournamentName = yield this.getTournamentName(options);
-            let response = yield this.getMatchStatsByMatchId(options);
+
+            let tournamentName = await this.getTournamentName(options);
+
+            let response = await this.getMatchStatsByMatchId(options);
             response['tournamentName'] = tournamentName;
-            return resolve(response);
-        }));
+
+            return Promise.resolve(response);
+        } catch (error) {
+            writeLogError(['matchStats | scrapeData |', error]);
+            return Promise.reject(error);
+        }
     }
-    getTournamentName(options) {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            if (!this.matchId)
-                return resolve('Match Id is required');
+
+    private getTournamentName(options): Promise<{}> {
+        return new Promise(async (resolve, reject) => {
+            if (!this.matchId) return resolve('Match Id is required');
+
             try {
-                const response = yield axios(options);
+                const response = await axios(options);
                 if (response.status === 200) {
                     const $ = cheerio.load(response.data);
+
                     $('.cb-col.cb-col-100.cb-bg-white').each((i, el) => {
                         const tournamentName = $(el).find('a').attr('title');
                         return resolve(tournamentName);
                     });
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 return reject(error);
             }
-        }));
+        });
     }
-    getMatchStatsByMatchId(options) {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+
+    private getMatchStatsByMatchId(options): Promise<{}> {
+        return new Promise(async (resolve, reject) => {
             let matchData = {};
+
             try {
-                const response = yield axios(options);
+                const response = await axios(options);
                 if (response.status === 200) {
                     const $ = cheerio.load(response.data);
+
                     let currentTeamScoreString = $('span.cb-font-20.text-bold').text().trim();
                     let otherTeamScoreString = $('div.cb-text-gray.cb-font-16').text().trim();
                     const currentTeamDataArray = currentTeamScoreString.includes('&') ? this.parseTeamDataForTestMatches(currentTeamScoreString) : currentTeamScoreString.split(/[/\s/\-/\(/\)]/).filter(Boolean);
@@ -126,6 +149,7 @@ class MatchStats {
                     const otherBatsman = $('div.cb-col.cb-col-50').eq(2).find('a').text();
                     const otherBatsmanRuns = $('div.cb-col.cb-col-10.ab.text-right').eq(2).text();
                     const otherBatsmanBalls = $('div.cb-col.cb-col-10.ab.text-right').eq(3).text();
+
                     matchData = {
                         matchId: this.matchId,
                         team1: !currentTeamDataArray[0] ? {} : {
@@ -158,41 +182,49 @@ class MatchStats {
                         },
                         summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim()
                     };
+
                     // add previousInnings data if present in team1 and team2
                     if (currentTeamDataArray.length > 4) {
                         matchData['team1']['previousInnings'] = this.appendPreviousInningsData(currentTeamDataArray[4]);
                     }
+
                     if (otherTeamDataArray.length > 4) {
                         matchData['team2']['previousInnings'] = this.appendPreviousInningsData(otherTeamDataArray[4]);
                     }
+
                     return resolve(matchData);
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 return reject(error);
             }
-        }));
+        });
     }
-    parseTeamDataForTestMatches(scoreString) {
+
+    private parseTeamDataForTestMatches(scoreString): Array<any> {
         // Regular expression pattern to capture team name, score, wickets, and overs
         const pattern = /([A-Za-z\s]+)\s+(\d+(?:\/\d+)?)(?:\s+&\s+(\d+\/\d+\s+\(\d+(?:\.\d+)?\)))?/;
         let teamName = "", firstInnings = "", secondInnings = "", firstInningsData = [], secondInningsData = [];
+
         const matchData = scoreString.match(pattern);
+
         if (matchData) {
             [, teamName, firstInnings, secondInnings] = matchData;
+
             // Process first innings
             firstInningsData = firstInnings.split(/[/\s/\-/\(/\)]/).filter(Boolean);
+
             // Process second innings if present
             if (secondInnings) {
                 secondInningsData = secondInnings.split(/[/\s/\-/\(/\)]/).filter(Boolean);
             }
+        } else {
+            writeLogError(["Invalid score format"]);
         }
-        else {
-            console.log("Invalid score format");
-        }
+
         return secondInningsData.length > 0 ? [teamName, ...secondInningsData, firstInningsData] : [teamName, ...firstInningsData];
     }
-    appendPreviousInningsData(dataArray) {
+
+    private appendPreviousInningsData(dataArray) {
         // dataArray is an array containing [ runs, wickets ], flatten it to an object { runs, wickets }. If only runs is present, then wickets will be 10
         return {
             runs: dataArray[0],
@@ -200,4 +232,3 @@ class MatchStats {
         };
     }
 }
-exports.MatchStats = MatchStats;

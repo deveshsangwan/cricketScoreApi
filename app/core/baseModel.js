@@ -1,4 +1,5 @@
 const Mongoose = require('mongoose');
+const { writeLogInfo, writeLogError } = require('../core/logger');
 
 // define model
 const liveMatches = new Mongoose.Schema({
@@ -60,7 +61,7 @@ const findAll = (stats = false) => {
             let response = await Mongoose.model('matchStats', matchStats).find({});
             resolve(response);
         }).catch(err => {
-            console.log("findAll MATCH_STATS error: ", err);
+            writeLogError(["findAll MATCH_STATS error: ", err]);
         });
     }
 
@@ -68,7 +69,7 @@ const findAll = (stats = false) => {
         let response = await Mongoose.model('liveMatches', liveMatches).find({});
         resolve(response);
     }).catch(err => {
-        console.log("findAll LIVE_MATCHES error: ", err);
+        writeLogError(["findAll LIVE_MATCHES error: ", err]);
     });
 }
 
@@ -79,14 +80,14 @@ const findById = (matchId, stats = false) => {
             let response = await Mongoose.model('matchStats', matchStats).find({ _id: matchId });
             resolve(response);
         }).catch(err => {
-            console.log("findById MATCH_STATS error: ", err);
+            writeLogError(["findById MATCH_STATS error: ", err]);
         });
     }
     return new Promise(async (resolve, reject) => {
         let response = await Mongoose.model('liveMatches', liveMatches).find({ _id: matchId });
         resolve(response);
     }).catch(err => {
-        console.log("findById LIVE_MATCHES error: ", err);
+        writeLogError(["findById LIVE_MATCHES error: ", err]);
     });
 }
 
@@ -95,7 +96,7 @@ const findIdByMatchUrl = (matchUrl) => {
     return new Promise((resolve, reject) => {
         Mongoose.model('liveMatches', liveMatches).find({ matchUrl: matchUrl });
     }).catch(err => {
-        console.log("findIdByMatchUrl error: ", err);
+        writeLogError(["findIdByMatchUrl error: ", err]);
     });
 }
 
@@ -106,14 +107,14 @@ const insert = (data, stats = false) => {
             let response = await Mongoose.model('matchStats', matchStats).create(data);
             resolve(response);
         }).catch(err => {
-            console.log("insert MATCH_STATS error: ", err);
+            writeLogError(["insert MATCH_STATS error: ", err]);
         });
     }
     return new Promise(async (resolve, reject) => {
         let response = await Mongoose.model('liveMatches', liveMatches).create(data);
         resolve(response);
     }).catch(err => {
-        console.log("insert LIVE_MATCHES error: ", err);
+        writeLogError(["insert LIVE_MATCHES error: ", err]);
     });
 }
 
@@ -125,14 +126,14 @@ const insertMany = (matches, stats = false) => {
             let response = await Mongoose.model('matchStats', matchStats).insertMany(matches);
             resolve(response);
         }).catch(err => {
-            console.log("insertMany MATCH_STATS error: ", err);
+            writeLogError(["insertMany MATCH_STATS error: ", err]);
         });
     }
     return new Promise(async (resolve, reject) => {
         let response = await Mongoose.model('liveMatches', liveMatches).insertMany(matches);
         resolve(response);
     }).catch(err => {
-        console.log("insertMany LIVE_MATCHES error: ", err);
+        writeLogError(["insertMany LIVE_MATCHES error: ", err]);
     });
 }
 

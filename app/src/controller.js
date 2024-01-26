@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const LiveMatches_1 = require("./LiveMatches/LiveMatches");
-const MatchStats_1 = require("./MatchStats/MatchStats");
+const LiveMatches_1 = require("./LiveMatches");
+const MatchStats_1 = require("./MatchStats");
 const live = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const liveMatchesObj = new LiveMatches_1.LiveMatches();
     const liveMatchesResponse = yield liveMatchesObj.getMatches();

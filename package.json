@@ -22,8 +22,10 @@
     "express": "^4.18.2",
     "express-http-context": "^1.2.4",
     "mongoose": "^7.0.2",
+    "nconf": "^0.12.1",
     "randomstring": "^1.2.3",
     "typescript": "^5.1.6",
-    "underscore": "^1.13.6"
+    "underscore": "^1.13.6",
+    "winston": "^3.11.0"
   }
 }
