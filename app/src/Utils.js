@@ -16,7 +16,7 @@ const logger_1 = require("../core/logger");
 class Utils {
     constructor() {
     }
-    scrapeData(url) {
+    fetchData(url) {
         return __awaiter(this, void 0, void 0, function* () {
             const options = this.prepareRequestOptions(url);
             try {
@@ -25,6 +25,7 @@ class Utils {
                     const $ = cheerio.load(response.data);
                     return Promise.resolve($);
                 }
+                throw new Error(`Error while fetching data from url: ${url}`);
             }
             catch (error) {
                 (0, logger_1.writeLogError)(['Utils | scrapeData | error', error]);
