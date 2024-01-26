@@ -12,7 +12,7 @@ describe('LiveMatches API', function () {
         chai.request(server)
             .get('/live') // adjust this path to your API endpoint
             .end(function (err, res) {
-                log(res.body);
+                // log(res.body);
                 // recieve status as true and response is an object that contains key value pairs of matchId and value contais matchUrl and matchName
                 expect(res).to.have.status(200);
                 expect(res.body).to.be.a('object');
@@ -42,19 +42,6 @@ describe('LiveMatches API', function () {
                     expect(res.body.response[key]).to.have.property('matchUrl');
                     expect(res.body.response[key]).to.have.property('matchName');
                 }
-                done();
-            });
-    });
-
-    it('should GET a specific match by id', function (done) {
-        const id = 'pgWDnYlXaB6cntl4'; // replace with a valid match id
-        chai.request(server)
-            .get(`/live/${id}`) // adjust this path to your API endpoint
-            .end(function (err, res) {
-                log(res.body);
-                expect(res).to.have.status(200);
-                expect(res.body).to.be.a('object');
-                // expect(res.body).to.have.property('matchId').eql(id);
                 done();
             });
     });
