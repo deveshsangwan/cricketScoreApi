@@ -1,5 +1,5 @@
-import { LiveMatches } from "./LiveMatches/LiveMatches";
-import { MatchStats } from "./MatchStats/MatchStats";
+import { LiveMatches } from "./LiveMatches";
+import { MatchStats } from "./MatchStats";
 
 const live = async (req, res) => {
     const liveMatchesObj = new LiveMatches();

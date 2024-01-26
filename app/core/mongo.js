@@ -1,4 +1,5 @@
 const Mongoose = require('mongoose');
+const { writeLogInfo, writeLogError } = require(__basedir + 'app/core/logger');
 
 class Mongo {
     constructor() {
@@ -12,10 +13,10 @@ class Mongo {
             useUnifiedTopology: true
         })
             .then(() => {
-                console.log('Database connection successful');
+                writeLogInfo(['Database connection successful']);
             })
             .catch(err => {
-                console.error('Database connection error');
+                writeLogError(['Database connection error', err]);
             })
     }
 }
