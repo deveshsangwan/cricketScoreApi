@@ -1,4 +1,4 @@
-name: CI
+name: zDeploy selfhost
 on:
   push:
     branches:

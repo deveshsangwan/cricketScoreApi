@@ -9,38 +9,65 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const LiveMatches_1 = require("./LiveMatches/LiveMatches");
-const MatchStats_1 = require("./MatchStats/MatchStats");
+const LiveMatches_1 = require("./LiveMatches");
+const MatchStats_1 = require("./MatchStats");
 const live = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const liveMatchesObj = new LiveMatches_1.LiveMatches();
-    const liveMatchesResponse = yield liveMatchesObj.getMatches();
-    return res.status(200).send({
-        status: true,
-        message: 'Live Matches',
-        response: liveMatchesResponse
-    });
+    try {
+        const liveMatchesObj = new LiveMatches_1.LiveMatches();
+        const liveMatchesResponse = yield liveMatchesObj.getMatches();
+        return res.status(200).send({
+            status: true,
+            message: 'Live Matches',
+            response: liveMatchesResponse
+        });
+    }
+    catch (error) {
+        return res.status(500).send({
+            status: false,
+            message: 'Error fetching live matches',
+            error: error.message
+        });
+    }
 });
 const matchStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const matchId = req.params.matchId;
-    const matchStatsObj = new MatchStats_1.MatchStats(matchId);
-    const matchStatsResponse = yield matchStatsObj.getMatchStats();
-    return res.status(200).send({
-        status: true,
-        message: 'Match Stats',
-        response: matchStatsResponse
-    });
+    try {
+        const matchId = req.params.matchId;
+        const matchStatsObj = new MatchStats_1.MatchStats(matchId);
+        const matchStatsResponse = yield matchStatsObj.getMatchStats();
+        return res.status(200).send({
+            status: true,
+            message: 'Match Stats',
+            response: matchStatsResponse
+        });
+    }
+    catch (error) {
+        return res.status(500).send({
+            status: false,
+            message: 'Error fetching match stats',
+            error: error.message
+        });
+    }
 });
-const live1 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const matchStatsObj = new MatchStats_1.MatchStats();
-    const matchStatsResponse = yield matchStatsObj.getMatchStats();
-    return res.status(200).send({
-        status: true,
-        message: 'Match Stats',
-        response: matchStatsResponse
-    });
+const getMatchStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const matchStatsObj = new MatchStats_1.MatchStats();
+        const matchStatsResponse = yield matchStatsObj.getMatchStats();
+        return res.status(200).send({
+            status: true,
+            message: 'Match Stats',
+            response: matchStatsResponse
+        });
+    }
+    catch (error) {
+        return res.status(500).send({
+            status: false,
+            message: 'Error fetching match stats',
+            error: error.message
+        });
+    }
 });
 module.exports = {
     live,
     matchStats,
-    live1
+    getMatchStats
 };
