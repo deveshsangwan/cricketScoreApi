@@ -1,6 +1,5 @@
 import { Utils } from './Utils';
 import { writeLogInfo, writeLogError } from '../core/logger';
-const cheerio = require('cheerio');
 const randomstring = require("randomstring");
 const mongo = require('../core/baseModel');
 const _ = require('underscore');
@@ -48,7 +47,7 @@ export class LiveMatches {
             const response = await this.utilsObj.fetchData(url);
             let matchesData = this.processData(response, mongoData);
             // matches data is an array of 2 objects insert the second into db as first is already present and return both after combining
-            await this.insertData(matchesData[1]);
+            await this.utilsObj.insertDataToLiveMatchesTable(matchesData[1]);
             matchesData = _.extend(matchesData[0], matchesData[1]);
             return matchesData;
         } catch (error) {
@@ -74,15 +73,4 @@ export class LiveMatches {
         });
         return [matchesData1, matchesData];
     }
-
-    private async insertData(matchesData: { [key: string]: { matchUrl: string, matchName: string } }) {
-        const dataToInsert = Object.entries(matchesData).map(([key, value]) => ({
-            _id: key,
-            matchUrl: value.matchUrl,
-            matchName: value.matchName
-        }));
-
-        await mongo.insertMany(dataToInsert, this.tableName);
-    }
-
 }

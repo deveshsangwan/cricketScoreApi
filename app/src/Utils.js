@@ -13,6 +13,7 @@ exports.Utils = void 0;
 const axios = require('axios');
 const cheerio = require('cheerio');
 const logger_1 = require("../core/logger");
+const mongo = require('../core/baseModel');
 class Utils {
     constructor() {
     }
@@ -40,6 +41,25 @@ class Utils {
                 'User-Agent': 'request'
             }
         };
+    }
+    // function for inserting data into liveMatches table
+    insertDataToLiveMatchesTable(matchesData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const dataToInsert = Object.entries(matchesData).map(([key, value]) => ({
+                _id: key,
+                matchUrl: value.matchUrl,
+                matchName: value.matchName
+            }));
+            yield mongo.insertMany(dataToInsert, 'liveMatches');
+        });
+    }
+    // function for inserting data into matchStats table
+    insertDataToMatchStatsTable(scrapedData, matchId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const dataToInsert = Object.assign(Object.assign({}, scrapedData), { _id: matchId ? matchId : scrapedData['matchId'] });
+            delete dataToInsert['matchId'];
+            yield mongo.insert(dataToInsert, 'matchStats');
+        });
     }
 }
 exports.Utils = Utils;

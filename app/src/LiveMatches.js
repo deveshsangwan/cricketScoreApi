@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LiveMatches = void 0;
 const Utils_1 = require("./Utils");
 const logger_1 = require("../core/logger");
-const cheerio = require('cheerio');
 const randomstring = require("randomstring");
 const mongo = require('../core/baseModel');
 const _ = require('underscore');
@@ -58,7 +57,7 @@ class LiveMatches {
                 const response = yield this.utilsObj.fetchData(url);
                 let matchesData = this.processData(response, mongoData);
                 // matches data is an array of 2 objects insert the second into db as first is already present and return both after combining
-                yield this.insertData(matchesData[1]);
+                yield this.utilsObj.insertDataToLiveMatchesTable(matchesData[1]);
                 matchesData = _.extend(matchesData[0], matchesData[1]);
                 return matchesData;
             }
@@ -85,16 +84,6 @@ class LiveMatches {
             }
         });
         return [matchesData1, matchesData];
-    }
-    insertData(matchesData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const dataToInsert = Object.entries(matchesData).map(([key, value]) => ({
-                _id: key,
-                matchUrl: value.matchUrl,
-                matchName: value.matchName
-            }));
-            yield mongo.insertMany(dataToInsert, this.tableName);
-        });
     }
 }
 exports.LiveMatches = LiveMatches;
