@@ -121,24 +121,23 @@ export class MatchStats {
         let matchData = {};
 
         try {
-            let currentTeamScoreString = $('span.cb-font-20.text-bold').text().trim();
-            let otherTeamScoreString = $('div.cb-text-gray.cb-font-16').text().trim();
-            const currentTeamDataArray = this.getTeamData(currentTeamScoreString);
-            const otherTeamDataArray = this.getTeamData(otherTeamScoreString);
+            // if live match 'span.cb-font-20.text-bold' else 'h2.cb-col.cb-col-100.cb-min-tm.ng-binding'
+            let isLive = $('div.cb-text-complete').length === 0;
+            let currentTeamElement = isLive ? $('span.cb-font-20.text-bold') : $('div.cb-col.cb-col-100.cb-min-tm').eq(1);
+            let currentTeamScoreString = currentTeamElement.text().trim();
+            let otherTeamElement = isLive ? $('div.cb-text-gray.cb-font-16') : $('div.cb-col.cb-col-100.cb-min-tm.cb-text-gray');
+            let otherTeamScoreString = otherTeamElement.text().trim();
 
             matchData = {
                 matchId: this.matchId,
-                team1: this.getTeamObject(currentTeamDataArray, true),
-                team2: this.getTeamObject(otherTeamDataArray, false),
+                team1: this.getTeamData(currentTeamScoreString, true),
+                team2: this.getTeamData(otherTeamScoreString, false),
                 onBatting: {
                     player1: this.getBatsmanData($, 0),
                     player2: this.getBatsmanData($, 1)
                 },
                 summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim()
             };
-
-            this.addPreviousInningsData(matchData, currentTeamDataArray, 'team1');
-            this.addPreviousInningsData(matchData, otherTeamDataArray, 'team2');
 
             return Promise.resolve(matchData);
         } catch (error) {
@@ -147,18 +146,43 @@ export class MatchStats {
         }
     }
 
-    private getTeamData(scoreString: string): string[] {
-        return scoreString.includes('&') ? this.parseTeamDataForTestMatches(scoreString) : scoreString.split(/[/\s/\-/\(/\)]/).filter(Boolean);
-    }
+    private getTeamData(input: string, isBatting: boolean): { name: string, score: string, overs?: string, wickets: string, previousInnings?: { score: string, wickets: string } } {
+        const regex = /(\w+)\s+(\d+)(?:\/(\d+))?(?:\s*&\s*(\d+)(?:\/(\d+))?)?(?:\s*\(\s*([\d.]+)\s*\))?/;
+        const match = input.match(regex);
+    
+        if (!match) {
+            throw new Error("Invalid input format");
+        }
+    
+        const [, name, score1, wickets1, score2, wickets2, overs] = match;
+        let score, wickets, previousInnings;
+    
+        if (score2 !== undefined) {
+            // Two innings scenario
+            score = score2;
+            wickets = wickets2 !== undefined ? wickets2 : "10"; // If wickets are not provided, assume 10 wickets (all out)
+            previousInnings = { score: score1, wickets: wickets1 || "10" };
+        } else {
+            // Single innings scenario
+            score = score1;
+            wickets = wickets1 !== undefined ? wickets1 : "10"; // If wickets are not provided, assume 10 wickets (all out)
+        }
+    
+        const result: { isBatting: boolean, name: string, score: string, overs?: string, wickets: string, previousInnings?: { score: string, wickets: string } } = { name, score, wickets, isBatting: isBatting };
+    
+        if (overs && parseFloat(overs) > 0) {
+            result.overs = overs;
+        }
+    
+        if (previousInnings) {
+            result.previousInnings = { score: previousInnings.score, wickets: previousInnings.wickets };
+        }
 
-    private getTeamObject(teamDataArray: string[], isBatting: boolean): {} {
-        return !teamDataArray[0] ? {} : {
-            isBatting: isBatting,
-            name: teamDataArray[0],
-            score: teamDataArray[1],
-            overs: teamDataArray.length > 3 ? teamDataArray[3] : teamDataArray[2],
-            wickets: teamDataArray.length > 3 ? teamDataArray[2] : "10",
-        };
+    
+        // Remove undefined and 0 overs properties
+        Object.keys(result).forEach(key => (result[key] === undefined || (key === "overs" && result[key] === "0")) && delete result[key]);
+    
+        return result;
     }
 
     private getBatsmanData($, index: number): { name: string, runs: string, balls: string } {
@@ -167,38 +191,5 @@ export class MatchStats {
             runs: $('div.cb-col.cb-col-10.ab.text-right').eq(index * 2).text(),
             balls: $('div.cb-col.cb-col-10.ab.text-right').eq(index * 2 + 1).text()
         };
-    }
-
-    private addPreviousInningsData(matchData: {}, teamDataArray: string[], team: string) {
-        if (teamDataArray.length > 4) {
-            matchData[team]['previousInnings'] = {
-                runs: teamDataArray[0],
-                wickets: teamDataArray.length > 1 ? teamDataArray[1] : "10"
-            };
-        }
-    }
-
-    private parseTeamDataForTestMatches(scoreString): Array<any> {
-        // Regular expression pattern to capture team name, score, wickets, and overs
-        const pattern = /([A-Za-z\s]+)\s+(\d+(?:\/\d+)?)(?:\s+&\s+(\d+\/\d+\s+\(\d+(?:\.\d+)?\)))?/;
-        let teamName = "", firstInnings = "", secondInnings = "", firstInningsData: string[] = [], secondInningsData: string[] = [];
-
-        const matchData = scoreString.match(pattern);
-
-        if (matchData) {
-            [, teamName, firstInnings, secondInnings] = matchData;
-
-            // Process first innings
-            firstInningsData = firstInnings.split(/[/\s/\-/\(/\)]/).filter(Boolean);
-
-            // Process second innings if present
-            if (secondInnings) {
-                secondInningsData = secondInnings.split(/[/\s/\-/\(/\)]/).filter(Boolean);
-            }
-        } else {
-            writeLogError(["Invalid score format"]);
-        }
-
-        return secondInningsData.length > 0 ? [teamName, ...secondInningsData, firstInningsData] : [teamName, ...firstInningsData];
     }
 }
