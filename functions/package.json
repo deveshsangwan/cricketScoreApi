@@ -37,6 +37,7 @@
     "@types/sinon": "^17.0.2",
     "chai": "^4.3.10",
     "chai-http": "^4.4.0",
+    "istanbul-badges-readme": "^1.8.5",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "sinon": "^17.0.1",

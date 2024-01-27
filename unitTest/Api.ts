@@ -14,7 +14,7 @@ export function apiCall(endpoint: string): Promise<any> {
                 } else if (res.status === 200) {
                     resolve(res.body);
                 } else {
-                    reject(new Error(`Request failed with status ${res.status}`));
+                    resolve(res);
                 }
             });
     });

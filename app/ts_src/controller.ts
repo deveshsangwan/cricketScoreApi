@@ -24,8 +24,8 @@ const live = async (req: Request, res: Response) => {
 const matchStats = async (req: Request, res: Response) => {
     try {
         const matchId = req.params.matchId;
-        const matchStatsObj = new MatchStats(matchId);
-        const matchStatsResponse = await matchStatsObj.getMatchStats();
+        const matchStatsObj = new MatchStats();
+        const matchStatsResponse = await matchStatsObj.getMatchStats(matchId);
 
         return res.status(200).send({
             status: true,
@@ -44,7 +44,7 @@ const matchStats = async (req: Request, res: Response) => {
 const getMatchStats = async (req: Request, res: Response) => {
     try {
         const matchStatsObj = new MatchStats();
-        const matchStatsResponse = await matchStatsObj.getMatchStats();
+        const matchStatsResponse = await matchStatsObj.getMatchStats("0");
 
         return res.status(200).send({
             status: true,

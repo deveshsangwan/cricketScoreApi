@@ -16,34 +16,39 @@ const mongo = require('../core/baseModel');
 const _ = require('underscore');
 const logger_1 = require("../core/logger");
 class MatchStats {
-    constructor(matchId = "0") {
-        this.matchId = matchId;
+    constructor() {
         this.tableName = 'matchStats';
         this.liveMatchesObj = new LiveMatches_1.LiveMatches();
         this.utilsObj = new Utils_1.Utils();
     }
-    getMatchStats() {
+    getMatchStats(matchId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const liveMatchesResponse = yield this.liveMatchesObj.getMatches(this.matchId);
-                if (this.matchId === "0") {
-                    return this.getStatsForAllMatches(liveMatchesResponse);
+                if (!matchId) {
+                    throw new Error('Match Id is required');
                 }
-                else if (this.matchId) {
-                    return this.getStatsForSingleMatch(liveMatchesResponse);
+                // matchId should be 0 or alphanumeric string of length 16
+                if (matchId !== "0" && !matchId.match(/^[a-zA-Z0-9]{16}$/)) {
+                    throw new Error('Invalid match id');
                 }
-                throw new Error('Invalid request');
+                const liveMatchesResponse = yield this.liveMatchesObj.getMatches(matchId);
+                // If matchId is not "0", get stats for the single match
+                // Otherwise, get stats for all matches
+                if (matchId !== "0") {
+                    return this.getStatsForSingleMatch(liveMatchesResponse, matchId);
+                }
+                return this.getStatsForAllMatches(liveMatchesResponse);
             }
             catch (error) {
                 (0, logger_1.writeLogError)(['matchStats | getMatchStats | error', error]);
-                throw new Error("Something went wrong");
+                throw error; // re-throw the original error
             }
         });
     }
     getStatsForAllMatches(liveMatchesResponse) {
         return __awaiter(this, void 0, void 0, function* () {
             const dataPromises = Object.entries(liveMatchesResponse).map(([matchId, match]) => __awaiter(this, void 0, void 0, function* () {
-                const scrapedData = yield this.scrapeData(match.matchUrl);
+                const scrapedData = yield this.scrapeData(match.matchUrl, matchId);
                 _.extend(scrapedData, { matchName: match.matchName });
                 // save data to db if not already exists
                 const mongoData = yield mongo.findById(matchId, this.tableName);
@@ -59,9 +64,9 @@ class MatchStats {
             return data;
         });
     }
-    getStatsForSingleMatch(liveMatchesResponse) {
+    getStatsForSingleMatch(liveMatchesResponse, matchId) {
         return __awaiter(this, void 0, void 0, function* () {
-            let mongoData = yield mongo.findById(this.matchId, this.tableName);
+            let mongoData = yield mongo.findById(matchId, this.tableName);
             if (mongoData.length) {
                 // create a deep copy of the object and delete unwanted properties mongoData[0]
                 const returnObj = JSON.parse(JSON.stringify(mongoData[0]));
@@ -73,7 +78,7 @@ class MatchStats {
             }
             else if (_.has(liveMatchesResponse, 'matchId')) {
                 const url = liveMatchesResponse.matchUrl;
-                const scrapedData = yield this.scrapeData(url);
+                const scrapedData = yield this.scrapeData(url, matchId);
                 _.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
                 yield this.utilsObj.insertDataToMatchStatsTable(scrapedData);
                 return scrapedData;
@@ -81,15 +86,15 @@ class MatchStats {
             return 'Match Id is invalid';
         });
     }
-    scrapeData(url) {
+    scrapeData(url, matchId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!this.matchId)
+                if (!matchId)
                     return Promise.resolve('Match Id is required');
                 url = 'https://www.cricbuzz.com' + url;
                 const response = yield this.utilsObj.fetchData(url);
                 let tournamentName = yield this.getTournamentName(response);
-                let finalResponse = yield this.getMatchStatsByMatchId(response);
+                let finalResponse = yield this.getMatchStatsByMatchId(response, matchId);
                 finalResponse['tournamentName'] = tournamentName;
                 return Promise.resolve(finalResponse);
             }
@@ -114,7 +119,7 @@ class MatchStats {
             }
         });
     }
-    getMatchStatsByMatchId($) {
+    getMatchStatsByMatchId($, matchId) {
         let matchData = {};
         try {
             // if live match 'span.cb-font-20.text-bold' else 'h2.cb-col.cb-col-100.cb-min-tm.ng-binding'
@@ -124,7 +129,7 @@ class MatchStats {
             let otherTeamElement = isLive ? $('div.cb-text-gray.cb-font-16') : $('div.cb-col.cb-col-100.cb-min-tm.cb-text-gray');
             let otherTeamScoreString = otherTeamElement.text().trim();
             matchData = {
-                matchId: this.matchId,
+                matchId: matchId,
                 team1: this.getTeamData(currentTeamScoreString, true),
                 team2: this.getTeamData(otherTeamScoreString),
                 onBatting: {
