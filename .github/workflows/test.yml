@@ -26,9 +26,8 @@ jobs:
       
       - name: Commit coverage badge
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "dev.sangwan2001@gmail.com"
+          git config --local user.name "deveshsangwan"
           git add README.md
           git commit -m "Update coverage badge" -a
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/deveshsangwan/cricketScoreApi.git
-          git push origin HEAD:main
+          git push
