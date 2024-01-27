@@ -30,6 +30,5 @@ jobs:
           git config --local user.name "GitHub Action"
           git add README.md
           git commit -m "Update coverage badge" -a
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/deveshsangwan/cricketScoreApi.git
           git push origin HEAD:main
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
