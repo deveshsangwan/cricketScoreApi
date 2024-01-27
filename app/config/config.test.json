@@ -4,6 +4,6 @@
     },
     "logging": {
         "label": "cricketScoreApi",
-        "consoleLevel": "debug"
+        "consoleLevel": "warn"
     }
 }

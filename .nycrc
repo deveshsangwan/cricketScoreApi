@@ -5,7 +5,8 @@
         "html",
         "lcov",
         "text",
-        "text-summary"
+        "text-summary",
+        "json-summary"
     ],
     "check-coverage": true,
     "lines": 80,
