@@ -99,7 +99,7 @@ export class MatchStats {
 
             return Promise.resolve(finalResponse);
         } catch (error) {
-            writeLogError(['matchStats | scrapeData |', error]);
+            writeLogError(['matchStats | scrapeData |', error, url]);
             return Promise.reject(error);
         }
     }
@@ -131,7 +131,7 @@ export class MatchStats {
             matchData = {
                 matchId: this.matchId,
                 team1: this.getTeamData(currentTeamScoreString, true),
-                team2: this.getTeamData(otherTeamScoreString, false),
+                team2: this.getTeamData(otherTeamScoreString),
                 onBatting: {
                     player1: this.getBatsmanData($, 0),
                     player2: this.getBatsmanData($, 1)
@@ -146,12 +146,12 @@ export class MatchStats {
         }
     }
 
-    private getTeamData(input: string, isBatting: boolean): { name: string, score: string, overs?: string, wickets: string, previousInnings?: { score: string, wickets: string } } {
+    private getTeamData(input: string, isBatting: boolean = false): { name: string, score: string, overs?: string, wickets: string, previousInnings?: { score: string, wickets: string } } | {} {
         const regex = /(\w+)\s+(\d+)(?:\/(\d+))?(?:\s*&\s*(\d+)(?:\/(\d+))?)?(?:\s*\(\s*([\d.]+)\s*\))?/;
         const match = input.match(regex);
-    
         if (!match) {
-            throw new Error("Invalid input format");
+            writeLogInfo(['matchStats | getTeamData | input', input]);
+            return {}
         }
     
         const [, name, score1, wickets1, score2, wickets2, overs] = match;

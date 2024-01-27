@@ -1,9 +1,13 @@
 const Mongoose = require('mongoose');
 const { writeLogInfo, writeLogError } = require('../core/logger');
 
+const MODEL_NAMES = {
+    LIVE_MATCHES: 'liveMatches',
+    MATCH_STATS: 'matchStats'
+};
+
 // define model
 const liveMatches = new Mongoose.Schema({
-    // add ttl of 1 minutes
     _id: {
         type: String,
         required: true
@@ -19,7 +23,6 @@ const liveMatches = new Mongoose.Schema({
 });
 
 const matchStats = new Mongoose.Schema({
-    // add ttl of 1 minutes
     createdAt: {
         type: Date,
         default: Date.now
@@ -54,8 +57,8 @@ const matchStats = new Mongoose.Schema({
     },
 });
 
-const LiveMatches = Mongoose.model('liveMatches', liveMatches);
-const MatchStats = Mongoose.model('matchStats', matchStats);
+const LiveMatches = Mongoose.model(MODEL_NAMES.LIVE_MATCHES, liveMatches);
+const MatchStats = Mongoose.model(MODEL_NAMES.MATCH_STATS, matchStats);
 
 // find all matches
 const findAll = async (modelName) => {
@@ -82,13 +85,14 @@ const findById = async (matchId, modelName) => {
 };
 
 // find id by match url
-const findIdByMatchUrl = (matchUrl) => {
-    return new Promise((resolve, reject) => {
-        Mongoose.model('liveMatches', liveMatches).find({ matchUrl: matchUrl });
-    }).catch(err => {
+const findIdByMatchUrl = async (matchUrl) => {
+    try {
+        return await Mongoose.model(MODEL_NAMES.LIVE_MATCHES).find({ matchUrl: matchUrl });
+    } catch (err) {
         writeLogError(["findIdByMatchUrl error: ", err]);
-    });
-}
+        throw err;
+    }
+};
 
 // insert one match
 const insert = async (data, modelName) => {
