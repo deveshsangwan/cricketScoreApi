@@ -1,5 +1,5 @@
 import { apiCall } from './Api';
-import { MatchStats } from '../app/ts_src/MatchStats';
+import { MatchStats } from '../app/src/MatchStats';
 import { testData } from './MatchStats.test.data';
 import chai from 'chai';
 
@@ -20,10 +20,36 @@ describe('MatchStats API', function () {
     it('should GET a specific match by id', async function () {
         this.timeout(20000);
         const id = 'nLSAYi2BckuKRVA8'; // replace with a valid match id
-    
+
         try {
             const body = await apiCall(`/matchStats/${id}`);
             assert.equal(body.status, true);
+        } catch (err) {
+            assert.fail(`${ErrorMessage} ${err.message}`);
+        }
+    });
+
+    it('returns an error for invalid match id', async function () {
+        this.timeout(20000);
+        const { id, expectedOutput } = testData.invalidMatchId;
+
+        try {
+            const res = await apiCall(`/matchStats/${id}`);
+            assert.equal(res.status, 500);
+            assert.deepEqual(res.body, expectedOutput);
+        } catch (err) {
+            assert.fail(`${ErrorMessage} ${err.message}`);
+        }
+    });
+
+    it('returns an error for valid but non-existent match id', async function () {
+        this.timeout(20000);
+        const { id, expectedOutput } = testData.nonExistentMatchId;
+
+        try {
+            const res = await apiCall(`/matchStats/${id}`);
+            assert.equal(res.status, 500);
+            assert.deepEqual(res.body, expectedOutput);
         } catch (err) {
             assert.fail(`${ErrorMessage} ${err.message}`);
         }
@@ -36,6 +62,23 @@ describe('MatchStats API', function () {
             assert.equal(body.status, true);
         } catch (err) {
             assert.fail(`${ErrorMessage} ${err.message}`);
+        }
+    });
+});
+
+describe('MatchStats | getMatchStats function', function () {
+    let matchStatsObj: MatchStats;
+
+    beforeEach(() => {
+        matchStatsObj = new MatchStats();
+    });
+
+    it('should throw an error when matchId is undefined or null', async () => {
+        try {
+            await matchStatsObj.getMatchStats(undefined);
+            assert.fail('Expected getMatchStats to throw an error');
+        } catch (error) {
+            assert.equal(error.message, 'Match Id is required');
         }
     });
 });

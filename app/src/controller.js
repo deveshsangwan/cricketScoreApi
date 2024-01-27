@@ -32,8 +32,8 @@ const live = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 const matchStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const matchId = req.params.matchId;
-        const matchStatsObj = new MatchStats_1.MatchStats(matchId);
-        const matchStatsResponse = yield matchStatsObj.getMatchStats();
+        const matchStatsObj = new MatchStats_1.MatchStats();
+        const matchStatsResponse = yield matchStatsObj.getMatchStats(matchId);
         return res.status(200).send({
             status: true,
             message: 'Match Stats',
@@ -51,7 +51,7 @@ const matchStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 const getMatchStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const matchStatsObj = new MatchStats_1.MatchStats();
-        const matchStatsResponse = yield matchStatsObj.getMatchStats();
+        const matchStatsResponse = yield matchStatsObj.getMatchStats("0");
         return res.status(200).send({
             status: true,
             message: 'Match Stats',

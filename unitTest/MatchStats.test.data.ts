@@ -1,6 +1,20 @@
 export const testData = {
-    matchId: 'nLSAYi2BckuKRVA8',
-    liveEndpoint: '/live1',
+    invalidMatchId: {
+        id: undefined,
+        expectedOutput: {
+            status: false,
+            message: 'Error fetching match stats',
+            error: 'Invalid match id'
+        }
+    },
+    nonExistentMatchId: {
+        id: 'nCSAYi2BckuKRVA8',
+        expectedOutput: {
+            status: false,
+            message: 'Error fetching match stats',
+            error: 'No match found with id: nCSAYi2BckuKRVA8'
+          }
+    },
     teamDataStandardCase: {
         inputString: 'CBD 74/3 (9.1)',
         expectedOutput: {
