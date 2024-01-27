@@ -20,8 +20,8 @@ const errorHandler = (fn) => async (req, res) => {
 
 module.exports = function (app) {
     app.use('/', router);
-    router.get('/live', errorHandler(controller.live));
-    router.get('/live/:matchId', errorHandler(controller.matchStats));
-    router.get('/live1', errorHandler(controller.getMatchStats));
+    router.get('/liveMatches', errorHandler(controller.live));
+    router.get('/matchStats/:matchId', errorHandler(controller.matchStats));
+    router.get('/matchStats', errorHandler(controller.getMatchStats));
 }
 
