@@ -11,7 +11,7 @@ describe('LiveMatches API', function () {
     it('should GET all the live matches', function (done) {
         this.timeout(20000);
         chai.request(server)
-            .get('/live') // adjust this path to your API endpoint
+            .get('/liveMatches') // adjust this path to your API endpoint
             .end(function (err, res) {
                 // log(res.body);
                 // recieve status as true and response is an object that contains key value pairs of matchId and value contais matchUrl and matchName
