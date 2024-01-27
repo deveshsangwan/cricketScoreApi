@@ -26,8 +26,8 @@ jobs:
       
       - name: Commit coverage badge
         run: |
-          git config --local user.email "dev.sangwan2001@gmail.com"
-          git config --local user.name "deveshsangwan"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add README.md
           git commit -m "Update coverage badge" -a
-          git push
+          # git push
