@@ -16,7 +16,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "18"
+          node-version: "20"
 
       - name: Install Dependencies
         run: npm i
@@ -24,6 +24,10 @@ jobs:
       - name: Run Tests
         run: npm run test:coverage
 
+      - name: Check for changes
+        run: |
+          git status
+      
       - name: Commit coverage badge
         run: |
           git config --local user.email "action@github.com"
