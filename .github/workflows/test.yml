@@ -30,4 +30,6 @@ jobs:
           git config --local user.name "GitHub Action"
           git add README.md
           git commit -m "Update coverage badge" -a
-          git push
+          git push origin HEAD:main
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
