@@ -24,10 +24,10 @@ jobs:
       - name: Run Tests
         run: npm run test:coverage
       
-      - name: Commit coverage badge
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add README.md
-          git commit -m "Update coverage badge" -a
-          # git push
+      # - name: Commit coverage badge
+      #   run: |
+      #     git config --local user.email "action@github.com"
+      #     git config --local user.name "GitHub Action"
+      #     git add README.md
+      #     git commit -m "Update coverage badge" -a
+      #     git push
