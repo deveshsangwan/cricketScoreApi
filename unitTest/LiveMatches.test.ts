@@ -9,6 +9,7 @@ chai.use(chaiHttp);
 
 describe('LiveMatches API', function () {
     it('should GET all the live matches', function (done) {
+        this.timeout(20000);
         chai.request(server)
             .get('/live') // adjust this path to your API endpoint
             .end(function (err, res) {

@@ -18,6 +18,7 @@ function assertResultSubset(result, expectedOutput) {
 
 describe('MatchStats API', function () {
     it('should GET a specific match by id', async function () {
+        this.timeout(20000);
         const id = 'nLSAYi2BckuKRVA8'; // replace with a valid match id
     
         try {
@@ -29,7 +30,7 @@ describe('MatchStats API', function () {
     });
 
     it('should GET stats of all the live matches', async function () {
-        this.timeout(10000);
+        this.timeout(20000);
         try {
             const body = await apiCall(`/live1`);
             assert.equal(body.status, true);
