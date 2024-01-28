@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10,12 +33,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatchStats = void 0;
-const LiveMatches_1 = require("./LiveMatches");
-const Utils_1 = require("./Utils");
-const mongo = require('../core/baseModel');
+const LiveMatches_1 = require("../LiveMatches");
+const Utils_1 = require("../Utils");
+const mongo = __importStar(require("../../core/baseModel"));
+const logger_1 = require("../../core/logger");
+const errors_1 = require("../errors");
+const MatchUtils_1 = require("./MatchUtils");
 const _ = require('underscore');
-const logger_1 = require("../core/logger");
-const errors_1 = require("./errors");
 class MatchStats {
     constructor() {
         this.tableName = 'matchStats';
@@ -48,12 +72,14 @@ class MatchStats {
     }
     getStatsForAllMatches(liveMatchesResponse) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Fetch all data from the database at once
+            const allMongoData = yield mongo.findAll(this.tableName);
             const dataPromises = Object.entries(liveMatchesResponse).map(([matchId, match]) => __awaiter(this, void 0, void 0, function* () {
                 const scrapedData = yield this.scrapeData(match.matchUrl, matchId);
                 _.extend(scrapedData, { matchName: match.matchName });
-                // save data to db if not already exists
-                const mongoData = yield mongo.findById(matchId, this.tableName);
-                if (!mongoData.length) {
+                // Check if data already exists in the fetched data
+                const mongoData = allMongoData.find(data => data._id === matchId);
+                if (!mongoData) {
                     yield this.utilsObj.insertDataToMatchStatsTable(scrapedData, matchId);
                 }
                 return Object.assign(Object.assign({}, scrapedData), { matchId: matchId });
@@ -69,12 +95,16 @@ class MatchStats {
         return __awaiter(this, void 0, void 0, function* () {
             let mongoData = yield mongo.findById(matchId, this.tableName);
             if (mongoData.length) {
-                // create a deep copy of the object and delete unwanted properties mongoData[0]
-                const returnObj = JSON.parse(JSON.stringify(mongoData[0]));
-                returnObj['matchId'] = returnObj['_id'];
-                delete returnObj['_id'];
-                delete returnObj['__v'];
-                delete returnObj['createdAt'];
+                // Only add the properties you need
+                const returnObj = {
+                    matchId: mongoData[0]._id,
+                    team1: mongoData[0].team1,
+                    team2: mongoData[0].team2,
+                    onBatting: mongoData[0].onBatting,
+                    summary: mongoData[0].summary,
+                    tournamentName: mongoData[0].tournamentName,
+                    matchName: mongoData[0].matchName
+                };
                 return returnObj;
             }
             else if (_.has(liveMatchesResponse, 'matchId')) {
@@ -121,68 +151,28 @@ class MatchStats {
         });
     }
     getMatchStatsByMatchId($, matchId) {
-        let matchData = {};
-        try {
-            // if live match 'span.cb-font-20.text-bold' else 'h2.cb-col.cb-col-100.cb-min-tm.ng-binding'
-            let isLive = $('div.cb-text-complete').length === 0;
-            let currentTeamElement = isLive ? $('span.cb-font-20.text-bold') : $('div.cb-col.cb-col-100.cb-min-tm').eq(1);
-            let currentTeamScoreString = currentTeamElement.text().trim();
-            let otherTeamElement = isLive ? $('div.cb-text-gray.cb-font-16') : $('div.cb-col.cb-col-100.cb-min-tm.cb-text-gray');
-            let otherTeamScoreString = otherTeamElement.text().trim();
-            matchData = {
-                matchId: matchId,
-                team1: this.getTeamData(currentTeamScoreString, true),
-                team2: this.getTeamData(otherTeamScoreString),
-                onBatting: {
-                    player1: this.getBatsmanData($, 0),
-                    player2: this.getBatsmanData($, 1)
-                },
-                summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim()
-            };
-            return Promise.resolve(matchData);
-        }
-        catch (error) {
-            (0, logger_1.writeLogError)(['matchStats | getMatchStatsByMatchId |', error]);
-            throw error;
-        }
-    }
-    getTeamData(input, isBatting = false) {
-        const regex = /(\w+)\s+(\d+)(?:\/(\d+))?(?:\s*&\s*(\d+)(?:\/(\d+))?)?(?:\s*\(\s*([\d.]+)\s*\))?/;
-        const match = input.match(regex);
-        if (!match) {
-            (0, logger_1.writeLogInfo)(['matchStats | getTeamData | input', input]);
-            return {};
-        }
-        const [, name, score1, wickets1, score2, wickets2, overs] = match;
-        let score, wickets, previousInnings;
-        if (score2 !== undefined) {
-            // Two innings scenario
-            score = score2;
-            wickets = wickets2 !== undefined ? wickets2 : "10"; // If wickets are not provided, assume 10 wickets (all out)
-            previousInnings = { score: score1, wickets: wickets1 || "10" };
-        }
-        else {
-            // Single innings scenario
-            score = score1;
-            wickets = wickets1 !== undefined ? wickets1 : "10"; // If wickets are not provided, assume 10 wickets (all out)
-        }
-        const result = { name, score, wickets, isBatting: isBatting };
-        if (overs && parseFloat(overs) > 0) {
-            result.overs = overs;
-        }
-        if (previousInnings) {
-            result.previousInnings = { score: previousInnings.score, wickets: previousInnings.wickets };
-        }
-        // Remove undefined and 0 overs properties
-        Object.keys(result).forEach(key => (result[key] === undefined || (key === "overs" && result[key] === "0")) && delete result[key]);
-        return result;
-    }
-    getBatsmanData($, index) {
-        return {
-            name: $('div.cb-col.cb-col-50').eq(index + 1).find('a').text(),
-            runs: $('div.cb-col.cb-col-10.ab.text-right').eq(index * 2).text(),
-            balls: $('div.cb-col.cb-col-10.ab.text-right').eq(index * 2 + 1).text()
-        };
+        return new Promise((resolve, reject) => {
+            try {
+                let isLive = $('div.cb-text-complete').length === 0;
+                let currentTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, true);
+                let otherTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, false);
+                let matchData = {
+                    matchId: matchId,
+                    team1: (0, MatchUtils_1.getTeamData)(currentTeamScoreString, true),
+                    team2: (0, MatchUtils_1.getTeamData)(otherTeamScoreString),
+                    onBatting: {
+                        player1: (0, MatchUtils_1.getBatsmanData)($, 0),
+                        player2: (0, MatchUtils_1.getBatsmanData)($, 1)
+                    },
+                    summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim()
+                };
+                resolve(matchData);
+            }
+            catch (error) {
+                (0, logger_1.writeLogError)(['matchStats | getMatchStatsByMatchId |', error]);
+                reject(error);
+            }
+        });
     }
 }
 exports.MatchStats = MatchStats;
