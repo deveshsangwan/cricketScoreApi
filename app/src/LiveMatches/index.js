@@ -93,7 +93,7 @@ class LiveMatches {
         const MATCH_ID_LENGTH = 16;
         const existingMatches = {};
         const newMatches = {};
-        $('.cb-col-100 .cb-col .cb-schdl').each((i, el) => {
+        $('.cb-col-100 .cb-col .cb-schdl').each((_, el) => {
             const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
             const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
             if (matchUrl && matchName) {

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const LiveMatches_1 = require("./LiveMatches");
 const MatchStats_1 = require("./MatchStats");
-const live = async (req, res) => {
+const live = async (_req, res) => {
     try {
         const liveMatchesObj = new LiveMatches_1.LiveMatches();
         const liveMatchesResponse = await liveMatchesObj.getMatches();
@@ -39,7 +39,7 @@ const matchStats = async (req, res) => {
         });
     }
 };
-const getMatchStats = async (req, res) => {
+const getMatchStats = async (_req, res) => {
     try {
         const matchStatsObj = new MatchStats_1.MatchStats();
         const matchStatsResponse = await matchStatsObj.getMatchStats("0");

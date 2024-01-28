@@ -1,5 +1,5 @@
 import { Utils } from '../Utils';
-import { writeLogInfo, writeLogError } from '../../core/logger';
+import { writeLogError } from '../../core/logger';
 import { MatchData } from './LiveMatchesInterfaces';
 import { insertDataToLiveMatchesTable } from './LiveMatchesUtility';
 import { CustomError } from '../errors';
@@ -71,7 +71,7 @@ export class LiveMatches {
         const existingMatches: Record<string, MatchData> = {};
         const newMatches: Record<string, MatchData> = {};
     
-        $('.cb-col-100 .cb-col .cb-schdl').each((i, el) => {
+        $('.cb-col-100 .cb-col .cb-schdl').each((_, el) => {
             const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
             const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
     

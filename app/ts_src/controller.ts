@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { LiveMatches } from "./LiveMatches";
 import { MatchStats } from "./MatchStats";
 
-const live = async (req: Request, res: Response) => {
+const live = async (_req: Request, res: Response) => {
     try {
         const liveMatchesObj = new LiveMatches();
         const liveMatchesResponse = await liveMatchesObj.getMatches();
@@ -41,7 +41,7 @@ const matchStats = async (req: Request, res: Response) => {
     }
 }
 
-const getMatchStats = async (req: Request, res: Response) => {
+const getMatchStats = async (_req: Request, res: Response) => {
     try {
         const matchStatsObj = new MatchStats();
         const matchStatsResponse = await matchStatsObj.getMatchStats("0");

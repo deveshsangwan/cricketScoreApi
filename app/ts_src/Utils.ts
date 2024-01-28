@@ -1,6 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-import { writeLogInfo, writeLogError } from '../core/logger';
+import { writeLogError } from '../core/logger';
 import * as mongo from '../core/baseModel';
 
 export class Utils {
