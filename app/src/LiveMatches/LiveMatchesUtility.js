@@ -32,46 +32,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Utils = void 0;
-const axios = require('axios');
-const cheerio = require('cheerio');
-const logger_1 = require("../core/logger");
-const mongo = __importStar(require("../core/baseModel"));
-class Utils {
-    constructor() {
-    }
-    fetchData(url) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const options = this.prepareRequestOptions(url);
-            try {
-                const response = yield axios(options);
-                if (response.status === 200) {
-                    const $ = cheerio.load(response.data);
-                    return Promise.resolve($);
-                }
-                throw new Error(`Error while fetching data from url: ${url}`);
-            }
-            catch (error) {
-                (0, logger_1.writeLogError)(['Utils | scrapeData | error', error]);
-                return Promise.reject(error);
-            }
-        });
-    }
-    prepareRequestOptions(url) {
-        return {
-            url,
-            headers: {
-                'User-Agent': 'request'
-            }
-        };
-    }
-    // function for inserting data into matchStats table
-    insertDataToMatchStatsTable(scrapedData, matchId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const dataToInsert = Object.assign(Object.assign({}, scrapedData), { _id: matchId ? matchId : scrapedData['matchId'] });
-            delete dataToInsert['matchId'];
-            yield mongo.insert(dataToInsert, 'matchStats');
-        });
-    }
+exports.insertDataToLiveMatchesTable = void 0;
+const mongo = __importStar(require("../../core/baseModel"));
+function insertDataToLiveMatchesTable(matchesData) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const dataToInsert = Object.entries(matchesData).map(([key, value]) => ({
+            _id: key,
+            matchUrl: value.matchUrl,
+            matchName: value.matchName
+        }));
+        yield mongo.insertMany(dataToInsert, 'liveMatches');
+    });
 }
-exports.Utils = Utils;
+exports.insertDataToLiveMatchesTable = insertDataToLiveMatchesTable;

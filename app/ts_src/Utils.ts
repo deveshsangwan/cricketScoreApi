@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 import { writeLogInfo, writeLogError } from '../core/logger';
-const mongo = require('../core/baseModel');
+import * as mongo from '../core/baseModel';
 
 export class Utils {
     constructor() {
@@ -30,17 +30,6 @@ export class Utils {
                 'User-Agent': 'request'
             }
         };
-    }
-
-    // function for inserting data into liveMatches table
-    public async insertDataToLiveMatchesTable(matchesData: { [key: string]: { matchUrl: string, matchName: string } }) {
-        const dataToInsert = Object.entries(matchesData).map(([key, value]) => ({
-            _id: key,
-            matchUrl: value.matchUrl,
-            matchName: value.matchName
-        }));
-
-        await mongo.insertMany(dataToInsert, 'liveMatches');
     }
 
     // function for inserting data into matchStats table

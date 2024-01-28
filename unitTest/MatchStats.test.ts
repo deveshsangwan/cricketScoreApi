@@ -1,5 +1,6 @@
 import { apiCall } from './Api';
 import { MatchStats } from '../app/src/MatchStats';
+import { getTeamData } from '../app/src/MatchStats/MatchUtils';
 import { testData } from './TestData/MatchStats';
 import { assert } from 'chai';
 
@@ -86,7 +87,7 @@ describe('MatchStats | getTeamData function', function () {
 
     function runTestWithSubsetDeepEqual(inputString: string, expectedOutput: any) {
         try {
-            const result = (matchStatsObj as any).getTeamData(inputString);
+            const result = getTeamData(inputString);
             assertResultSubset(result, expectedOutput);
         } catch (error) {
             assert.fail(`Failed to get team data with input "${inputString}": ${error.message}`);
@@ -95,7 +96,7 @@ describe('MatchStats | getTeamData function', function () {
 
     function runTestWithDeepEqual(inputString: string, expectedOutput: any) {
         try {
-            const result = (matchStatsObj as any).getTeamData(inputString);
+            const result = getTeamData(inputString);
             assert.deepEqual(result, expectedOutput);
         } catch (error) {
             assert.fail(`Failed to get team data with input "${inputString}": ${error.message}`);
