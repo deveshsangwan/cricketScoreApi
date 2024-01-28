@@ -20,6 +20,7 @@ export interface ITeamData {
 
 export interface MatchData {
     matchId: string;
+    isLive: boolean;
     team1: ITeamData | {};
     team2: ITeamData | {};
     onBatting: {

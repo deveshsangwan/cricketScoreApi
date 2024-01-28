@@ -127,7 +127,7 @@ class MatchStats {
             if (elements.length === 0) {
                 throw new Error('No elements found with the selector .cb-col.cb-col-100.cb-bg-white');
             }
-            const tournamentNames = elements.map((i, el) => $(el).find('a').attr('title')).get();
+            const tournamentNames = elements.map((_, el) => $(el).find('a').attr('title')).get();
             return tournamentNames[0];
         }
         catch (error) {
@@ -148,7 +148,8 @@ class MatchStats {
                         player1: (0, MatchUtils_1.getBatsmanData)($, 0),
                         player2: (0, MatchUtils_1.getBatsmanData)($, 1)
                     },
-                    summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim()
+                    summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim(),
+                    isLive: isLive
                 };
                 resolve(matchData);
             }

@@ -53,4 +53,10 @@ export const testData = {
             }
         }
     },
+    getTournamentNameErrorHandling: {
+        input: {
+            length: 0
+        },
+        expectedOutput: 'Error while fetching tournament name: No elements found with the selector .cb-col.cb-col-100.cb-bg-white'
+    },
 };

@@ -3,6 +3,7 @@ import { MatchStats } from '../app/src/MatchStats';
 import { getTeamData } from '../app/src/MatchStats/MatchUtils';
 import { testData } from './TestData/MatchStats';
 import { assert } from 'chai';
+import sinon from 'sinon';
 
 const ErrorMessage = 'Test failed due to error:';
 const TIMEOUT = 20000;
@@ -130,5 +131,30 @@ describe('MatchStats | getTeamData function', function () {
     it('returns an empty object for an empty input string', function () {
         const inputString = '';
         runTestWithDeepEqual(inputString, {});
+    });
+});
+
+describe('MatchStats | getTournamentName function', function () {
+    let $;
+    let matchStatsObj: MatchStats = new MatchStats();
+
+    beforeEach(() => {
+        $ = sinon.stub();
+    });
+
+    afterEach(() => {
+        sinon.restore();
+    });
+
+    it('throws an error if no elements found', async () => {
+        const { input, expectedOutput } = testData.getTournamentNameErrorHandling;
+        $.returns(input);
+        try {
+            await matchStatsObj.getTournamentName($);
+            assert.fail('Expected getTournamentName to throw an error');
+        } catch (error) {
+            assert.isTrue($.calledWith('.cb-col.cb-col-100.cb-bg-white'));
+            assert.equal(error.message, expectedOutput);
+        }
     });
 });

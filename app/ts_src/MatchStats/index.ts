@@ -1,9 +1,9 @@
 import { LiveMatches } from '../LiveMatches';
 import { Utils } from '../Utils';
 import * as mongo from '../../core/baseModel';
-import { writeLogInfo, writeLogError } from '../../core/logger';
+import { writeLogError } from '../../core/logger';
 import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from '../errors';
-import { LiveMatchesResponse, ITeamData, MatchData } from './MatchStatsInterfaces';
+import { LiveMatchesResponse, MatchData } from './MatchStatsInterfaces';
 import { getTeamScoreString, getTeamData, getBatsmanData } from './MatchUtils'
 const _ = require('underscore');
 
@@ -123,7 +123,7 @@ export class MatchStats {
             if (elements.length === 0) {
                 throw new Error('No elements found with the selector .cb-col.cb-col-100.cb-bg-white');
             }
-            const tournamentNames = elements.map((i, el) => $(el).find('a').attr('title')).get();
+            const tournamentNames = elements.map((_, el) => $(el).find('a').attr('title')).get();
             return tournamentNames[0];
         } catch (error) {
             throw new Error(`Error while fetching tournament name: ${error.message}`);
@@ -145,7 +145,8 @@ export class MatchStats {
                         player1: getBatsmanData($, 0),
                         player2: getBatsmanData($, 1)
                     },
-                    summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim()
+                    summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim(),
+                    isLive: isLive
                 };
     
                 resolve(matchData);
