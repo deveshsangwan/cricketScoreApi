@@ -1,10 +1,10 @@
 import { apiCall } from './Api';
 import { MatchStats } from '../app/src/MatchStats';
-import { testData } from './MatchStats.test.data';
-import chai from 'chai';
+import { testData } from './TestData/MatchStats';
+import { assert } from 'chai';
 
-const { assert } = chai;
 const ErrorMessage = 'Test failed due to error:';
+const TIMEOUT = 20000;
 
 function assertResultSubset(result, expectedOutput) {
     const resultSubset = Object.keys(expectedOutput).reduce((subset, key) => {
@@ -17,8 +17,9 @@ function assertResultSubset(result, expectedOutput) {
 }
 
 describe('MatchStats API', function () {
-    it('should GET a specific match by id', async function () {
-        this.timeout(20000);
+    this.timeout(TIMEOUT);
+
+    it('retrieves a specific match by id', async function () {
         const id = 'nLSAYi2BckuKRVA8'; // replace with a valid match id
 
         try {
@@ -29,8 +30,7 @@ describe('MatchStats API', function () {
         }
     });
 
-    it('returns an error for invalid match id', async function () {
-        this.timeout(20000);
+    it('returns a 500 status for an invalid match id', async function () {
         const { id, expectedOutput } = testData.invalidMatchId;
 
         try {
@@ -42,8 +42,7 @@ describe('MatchStats API', function () {
         }
     });
 
-    it('returns an error for valid but non-existent match id', async function () {
-        this.timeout(20000);
+    it('returns a 500 status for a valid but non-existent match id', async function () {
         const { id, expectedOutput } = testData.nonExistentMatchId;
 
         try {
@@ -55,8 +54,7 @@ describe('MatchStats API', function () {
         }
     });
 
-    it('should GET stats of all the live matches', async function () {
-        this.timeout(20000);
+    it('retrieves stats for all live matches', async function () {
         try {
             const body = await apiCall(`/matchStats`);
             assert.equal(body.status, true);
