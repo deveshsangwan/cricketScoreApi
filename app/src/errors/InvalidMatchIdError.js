@@ -8,3 +8,4 @@ class InvalidMatchIdError extends Error {
     }
 }
 exports.InvalidMatchIdError = InvalidMatchIdError;
+//# sourceMappingURL=InvalidMatchIdError.js.map

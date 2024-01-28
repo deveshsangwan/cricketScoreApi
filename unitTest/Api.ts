@@ -10,6 +10,7 @@ export function apiCall(endpoint: string): Promise<any> {
             .get(endpoint)
             .end(function (err, res) {
                 if (err) {
+                    console.error(err);
                     reject(err);
                 } else if (res.status === 200) {
                     resolve(res.body);

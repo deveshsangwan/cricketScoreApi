@@ -4,8 +4,8 @@ import { MatchData } from './LiveMatchesInterfaces';
 import { insertDataToLiveMatchesTable } from './LiveMatchesUtility';
 import { CustomError } from '../errors';
 import * as mongo from '../../core/baseModel';
-const randomstring = require("randomstring");
-const _ = require('underscore');
+import randomstring from "randomstring";
+import _ from 'underscore';
 
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 
@@ -18,9 +18,9 @@ export class LiveMatches {
         this.utilsObj = new Utils();
     }
 
-    private handleError(location: string, error: Error) {
+    private handleError(location: string, error: Error): Promise<never> {
         writeLogError([`${location} | error`, error]);
-        throw new CustomError(error.message);
+        return Promise.reject(new CustomError(error.message));
     }
 
     public async getMatches(matchId = "0"): Promise<{}> {
@@ -41,7 +41,7 @@ export class LiveMatches {
                 throw new Error(`No match found with id: ${matchId}`);
             }
         } catch (error) {
-            this.handleError('LiveMatches | getMatchById', error);
+            return this.handleError('LiveMatches | getMatchById', error);
         }
     }
 
@@ -50,11 +50,11 @@ export class LiveMatches {
             const mongoData = await mongo.findAll(this.tableName);
             return this.scrapeData(mongoData);
         } catch (error) {
-            this.handleError('LiveMatches | getAllMatches', error);
+            return this.handleError('LiveMatches | getAllMatches', error);
         }
     }
 
-    private async scrapeData(mongoData: any): Promise<{}> {
+    private async scrapeData(mongoData: any[]): Promise<{}> {
         try {
             const response = await this.utilsObj.fetchData(MATCH_URL);
             let matchesData = this.processData(response, mongoData);
@@ -62,11 +62,11 @@ export class LiveMatches {
             matchesData = _.extend(matchesData[0], matchesData[1]);
             return matchesData;
         } catch (error) {
-            this.handleError('LiveMatches | scrapeData', error);
+            return this.handleError('LiveMatches | scrapeData', error);
         }
     }
 
-    private processData($, mongoData): [Record<string, MatchData>, Record<string, MatchData>] {
+    private processData($: any, mongoData: any[]): [Record<string, MatchData>, Record<string, MatchData>] {
         const MATCH_ID_LENGTH = 16;
         const existingMatches: Record<string, MatchData> = {};
         const newMatches: Record<string, MatchData> = {};
