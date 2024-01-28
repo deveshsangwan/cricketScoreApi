@@ -7,8 +7,8 @@
     "dev": "tsc -p . -w & export NODE_ENV=development && nodemon build/index.js",
     "start": "NODE_ENV=production node build/index.js",
     "build": "tsc -p . -w & export NODE_ENV=production",
-    "test": "NODE_ENV=test mocha -r ts-node/register -r unitTest/setup.js unitTest/**/* --exit",
-    "test:coverage": "NODE_ENV=test nyc mocha -r ts-node/register -r unitTest/setup.js unitTest/**/* --exit && npm run posttest",
+    "test": "NODE_ENV=test mocha -r ts-node/register -r unitTest/setup.js \"unitTest/*test.ts\" \"unitTest/**/*.test.ts\" --exit",
+    "test:coverage": "NODE_ENV=test nyc mocha -r ts-node/register -r unitTest/setup.js \"unitTest/*test.ts\" \"unitTest/**/*.test.ts\" --exit && npm run posttest",
     "posttest": "istanbul-badges-readme"
   },
   "keywords": [],

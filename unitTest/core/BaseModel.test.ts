@@ -9,76 +9,36 @@ describe('BaseModel Error handling', () => {
         sinon.restore();
     });
 
-    it('findAll: should handle errors', async () => {
-        const modelStub = sinon.stub(Mongoose, 'model').returns({
-            find: sinon.stub().throws(error),
-        });
+    const testErrorHandling = async (method, modelReturn, modelArgs, expectedModelName, expectedArgs) => {
+        const methodStub = sinon.stub().throws(error);
+        const modelStub = sinon.stub(Mongoose, 'model').returns(modelReturn(methodStub));
 
         try {
-            await findAll('matchStats');
+            await method(...modelArgs);
         } catch (e) {
-            assert.isTrue(modelStub.calledWith('matchStats'));
+            assert.isTrue(modelStub.calledWith(expectedModelName));
+            assert.isTrue(methodStub.calledWith(expectedArgs));
             assert.equal(e, error);
         }
+    };
+
+    it('findAll: should handle errors', async () => {
+        await testErrorHandling(findAll, stub => ({ find: stub }), ['matchStats'], 'matchStats', sinon.match.any);
     });
 
     it('findById: should handle errors', async () => {
-        const findStub = sinon.stub().throws(error);
-        const modelStub = sinon.stub(Mongoose, 'model').returns({
-            find: findStub,
-        });
-    
-        try {
-            await findById('testId', 'matchStats');
-        } catch (e) {
-            assert.isTrue(modelStub.calledWith('matchStats'));
-            assert.isTrue(findStub.calledWith({ _id: 'testId' }));
-            assert.equal(e, error);
-        }
+        await testErrorHandling(findById, stub => ({ find: stub }), ['testId', 'matchStats'], 'matchStats', { _id: 'testId' });
     });
 
     it('findIdByMatchUrl: should handle errors', async () => {
-        const findStub = sinon.stub().throws(error);
-        const modelStub = sinon.stub(Mongoose, 'model').returns({
-            find: findStub,
-        });
-    
-        try {
-            await findIdByMatchUrl('testUrl');
-        } catch (e) {
-            assert.isTrue(modelStub.calledWith('liveMatches'));
-            assert.isTrue(findStub.calledWith({ matchUrl: 'testUrl' }));
-            assert.equal(e, error);
-        }
+        await testErrorHandling(findIdByMatchUrl, stub => ({ find: stub }), ['testUrl'], 'liveMatches', { matchUrl: 'testUrl' });
     });
 
     it('insert: should handle errors', async () => {
-        const createStub = sinon.stub().throws(error);
-        const modelStub = sinon.stub(Mongoose, 'model').returns({
-            create: createStub,
-        });
-    
-        try {
-            await insert('testData', 'matchStats');
-        } catch (e) {
-            assert.isTrue(modelStub.calledWith('matchStats'));
-            assert.isTrue(createStub.calledWith('testData'));
-            assert.equal(e, error);
-        }
+        await testErrorHandling(insert, stub => ({ create: stub }), ['testData', 'matchStats'], 'matchStats', 'testData');
     });
 
-    it.only('insertMany: should handle errors', async () => {
-        const insertManyStub = sinon.stub().throws(error);
-        const modelStub = sinon.stub(Mongoose, 'model').returns({
-            insertMany: insertManyStub,
-        });
-    
-        try {
-            await insertMany('testData', 'matchStats');
-        } catch (e) {
-            assert.isTrue(modelStub.calledWith('matchStats'));
-            assert.isTrue(insertManyStub.calledWith('testData'));
-            assert.equal(e, error);
-        }
+    it('insertMany: should handle errors', async () => {
+        await testErrorHandling(insertMany, stub => ({ insertMany: stub }), ['testData', 'matchStats'], 'matchStats', 'testData');
     });
 });

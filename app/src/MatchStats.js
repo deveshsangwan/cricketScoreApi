@@ -15,6 +15,7 @@ const Utils_1 = require("./Utils");
 const mongo = require('../core/baseModel');
 const _ = require('underscore');
 const logger_1 = require("../core/logger");
+const errors_1 = require("./errors");
 class MatchStats {
     constructor() {
         this.tableName = 'matchStats';
@@ -25,11 +26,11 @@ class MatchStats {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!matchId) {
-                    throw new Error('Match Id is required');
+                    throw new errors_1.MatchIdRequriedError();
                 }
                 // matchId should be 0 or alphanumeric string of length 16
                 if (matchId !== "0" && !matchId.match(/^[a-zA-Z0-9]{16}$/)) {
-                    throw new Error('Invalid match id');
+                    throw new errors_1.InvalidMatchIdError(matchId);
                 }
                 const liveMatchesResponse = yield this.liveMatchesObj.getMatches(matchId);
                 // If matchId is not "0", get stats for the single match
@@ -59,7 +60,7 @@ class MatchStats {
             }));
             const data = yield Promise.all(dataPromises);
             if (!data.length) {
-                return 'No matches found';
+                throw new errors_1.NoMatchesFoundError();
             }
             return data;
         });

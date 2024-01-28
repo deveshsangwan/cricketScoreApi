@@ -3,6 +3,7 @@ import { Utils } from './Utils';
 const mongo = require('../core/baseModel');
 const _ = require('underscore');
 import { writeLogInfo, writeLogError } from '../core/logger';
+import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from './errors';
 
 interface LiveMatchesResponse {
     matchUrl?: string;
@@ -24,12 +25,12 @@ export class MatchStats {
     public async getMatchStats(matchId: string): Promise<{}> {
         try {
             if (!matchId) {
-                throw new Error('Match Id is required');
+                throw new MatchIdRequriedError();
             }
     
             // matchId should be 0 or alphanumeric string of length 16
             if (matchId !== "0" && !matchId.match(/^[a-zA-Z0-9]{16}$/)) {
-                throw new Error('Invalid match id');
+                throw new InvalidMatchIdError(matchId);
             }
     
             const liveMatchesResponse = await this.liveMatchesObj.getMatches(matchId);
@@ -64,7 +65,7 @@ export class MatchStats {
         const data = await Promise.all(dataPromises);
 
         if (!data.length) {
-            return 'No matches found';
+            throw new NoMatchesFoundError();
         }
 
         return data;

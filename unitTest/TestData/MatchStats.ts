@@ -4,7 +4,7 @@ export const testData = {
         expectedOutput: {
             status: false,
             message: 'Error fetching match stats',
-            error: 'Invalid match id'
+            error: 'Invalid match id: undefined'
         }
     },
     nonExistentMatchId: {
