@@ -36,3 +36,4 @@ function getBatsmanData($, index) {
     };
 }
 exports.getBatsmanData = getBatsmanData;
+//# sourceMappingURL=MatchUtils.js.map

@@ -83,7 +83,6 @@ describe('MatchStats | getMatchStats function', function () {
 });
 
 describe('MatchStats | getTeamData function', function () {
-    let matchStatsObj: MatchStats;
 
     function runTestWithSubsetDeepEqual(inputString: string, expectedOutput: any) {
         try {
@@ -102,10 +101,6 @@ describe('MatchStats | getTeamData function', function () {
             assert.fail(`Failed to get team data with input "${inputString}": ${error.message}`);
         }
     }
-
-    beforeEach(() => {
-        matchStatsObj = new MatchStats();
-    });
 
     it('returns correct team data for standard input', function () {
         const { inputString, expectedOutput } = testData.teamDataStandardCase;

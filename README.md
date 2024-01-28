@@ -12,8 +12,8 @@ Welcome to the Cricket Score API! This project is designed to provide real-time 
 
 Our aim is to maintain high code coverage to ensure the quality of the project. Here are our current stats:
 
-![Functions](https://img.shields.io/badge/functions-86.15%25-yellow.svg?style=flat)
-![Lines](https://img.shields.io/badge/lines-90.35%25-brightgreen.svg?style=flat)
+![Functions](https://img.shields.io/badge/functions-96.07%25-brightgreen.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-91%25-brightgreen.svg?style=flat)
 
 ## Getting Started
 

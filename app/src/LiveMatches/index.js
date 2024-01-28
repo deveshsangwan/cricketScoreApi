@@ -22,14 +22,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LiveMatches = void 0;
@@ -38,68 +32,62 @@ const logger_1 = require("../../core/logger");
 const LiveMatchesUtility_1 = require("./LiveMatchesUtility");
 const errors_1 = require("../errors");
 const mongo = __importStar(require("../../core/baseModel"));
-const randomstring = require("randomstring");
-const _ = require('underscore');
+const randomstring_1 = __importDefault(require("randomstring"));
+const underscore_1 = __importDefault(require("underscore"));
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 class LiveMatches {
+    tableName;
+    utilsObj;
     constructor() {
         this.tableName = 'liveMatches';
         this.utilsObj = new Utils_1.Utils();
     }
     handleError(location, error) {
         (0, logger_1.writeLogError)([`${location} | error`, error]);
-        throw new errors_1.CustomError(error.message);
+        return Promise.reject(new errors_1.CustomError(error.message));
     }
-    getMatches(matchId = "0") {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (matchId !== "0") {
-                return this.getMatchById(matchId);
-            }
-            return this.getAllMatches();
-        });
+    async getMatches(matchId = "0") {
+        if (matchId !== "0") {
+            return this.getMatchById(matchId);
+        }
+        return this.getAllMatches();
     }
-    getMatchById(matchId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const mongoData = yield mongo.findById(matchId, this.tableName);
-                if (mongoData.length) {
-                    mongoData[0]['matchId'] = mongoData[0]['_id'];
-                    delete mongoData[0]['_id'];
-                    return mongoData[0];
-                }
-                else {
-                    throw new Error(`No match found with id: ${matchId}`);
-                }
+    async getMatchById(matchId) {
+        try {
+            const mongoData = await mongo.findById(matchId, this.tableName);
+            if (mongoData.length) {
+                mongoData[0]['matchId'] = mongoData[0]['_id'];
+                delete mongoData[0]['_id'];
+                return mongoData[0];
             }
-            catch (error) {
-                this.handleError('LiveMatches | getMatchById', error);
+            else {
+                throw new Error(`No match found with id: ${matchId}`);
             }
-        });
+        }
+        catch (error) {
+            return this.handleError('LiveMatches | getMatchById', error);
+        }
     }
-    getAllMatches() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const mongoData = yield mongo.findAll(this.tableName);
-                return this.scrapeData(mongoData);
-            }
-            catch (error) {
-                this.handleError('LiveMatches | getAllMatches', error);
-            }
-        });
+    async getAllMatches() {
+        try {
+            const mongoData = await mongo.findAll(this.tableName);
+            return this.scrapeData(mongoData);
+        }
+        catch (error) {
+            return this.handleError('LiveMatches | getAllMatches', error);
+        }
     }
-    scrapeData(mongoData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const response = yield this.utilsObj.fetchData(MATCH_URL);
-                let matchesData = this.processData(response, mongoData);
-                yield (0, LiveMatchesUtility_1.insertDataToLiveMatchesTable)(matchesData[1]);
-                matchesData = _.extend(matchesData[0], matchesData[1]);
-                return matchesData;
-            }
-            catch (error) {
-                this.handleError('LiveMatches | scrapeData', error);
-            }
-        });
+    async scrapeData(mongoData) {
+        try {
+            const response = await this.utilsObj.fetchData(MATCH_URL);
+            let matchesData = this.processData(response, mongoData);
+            await (0, LiveMatchesUtility_1.insertDataToLiveMatchesTable)(matchesData[1]);
+            matchesData = underscore_1.default.extend(matchesData[0], matchesData[1]);
+            return matchesData;
+        }
+        catch (error) {
+            return this.handleError('LiveMatches | scrapeData', error);
+        }
     }
     processData($, mongoData) {
         const MATCH_ID_LENGTH = 16;
@@ -114,7 +102,7 @@ class LiveMatches {
                     existingMatches[existingMatch._id] = { matchUrl, matchName };
                 }
                 else {
-                    const matchId = randomstring.generate({ length: MATCH_ID_LENGTH, charset: 'alphanumeric' });
+                    const matchId = randomstring_1.default.generate({ length: MATCH_ID_LENGTH, charset: 'alphanumeric' });
                     newMatches[matchId] = { matchUrl, matchName };
                 }
             }
@@ -126,3 +114,4 @@ class LiveMatches {
     }
 }
 exports.LiveMatches = LiveMatches;
+//# sourceMappingURL=index.js.map

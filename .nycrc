@@ -1,6 +1,6 @@
 {
     "extends": "@istanbuljs/nyc-config-typescript",
-    "all": false,
+    "all": true,
     "reporter": [
         "html",
         "lcov",
@@ -15,8 +15,9 @@
         "**/unitTest/**",
         "**/*.spec.js",
         "coverage/**",
-        "app/ts_src/**",
         "build/**",
         "./**"
-    ]
+    ],
+    "sourceMap": true,
+    "instrument": true
 }

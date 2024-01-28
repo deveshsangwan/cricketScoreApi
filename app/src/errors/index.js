@@ -18,3 +18,4 @@ __exportStar(require("./CustomError"), exports);
 __exportStar(require("./InvalidMatchIdError"), exports);
 __exportStar(require("./MatchIdRequriedError"), exports);
 __exportStar(require("./NoMatchesFoundError"), exports);
+//# sourceMappingURL=index.js.map
