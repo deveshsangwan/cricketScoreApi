@@ -1,15 +1,24 @@
+# Use multi-stage build
 FROM node:alpine
 
 ENV NODE_VERSION 18.16.0
 
 WORKDIR /usr/app
-COPY ./ /usr/app
 
-RUN apk --no-cache add bash
-RUN apk --no-cache --virtual build-dependencies add
+# Copy package.json and package-lock.json first
+COPY package*.json ./
+
+# Set NODE_ENV to production before running npm install
+ENV NODE_ENV production
+
+# Install bash
+RUN apk add --no-cache bash
+
 RUN npm cache clean --force
 RUN npm install
-RUN apk del build-dependencies
+
+# Copy the rest of the application code
+COPY ./ .
 
 ENV NODE_PORT 3000
 ENV NODE_ENV production

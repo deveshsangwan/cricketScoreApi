@@ -3,4 +3,4 @@ export const testData = {
         route: '/live',
         expectedOutput: { status: false, statusMessage: '404 - Page not found' }
     }
-}
+};

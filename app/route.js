@@ -22,4 +22,4 @@ module.exports = function (app) {
     router.get('/liveMatches', errorHandler(controller.live));
     router.get('/matchStats/:matchId', errorHandler(controller.matchStats));
     router.get('/matchStats', errorHandler(controller.getMatchStats));
-}
+};

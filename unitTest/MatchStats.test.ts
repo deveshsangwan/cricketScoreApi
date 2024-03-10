@@ -58,7 +58,7 @@ describe('MatchStats API', function () {
 
     it('retrieves stats for all live matches', async function () {
         try {
-            const body = await apiCall(`/matchStats`);
+            const body = await apiCall('/matchStats');
             assert.equal(body.status, true);
         } catch (err) {
             assert.fail(`${ErrorMessage} ${err.message}`);
@@ -85,21 +85,21 @@ describe('MatchStats | getMatchStats function', function () {
 
 describe('MatchStats | getTeamData function', function () {
 
-    function runTestWithSubsetDeepEqual(inputString: string, expectedOutput: any) {
+    function runTestWithSubsetDeepEqual(inputString: string, expectedOutput: object) {
         try {
             const result = getTeamData(inputString);
             assertResultSubset(result, expectedOutput);
         } catch (error) {
-            assert.fail(`Failed to get team data with input "${inputString}": ${error.message}`);
+            assert.fail(`Failed to get team data with input '${inputString}': ${error.message}`);
         }
     }
 
-    function runTestWithDeepEqual(inputString: string, expectedOutput: any) {
+    function runTestWithDeepEqual(inputString: string, expectedOutput: object) {
         try {
             const result = getTeamData(inputString);
             assert.deepEqual(result, expectedOutput);
         } catch (error) {
-            assert.fail(`Failed to get team data with input "${inputString}": ${error.message}`);
+            assert.fail(`Failed to get team data with input '${inputString}': ${error.message}`);
         }
     }
 
@@ -136,7 +136,7 @@ describe('MatchStats | getTeamData function', function () {
 
 describe('MatchStats | getTournamentName function', function () {
     let $;
-    let matchStatsObj: MatchStats = new MatchStats();
+    const matchStatsObj: MatchStats = new MatchStats();
 
     beforeEach(() => {
         $ = sinon.stub();

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { LiveMatches } from "./LiveMatches";
-import { MatchStats } from "./MatchStats";
+import { LiveMatches } from './LiveMatches';
+import { MatchStats } from './MatchStats';
 
 const live = async (_req: Request, res: Response) => {
     try {
@@ -39,12 +39,12 @@ const matchStats = async (req: Request, res: Response) => {
             error: error.message
         });
     }
-}
+};
 
 const getMatchStats = async (_req: Request, res: Response) => {
     try {
         const matchStatsObj = new MatchStats();
-        const matchStatsResponse = await matchStatsObj.getMatchStats("0");
+        const matchStatsResponse = await matchStatsObj.getMatchStats('0');
 
         return res.status(200).send({
             status: true,
@@ -58,7 +58,7 @@ const getMatchStats = async (_req: Request, res: Response) => {
             error: error.message
         });
     }
-}
+};
 
 module.exports = {
     live,

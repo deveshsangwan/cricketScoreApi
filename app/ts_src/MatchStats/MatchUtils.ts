@@ -2,7 +2,7 @@ import { writeLogInfo } from '../../core/logger';
 import { ITeamData } from './MatchStatsInterfaces';
 
 export function getTeamScoreString($, isLive: boolean, isCurrentTeam: boolean): string {
-    let element = isLive 
+    const element = isLive 
         ? (isCurrentTeam ? $('span.cb-font-20.text-bold') : $('div.cb-text-gray.cb-font-16')) 
         : $('div.cb-col.cb-col-100.cb-min-tm').eq(isCurrentTeam ? 1 : 0);
     return element.text().trim();
@@ -16,7 +16,7 @@ export function getTeamData(input: string, isBatting: boolean = false): ITeamDat
         return {};
     }
 
-    const [, name, score1, wickets1 = "10", score2, wickets2 = "10", overs] = match;
+    const [, name, score1, wickets1 = '10', score2, wickets2 = '10', overs] = match;
     const hasTwoInnings = score2 !== undefined;
     const score = hasTwoInnings ? score2 : score1;
     const wickets = hasTwoInnings ? wickets2 : wickets1;

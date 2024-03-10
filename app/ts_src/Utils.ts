@@ -18,7 +18,7 @@ export class Utils {
 
             throw new Error(`Error while fetching data from url: ${url}`);
         } catch (error) {
-            writeLogError(['Utils | scrapeData | error', error])
+            writeLogError(['Utils | scrapeData | error', error]);
             return Promise.reject(error);
         }
     }
@@ -34,7 +34,7 @@ export class Utils {
 
     // function for inserting data into matchStats table
     public async insertDataToMatchStatsTable(scrapedData: { [key: string]: any }, matchId?: string) {
-        const dataToInsert = { ...scrapedData, _id: matchId ? matchId : scrapedData['matchId'] }
+        const dataToInsert = { ...scrapedData, _id: matchId ? matchId : scrapedData['matchId'] };
         delete dataToInsert['matchId'];
         await mongo.insert(dataToInsert, 'matchStats');
     }

@@ -46,13 +46,13 @@ class MatchStats {
                 throw new errors_1.MatchIdRequriedError();
             }
             // matchId should be 0 or alphanumeric string of length 16
-            if (matchId !== "0" && !matchId.match(/^[a-zA-Z0-9]{16}$/)) {
+            if (matchId !== '0' && !matchId.match(/^[a-zA-Z0-9]{16}$/)) {
                 throw new errors_1.InvalidMatchIdError(matchId);
             }
             const liveMatchesResponse = await this.liveMatchesObj.getMatches(matchId);
-            // If matchId is not "0", get stats for the single match
+            // If matchId is not '0', get stats for the single match
             // Otherwise, get stats for all matches
-            if (matchId !== "0") {
+            if (matchId !== '0') {
                 return this.getStatsForSingleMatch(liveMatchesResponse, matchId);
             }
             return this.getStatsForAllMatches(liveMatchesResponse);
@@ -82,7 +82,7 @@ class MatchStats {
         return data;
     }
     async getStatsForSingleMatch(liveMatchesResponse, matchId) {
-        let mongoData = await mongo.findById(matchId, this.tableName);
+        const mongoData = await mongo.findById(matchId, this.tableName);
         if (mongoData.length) {
             // Only add the properties you need
             const returnObj = {
@@ -107,12 +107,13 @@ class MatchStats {
     }
     async scrapeData(url, matchId) {
         try {
-            if (!matchId)
+            if (!matchId) {
                 return Promise.resolve('Match Id is required');
+            }
             url = 'https://www.cricbuzz.com' + url;
             const response = await this.utilsObj.fetchData(url);
-            let tournamentName = await this.getTournamentName(response);
-            let finalResponse = await this.getMatchStatsByMatchId(response, matchId);
+            const tournamentName = await this.getTournamentName(response);
+            const finalResponse = await this.getMatchStatsByMatchId(response, matchId);
             finalResponse['tournamentName'] = tournamentName;
             return Promise.resolve(finalResponse);
         }
@@ -137,10 +138,10 @@ class MatchStats {
     getMatchStatsByMatchId($, matchId) {
         return new Promise((resolve, reject) => {
             try {
-                let isLive = $('div.cb-text-complete').length === 0;
-                let currentTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, true);
-                let otherTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, false);
-                let matchData = {
+                const isLive = $('div.cb-text-complete').length === 0;
+                const currentTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, true);
+                const otherTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, false);
+                const matchData = {
                     matchId: matchId,
                     team1: (0, MatchUtils_1.getTeamData)(currentTeamScoreString, true),
                     team2: (0, MatchUtils_1.getTeamData)(otherTeamScoreString),

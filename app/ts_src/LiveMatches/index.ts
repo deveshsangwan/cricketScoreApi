@@ -4,7 +4,7 @@ import { MatchData } from './LiveMatchesInterfaces';
 import { insertDataToLiveMatchesTable } from './LiveMatchesUtility';
 import { CustomError } from '../errors';
 import * as mongo from '../../core/baseModel';
-import randomstring from "randomstring";
+import randomstring from 'randomstring';
 import _ from 'underscore';
 
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
@@ -23,8 +23,8 @@ export class LiveMatches {
         return Promise.reject(new CustomError(error.message));
     }
 
-    public async getMatches(matchId = "0"): Promise<{}> {
-        if (matchId !== "0") {
+    public async getMatches(matchId = '0'): Promise<{}> {
+        if (matchId !== '0') {
             return this.getMatchById(matchId);
         }
         return this.getAllMatches();

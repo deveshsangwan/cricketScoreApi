@@ -5,15 +5,15 @@ const logger = winston.createLogger({
     format: winston.format.combine(
         winston.format.label({label:config.get('logging:label')}),
         winston.format.errors({stack: true}),
-        winston.format.timestamp({format: "YYYY-MM-DD hh:mm:ss"}),
+        winston.format.timestamp({format: 'YYYY-MM-DD hh:mm:ss'}),
         winston.format.printf(({ timestamp, label, level, message, meta, stack }) => {
-            const text = "[" + timestamp + "] " +
-            label + "." + level.toUpperCase() + ": " + (message ? message :
+            const text = '[' + timestamp + '] ' +
+            label + '.' + level.toUpperCase() + ': ' + (message ? message :
                 '') +(meta && Object.keys(meta).length ?
                 '\n' + JSON.stringify(meta, null, 4) :
                 '');
-                return stack ? text + '\n' + stack : text;
-            }),
+            return stack ? text + '\n' + stack : text;
+        }),
         winston.format.colorize({ all: true }),
     ),
     transports: [
@@ -25,16 +25,16 @@ const logger = winston.createLogger({
 });
 
 const writeLogInfo = (arr) => {
-   return logger.info(
+    return logger.info(
         arr
-   );
-}
+    );
+};
 
 const writeLogError = (arr) => {
-   return logger.error (
-       arr
-   );
-}
+    return logger.error (
+        arr
+    );
+};
 
 /** Return Logger instances */
 module.exports = {

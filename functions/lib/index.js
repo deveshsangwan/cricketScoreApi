@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /**
  * Import function triggers from their respective submodules:
  *
@@ -7,7 +7,7 @@
  *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, '__esModule', { value: true });
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 // export const helloWorld = onRequest((request, response) => {

@@ -46,8 +46,8 @@ class LiveMatches {
         (0, logger_1.writeLogError)([`${location} | error`, error]);
         return Promise.reject(new errors_1.CustomError(error.message));
     }
-    async getMatches(matchId = "0") {
-        if (matchId !== "0") {
+    async getMatches(matchId = '0') {
+        if (matchId !== '0') {
             return this.getMatchById(matchId);
         }
         return this.getAllMatches();

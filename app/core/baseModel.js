@@ -89,7 +89,7 @@ const findIdByMatchUrl = async (matchUrl) => {
     try {
         return await Mongoose.model(MODEL_NAMES.LIVE_MATCHES).find({ matchUrl: matchUrl });
     } catch (err) {
-        writeLogError(["findIdByMatchUrl error: ", err]);
+        writeLogError(['findIdByMatchUrl error: ', err]);
         throw err;
     }
 };
@@ -126,4 +126,4 @@ module.exports = {
     findIdByMatchUrl,
     insert,
     insertMany
-}
+};

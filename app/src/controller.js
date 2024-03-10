@@ -42,7 +42,7 @@ const matchStats = async (req, res) => {
 const getMatchStats = async (_req, res) => {
     try {
         const matchStatsObj = new MatchStats_1.MatchStats();
-        const matchStatsResponse = await matchStatsObj.getMatchStats("0");
+        const matchStatsResponse = await matchStatsObj.getMatchStats('0');
         return res.status(200).send({
             status: true,
             message: 'Match Stats',

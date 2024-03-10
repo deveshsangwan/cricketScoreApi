@@ -4,7 +4,7 @@ import * as mongo from '../../core/baseModel';
 import { writeLogError } from '../../core/logger';
 import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from '../errors';
 import { LiveMatchesResponse, MatchData } from './MatchStatsInterfaces';
-import { getTeamScoreString, getTeamData, getBatsmanData } from './MatchUtils'
+import { getTeamScoreString, getTeamData, getBatsmanData } from './MatchUtils';
 const _ = require('underscore');
 
 
@@ -26,15 +26,15 @@ export class MatchStats {
             }
     
             // matchId should be 0 or alphanumeric string of length 16
-            if (matchId !== "0" && !matchId.match(/^[a-zA-Z0-9]{16}$/)) {
+            if (matchId !== '0' && !matchId.match(/^[a-zA-Z0-9]{16}$/)) {
                 throw new InvalidMatchIdError(matchId);
             }
     
             const liveMatchesResponse = await this.liveMatchesObj.getMatches(matchId);
     
-            // If matchId is not "0", get stats for the single match
+            // If matchId is not '0', get stats for the single match
             // Otherwise, get stats for all matches
-            if (matchId !== "0") {
+            if (matchId !== '0') {
                 return this.getStatsForSingleMatch(liveMatchesResponse, matchId);
             }
     
@@ -72,7 +72,7 @@ export class MatchStats {
     }
 
     private async getStatsForSingleMatch(liveMatchesResponse: LiveMatchesResponse, matchId: string): Promise<{} | 'Match Id is invalid'> {
-        let mongoData = await mongo.findById(matchId, this.tableName);
+        const mongoData = await mongo.findById(matchId, this.tableName);
         if (mongoData.length) {
             // Only add the properties you need
             const returnObj = {
@@ -100,14 +100,14 @@ export class MatchStats {
 
     private async scrapeData(url, matchId: string): Promise<{}> {
         try {
-            if (!matchId) return Promise.resolve('Match Id is required');
+            if (!matchId) {return Promise.resolve('Match Id is required');}
     
             url = 'https://www.cricbuzz.com' + url;
             const response = await this.utilsObj.fetchData(url);
     
-            let tournamentName = await this.getTournamentName(response);
+            const tournamentName = await this.getTournamentName(response);
     
-            let finalResponse = await this.getMatchStatsByMatchId(response, matchId);
+            const finalResponse = await this.getMatchStatsByMatchId(response, matchId);
             finalResponse['tournamentName'] = tournamentName;
     
             return Promise.resolve(finalResponse);
@@ -133,11 +133,11 @@ export class MatchStats {
     private getMatchStatsByMatchId($, matchId: string): Promise<MatchData> {
         return new Promise((resolve, reject) => {
             try {
-                let isLive = $('div.cb-text-complete').length === 0;
-                let currentTeamScoreString = getTeamScoreString($, isLive, true);
-                let otherTeamScoreString = getTeamScoreString($, isLive, false);
+                const isLive = $('div.cb-text-complete').length === 0;
+                const currentTeamScoreString = getTeamScoreString($, isLive, true);
+                const otherTeamScoreString = getTeamScoreString($, isLive, false);
     
-                let matchData: MatchData = {
+                const matchData: MatchData = {
                     matchId: matchId,
                     team1: getTeamData(currentTeamScoreString, true),
                     team2: getTeamData(otherTeamScoreString),

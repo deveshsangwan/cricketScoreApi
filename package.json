@@ -9,10 +9,11 @@
     "build": "tsc -p . & export NODE_ENV=production",
     "test": "NODE_ENV=test mocha",
     "test:coverage": "NODE_ENV=test nyc mocha && npm run posttest",
-    "posttest": "istanbul-badges-readme"
+    "posttest": "istanbul-badges-readme",
+    "lint": "eslint 'app/ts_src/**/*.ts'"
   },
   "keywords": [],
-  "author": "",
+  "author": "Devesh Sangwan",
   "license": "ISC",
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
@@ -20,8 +21,11 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.25",
     "@types/sinon": "^17.0.3",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
     "chai": "^4.4.1",
     "chai-http": "^4.4.0",
+    "eslint": "^8.56.0",
     "istanbul-badges-readme": "^1.8.5",
     "mocha": "^10.3.0",
     "nyc": "^15.1.0",

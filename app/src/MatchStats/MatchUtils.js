@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getBatsmanData = exports.getTeamData = exports.getTeamScoreString = void 0;
 const logger_1 = require("../../core/logger");
 function getTeamScoreString($, isLive, isCurrentTeam) {
-    let element = isLive
+    const element = isLive
         ? (isCurrentTeam ? $('span.cb-font-20.text-bold') : $('div.cb-text-gray.cb-font-16'))
         : $('div.cb-col.cb-col-100.cb-min-tm').eq(isCurrentTeam ? 1 : 0);
     return element.text().trim();
@@ -16,7 +16,7 @@ function getTeamData(input, isBatting = false) {
         (0, logger_1.writeLogInfo)(['matchStats | getTeamData | input', input]);
         return {};
     }
-    const [, name, score1, wickets1 = "10", score2, wickets2 = "10", overs] = match;
+    const [, name, score1, wickets1 = '10', score2, wickets2 = '10', overs] = match;
     const hasTwoInnings = score2 !== undefined;
     const score = hasTwoInnings ? score2 : score1;
     const wickets = hasTwoInnings ? wickets2 : wickets1;
