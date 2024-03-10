@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-const sinon = require('sinon');
-const Mongoose = require('mongoose');
-const { findAll, findById, findIdByMatchUrl, insert, insertMany } = require('../../app/core/baseModel');
+import sinon from 'sinon';
+import Mongoose from 'mongoose';
+import { findAll, findById, findIdByMatchUrl, insert, insertMany } from '../../app/core/baseModel';
 
 describe('BaseModel Error handling', () => {
     const error = new Error('Test error');
@@ -35,7 +35,7 @@ describe('BaseModel Error handling', () => {
     });
 
     it('insert: should handle errors', async () => {
-        await testErrorHandling(insert, stub => ({ create: stub }), ['testData', 'matchStats'], 'matchStats', 'testData');
+        await testErrorHandling(insert, stub => ({ findOneAndUpdate: stub }), [{ _id: 'testId' }, 'matchStats'], 'matchStats', sinon.match.any);
     });
 
     it('insertMany: should handle errors', async () => {

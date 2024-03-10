@@ -1,7 +1,7 @@
 # Use multi-stage build
 FROM node:alpine
 
-ENV NODE_VERSION 18.16.0
+ENV NODE_VERSION 20.11.0
 
 WORKDIR /usr/app
 

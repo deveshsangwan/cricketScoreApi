@@ -1,5 +1,5 @@
-const axios = require('axios');
-const cheerio = require('cheerio');
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 import { writeLogError } from '../core/logger';
 import * as mongo from '../core/baseModel';
 

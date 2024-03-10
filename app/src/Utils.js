@@ -22,10 +22,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Utils = void 0;
-const axios = require('axios');
-const cheerio = require('cheerio');
+const axios_1 = __importDefault(require("axios"));
+const cheerio = __importStar(require("cheerio"));
 const logger_1 = require("../core/logger");
 const mongo = __importStar(require("../core/baseModel"));
 class Utils {
@@ -34,7 +37,7 @@ class Utils {
     async fetchData(url) {
         const options = this.prepareRequestOptions(url);
         try {
-            const response = await axios(options);
+            const response = await (0, axios_1.default)(options);
             if (response.status === 200) {
                 const $ = cheerio.load(response.data);
                 return Promise.resolve($);

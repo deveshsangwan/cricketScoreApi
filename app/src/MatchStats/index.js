@@ -22,6 +22,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatchStats = void 0;
 const LiveMatches_1 = require("../LiveMatches");
@@ -30,7 +33,7 @@ const mongo = __importStar(require("../../core/baseModel"));
 const logger_1 = require("../../core/logger");
 const errors_1 = require("../errors");
 const MatchUtils_1 = require("./MatchUtils");
-const _ = require('underscore');
+const underscore_1 = __importDefault(require("underscore"));
 class MatchStats {
     tableName;
     liveMatchesObj;
@@ -67,7 +70,7 @@ class MatchStats {
         const allMongoData = await mongo.findAll(this.tableName);
         const dataPromises = Object.entries(liveMatchesResponse).map(async ([matchId, match]) => {
             const scrapedData = await this.scrapeData(match.matchUrl, matchId);
-            _.extend(scrapedData, { matchName: match.matchName });
+            underscore_1.default.extend(scrapedData, { matchName: match.matchName });
             // Check if data already exists in the fetched data
             const mongoData = allMongoData.find(data => data._id === matchId);
             if (!mongoData) {
@@ -96,10 +99,10 @@ class MatchStats {
             };
             return returnObj;
         }
-        else if (_.has(liveMatchesResponse, 'matchId')) {
+        else if (underscore_1.default.has(liveMatchesResponse, 'matchId')) {
             const url = liveMatchesResponse.matchUrl;
             const scrapedData = await this.scrapeData(url, matchId);
-            _.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
+            underscore_1.default.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
             await this.utilsObj.insertDataToMatchStatsTable(scrapedData);
             return scrapedData;
         }

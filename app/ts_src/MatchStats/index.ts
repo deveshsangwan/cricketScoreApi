@@ -5,7 +5,7 @@ import { writeLogError } from '../../core/logger';
 import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from '../errors';
 import { LiveMatchesResponse, MatchData } from './MatchStatsInterfaces';
 import { getTeamScoreString, getTeamData, getBatsmanData } from './MatchUtils';
-const _ = require('underscore');
+import _ from 'underscore';
 
 
 export class MatchStats {

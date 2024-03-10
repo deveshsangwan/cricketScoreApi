@@ -60,7 +60,11 @@ const matchStats = new Mongoose.Schema({
 const LiveMatches = Mongoose.model(MODEL_NAMES.LIVE_MATCHES, liveMatches);
 const MatchStats = Mongoose.model(MODEL_NAMES.MATCH_STATS, matchStats);
 
-// find all matches
+/**
+ * Find all matches from a specified model
+ * @param {String} modelName - The name of the model to query
+ * @returns {Array} - An array of matches
+ */
 const findAll = async (modelName) => {
     try {
         const response = await Mongoose.model(modelName).find({});
@@ -72,7 +76,12 @@ const findAll = async (modelName) => {
     }
 };
 
-// find match by id
+/**
+ * Find a match by its ID from a specified model
+ * @param {String} matchId - The ID of the match to find
+ * @param {String} modelName - The name of the model to query
+ * @returns {Object} - The match object if found, null otherwise
+ */
 const findById = async (matchId, modelName) => {
     try {
         const response = await Mongoose.model(modelName).find({ _id: matchId });
@@ -84,7 +93,11 @@ const findById = async (matchId, modelName) => {
     }
 };
 
-// find id by match url
+/**
+ * Find a match ID by its URL
+ * @param {String} matchUrl - The URL of the match to find
+ * @returns {Object} - The match object if found, null otherwise
+ */
 const findIdByMatchUrl = async (matchUrl) => {
     try {
         return await Mongoose.model(MODEL_NAMES.LIVE_MATCHES).find({ matchUrl: matchUrl });
@@ -94,10 +107,20 @@ const findIdByMatchUrl = async (matchUrl) => {
     }
 };
 
-// insert one match
+/**
+ * Insert a new match or update if already exists
+ * @param {Object} data - match data
+ * @param {String} modelName - model name
+ * @returns {Object} - response
+ */
 const insert = async (data, modelName) => {
     try {
-        const response = await Mongoose.model(modelName).create(data);
+        const Model = Mongoose.model(modelName);
+        const response = await Model.findOneAndUpdate(
+            { _id: data._id }, // find a document with `_id` same as `data._id`
+            data, // document to insert when nothing was found
+            { upsert: true, new: true, runValidators: true } // options
+        );
         return response;
     } catch (err) {
         const collectionName = modelName === 'matchStats' ? 'MATCH_STATS' : 'LIVE_MATCHES';
@@ -107,7 +130,12 @@ const insert = async (data, modelName) => {
 };
 
 
-// insert multiple matches
+/**
+ * Insert multiple matches into a specified model
+ * @param {Array} matches - An array of match data to insert
+ * @param {String} modelName - The name of the model to insert into
+ * @returns {Array} - An array of the inserted match objects
+ */
 const insertMany = async (matches, modelName) => {
     try {
         const response = await Mongoose.model(modelName).insertMany(matches);
