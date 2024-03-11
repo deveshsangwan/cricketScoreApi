@@ -1,8 +1,8 @@
-# Cricket Score API
+# 🏏 Cricket Score API
 
 Welcome to the Cricket Score API! This project is designed to provide real-time cricket scores using TypeScript and npm.
 
-## Table of Contents
+## 📚 Table of Contents
 
 - [Cricket Score API](#cricket-score-api)
 - [Status](#status)
@@ -12,13 +12,13 @@ Welcome to the Cricket Score API! This project is designed to provide real-time 
 - [Running Tests](#running-tests)
 - [License](#license)
 
-## Status
+## 🚀 Status
 
 <!-- [![Firebase Deployment](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/firebase-hosting-merge.yml/badge.svg?branch=main)](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/firebase-hosting-merge.yml) -->
 
 [![Run Tests](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/test.yml/badge.svg)](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/test.yml)
 
-## Code Coverage
+## 📊 Code Coverage
 
 Our aim is to maintain high code coverage to ensure the quality of the project. Here are our current stats:
 
@@ -26,7 +26,7 @@ Our aim is to maintain high code coverage to ensure the quality of the project. 
 ![Functions](https://img.shields.io/badge/functions-98.03%25-brightgreen.svg?style=flat)
 ![Lines](https://img.shields.io/badge/lines-91%25-brightgreen.svg?style=flat)
 
-## Getting Started
+## 🚀 Getting Started
 
 To get a copy of the project up and running on your local machine, follow these steps:
 
@@ -42,13 +42,13 @@ You can also run the project with Docker:
 
 Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
 
-## Usage
+## 📝 Usage
 
 - Make a GET request to `/liveMatches` to get the URLs of all the current live matches.
 - Make a GET request to `/matchStats` to get the statistics for all matches.
 - Make a GET request to `/matchStats/:matchId` to get the statistics for a single match. Replace `:matchId` with the ID of the match you want statistics for.
 
-## Running Tests
+## 🧪 Running Tests
 
 After setting up the project, you can run the tests to ensure everything is working as expected. Follow these steps:
 
@@ -60,6 +60,6 @@ This command will run the test suite for the project.
 
 This command will run the tests and generate a coverage report.
 
-## License
+## 📜 License
 
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) License. See the [LICENSE.md](LICENSE.md) file for details.
