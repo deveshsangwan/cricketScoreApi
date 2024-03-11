@@ -2,6 +2,16 @@
 
 Welcome to the Cricket Score API! This project is designed to provide real-time cricket scores using TypeScript and npm.
 
+## Table of Contents
+
+- [Cricket Score API](#cricket-score-api)
+- [Status](#status)
+- [Code Coverage](#code-coverage)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Running Tests](#running-tests)
+- [License](#license)
+
 ## Status
 
 <!-- [![Firebase Deployment](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/firebase-hosting-merge.yml/badge.svg?branch=main)](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/firebase-hosting-merge.yml) -->
@@ -22,7 +32,15 @@ To get a copy of the project up and running on your local machine, follow these 
 
 1. Clone the repository: `git clone https://github.com/deveshsangwan/cricketScoreApi.git`
 2. Install dependencies: `npm install`
-3. Start the server: `npm run dev`
+3. Create a `.env` file in the root directory of the project. Add the MongoDB URL like so: `MONGO_URL=<your-mongodb-url>`. Replace `<your-mongodb-url>` with your actual MongoDB URL.
+4. Start the server: `npm run dev`
+
+You can also run the project with Docker:
+
+1. Build the Docker image: `docker build -t cricket-score-api .`
+2. Run the Docker container, passing the MongoDB URL as an environment variable: `docker run -p 3000:3000 -d -e MONGO_URL=<your-mongodb-url> cricket-score-api`
+
+Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
 
 ## Usage
 
