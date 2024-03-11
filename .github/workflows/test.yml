@@ -26,7 +26,9 @@ jobs:
 
       - name: Run Tests
         run: npm run test:coverage
-      
+        env:
+          MONGO_URL: ${{ secrets.MONGO_URL }}
+
       # - name: Commit coverage badge
       #   run: |
       #     git config --local user.email "action@github.com"

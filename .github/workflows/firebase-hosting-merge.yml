@@ -15,4 +15,6 @@ jobs:
       - name: Install Functions Dependencies
         run: cd functions && npm install
       - name: Deploy Firebase Functions
+        env: 
+          MONGO_URL: ${{ secrets.MONGO_URL }} # Add this line
         run: firebase deploy --only functions --project powerplay-devpp --token ${{ secrets.FIREBASE_TOKEN }}
