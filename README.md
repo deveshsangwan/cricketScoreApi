@@ -1,6 +1,6 @@
 # 🏏 Cricket Score API
 
-Welcome to the Cricket Score API! This project is designed to provide real-time cricket scores using TypeScript and npm.
+Welcome to the Cricket Score API! This project is designed to provide real-time cricket scores using TypeScript and npm. It uses technologies like Cheerio for web scraping, MongoDB for caching, Express-jwt for authentication, and Chai and Mocha for testing. The project is also Dockerized for easy setup and deployment.
 
 ## 📚 Table of Contents
 
@@ -41,6 +41,16 @@ You can also run the project with Docker:
 2. Run the Docker container, passing the MongoDB URL as an environment variable: `docker run -p 3000:3000 -d -e MONGO_URL=<your-mongodb-url> cricket-score-api`
 
 Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
+
+## 🛠️ Technologies Used
+
+This project uses a number of technologies and tools:
+
+- **Cheerio**: Used for web scraping to fetch live cricket match data.
+- **MongoDB**: Used as a database for caching match data to improve performance.
+- **Express-jwt**: Used for authentication. A valid token is required to hit all the endpoints other than `/generateToken`.
+- **Chai and Mocha**: These libraries are used for writing and running tests to ensure the quality of the project.
+- **Docker**: Used for creating a containerized version of the application, ensuring that it runs the same way in every environment.
 
 ## 📝 Usage
 
