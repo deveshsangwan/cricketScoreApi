@@ -4,6 +4,7 @@
     },
     "logging": {
         "label": "cricketScoreApi",
-        "consoleLevel": "warn"
-    }
+        "consoleLevel": "debug"
+    },
+    "tokenExpiry": "1h"
 }

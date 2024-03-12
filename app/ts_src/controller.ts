@@ -1,6 +1,27 @@
 import { Request, Response } from 'express';
+import { Token } from './Token';
 import { LiveMatches } from './LiveMatches';
 import { MatchStats } from './MatchStats';
+
+const generateToken = async (req: Request, res: Response) => {
+    try {
+        const data = req.body;
+        const tokenObj = new Token();
+        const tokenResponse = tokenObj.generateToken(data);
+
+        return res.status(200).send({
+            status: true,
+            message: 'Token generated',
+            response: tokenResponse
+        });
+    } catch (error) {
+        return res.status(500).send({
+            status: false,
+            message: 'Error generating token',
+            error: error.message
+        });
+    }
+};
 
 const live = async (_req: Request, res: Response) => {
     try {
@@ -61,6 +82,7 @@ const getMatchStats = async (_req: Request, res: Response) => {
 };
 
 module.exports = {
+    generateToken,
     live,
     matchStats,
     getMatchStats

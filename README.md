@@ -23,8 +23,8 @@ Welcome to the Cricket Score API! This project is designed to provide real-time 
 Our aim is to maintain high code coverage to ensure the quality of the project. Here are our current stats:
 
 [![codecov](https://codecov.io/gh/deveshsangwan/cricketScoreApi/graph/badge.svg?token=A3JMLLNTG4)](https://codecov.io/gh/deveshsangwan/cricketScoreApi)
-![Functions](https://img.shields.io/badge/functions-98.03%25-brightgreen.svg?style=flat)
-![Lines](https://img.shields.io/badge/lines-91%25-brightgreen.svg?style=flat)
+![Functions](https://img.shields.io/badge/functions-96.07%25-brightgreen.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-91.69%25-brightgreen.svg?style=flat)
 
 ## 🚀 Getting Started
 
@@ -47,6 +47,16 @@ Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
 - Make a GET request to `/liveMatches` to get the URLs of all the current live matches.
 - Make a GET request to `/matchStats` to get the statistics for all matches.
 - Make a GET request to `/matchStats/:matchId` to get the statistics for a single match. Replace `:matchId` with the ID of the match you want statistics for.
+- Make a POST request to `/generateToken` with a JSON body containing `clientId` and `clientSecret` to generate a token. The JSON body should look like this:
+
+```json
+{
+    "clientId": "yourClientId",
+    "clientSecret": "yourClientSecret"
+}
+```
+
+**Note:** A valid token is required for hitting all the endpoints other than `/generateToken`. Include the token in the Authorization header of your requests.
 
 ## 🧪 Running Tests
 
