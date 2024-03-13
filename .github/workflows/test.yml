@@ -28,6 +28,9 @@ jobs:
         run: npm run test:coverage
         env:
           MONGO_URL: ${{ secrets.MONGO_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
       # - name: Commit coverage badge
       #   run: |
