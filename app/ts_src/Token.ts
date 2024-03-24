@@ -9,7 +9,7 @@ dotenv.config();
 interface ClientCredentials {
     clientId: string;
     clientSecret: string;
-  }
+}
 
 export class Token {
     private secret: string;
@@ -28,16 +28,16 @@ export class Token {
         writeLogError([`${location} | error`, error]);
         throw new CustomError(error.message);
     }
-    
+
     public generateToken(credentials: ClientCredentials): string | never {
         try {
             const { clientId, clientSecret } = credentials;
-    
+
             if (clientId === this.clientId && clientSecret === this.clientSecret) {
                 const payload = {
                     clientId
                 };
-    
+
                 const token = jwt.sign(payload, this.secret, { algorithm: 'HS256', expiresIn: this.expiresIn });
                 return token;
             } else {

@@ -70,14 +70,14 @@ export class LiveMatches {
         const MATCH_ID_LENGTH = 16;
         const existingMatches: Record<string, MatchData> = {};
         const newMatches: Record<string, MatchData> = {};
-    
+
         $('.cb-col-100 .cb-col .cb-schdl').each((_, el) => {
             const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
             const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
-    
+
             if (matchUrl && matchName) {
                 const existingMatch = mongoData.find((item) => item.matchUrl === matchUrl);
-    
+
                 if (existingMatch) {
                     existingMatches[existingMatch._id] = { matchUrl, matchName };
                 } else {
@@ -86,11 +86,11 @@ export class LiveMatches {
                 }
             }
         });
-    
+
         if (Object.keys(existingMatches).length === 0 && Object.keys(newMatches).length === 0) {
             throw new Error('No matches found');
         }
-    
+
         return [existingMatches, newMatches];
     }
 }
