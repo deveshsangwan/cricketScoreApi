@@ -28,10 +28,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LiveMatches = void 0;
 const Utils_1 = require("../Utils");
-const logger_1 = require("../../core/logger");
+const Logger_1 = require("../../core/Logger");
 const LiveMatchesUtility_1 = require("./LiveMatchesUtility");
 const errors_1 = require("../errors");
-const mongo = __importStar(require("../../core/baseModel"));
+const mongo = __importStar(require("../../core/BaseModel"));
 const randomstring_1 = __importDefault(require("randomstring"));
 const underscore_1 = __importDefault(require("underscore"));
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
@@ -43,7 +43,7 @@ class LiveMatches {
         this.utilsObj = new Utils_1.Utils();
     }
     handleError(location, error) {
-        (0, logger_1.writeLogError)([`${location} | error`, error]);
+        (0, Logger_1.writeLogError)([`${location} | error`, error]);
         return Promise.reject(new errors_1.CustomError(error.message));
     }
     async getMatches(matchId = '0') {

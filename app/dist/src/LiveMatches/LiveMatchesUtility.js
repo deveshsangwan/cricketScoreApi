@@ -24,7 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.insertDataToLiveMatchesTable = void 0;
-const mongo = __importStar(require("../../core/baseModel"));
+const mongo = __importStar(require("../../core/BaseModel"));
 async function insertDataToLiveMatchesTable(matchesData) {
     const dataToInsert = Object.entries(matchesData).map(([key, value]) => ({
         _id: key,

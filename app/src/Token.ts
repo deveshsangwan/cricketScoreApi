@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { writeLogError } from '../core/logger';
+import { writeLogError } from '../core/Logger';
 import { CustomError } from './errors';
 import dotenv from 'dotenv';
 import config from '../core/configuration';

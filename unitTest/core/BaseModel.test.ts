@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import sinon from 'sinon';
 import Mongoose from 'mongoose';
-import { findAll, findById, findIdByMatchUrl, insert, insertMany } from '../../app/core/baseModel';
+import { findAll, findById, findIdByMatchUrl, insert, insertMany } from '../../app/dist/core/BaseModel';
 
 describe('BaseModel Error handling', () => {
     const error = new Error('Test error');

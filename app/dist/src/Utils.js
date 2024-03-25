@@ -29,8 +29,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Utils = void 0;
 const axios_1 = __importDefault(require("axios"));
 const cheerio = __importStar(require("cheerio"));
-const logger_1 = require("../core/logger");
-const mongo = __importStar(require("../core/baseModel"));
+const Logger_1 = require("../core/Logger");
+const mongo = __importStar(require("../core/BaseModel"));
 class Utils {
     constructor() {
     }
@@ -45,7 +45,7 @@ class Utils {
             throw new Error(`Error while fetching data from url: ${url}`);
         }
         catch (error) {
-            (0, logger_1.writeLogError)(['Utils | scrapeData | error', error]);
+            (0, Logger_1.writeLogError)(['Utils | scrapeData | error', error]);
             return Promise.reject(error);
         }
     }
@@ -59,7 +59,7 @@ class Utils {
     }
     // function for inserting data into matchStats table
     async insertDataToMatchStatsTable(scrapedData, matchId) {
-        const dataToInsert = { ...scrapedData, _id: matchId ? matchId : scrapedData['matchId'] };
+        const dataToInsert = { ...scrapedData, _id: matchId ?? scrapedData['matchId'] };
         delete dataToInsert['matchId'];
         await mongo.insert(dataToInsert, 'matchStats');
     }

@@ -1,18 +1,22 @@
-require('dotenv').config();
-const Mongoose = require('mongoose');
-const { writeLogInfo, writeLogError } = require(__basedir + 'app/core/logger');
+import dotenv from 'dotenv';
+import Mongoose, { Mongoose as MongooseType } from 'mongoose';
+import { writeLogInfo, writeLogError } from './Logger';
+
+dotenv.config();
 
 class Mongo {
+    private connection: MongooseType | undefined;
+
     constructor() {
         this._connect();
     }
 
-    async _connect() {
+    private async _connect(): Promise<MongooseType | undefined> {
         if (this.connection) {
             return this.connection;
         }
 
-        let mongoUrl = process.env.MONGO_URL;
+        const mongoUrl: string = process.env.MONGO_URL || '';
         try {
             this.connection = await Mongoose.connect(mongoUrl);
             writeLogInfo(['Database connection successful']);
@@ -22,4 +26,4 @@ class Mongo {
     }
 }
 
-module.exports = new Mongo();
+export default new Mongo();

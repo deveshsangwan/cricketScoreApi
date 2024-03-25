@@ -10,7 +10,7 @@
     "test": "NODE_ENV=test mocha",
     "test:coverage": "NODE_ENV=test nyc mocha && npm run posttest",
     "posttest": "istanbul-badges-readme",
-    "lint": "eslint 'app/ts_src/**/*.ts'"
+    "lint": "eslint 'app/**/*.ts'"
   },
   "keywords": [],
   "author": "Devesh Sangwan",
@@ -19,6 +19,7 @@
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/chai": "^4.3.12",
     "@types/mocha": "^10.0.6",
+    "@types/nconf": "^0.10.6",
     "@types/node": "^20.11.25",
     "@types/sinon": "^17.0.3",
     "@types/underscore": "^1.11.15",

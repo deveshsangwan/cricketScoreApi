@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { writeLogError } from '../core/logger';
-import * as mongo from '../core/baseModel';
+import { writeLogError } from '../core/Logger';
+import * as mongo from '../core/BaseModel';
 
 export class Utils {
     constructor() {
@@ -34,7 +34,7 @@ export class Utils {
 
     // function for inserting data into matchStats table
     public async insertDataToMatchStatsTable(scrapedData: { [key: string]: any }, matchId?: string) {
-        const dataToInsert = { ...scrapedData, _id: matchId ? matchId : scrapedData['matchId'] };
+        const dataToInsert = { ...scrapedData, _id: matchId ?? scrapedData['matchId'] };
         delete dataToInsert['matchId'];
         await mongo.insert(dataToInsert, 'matchStats');
     }
