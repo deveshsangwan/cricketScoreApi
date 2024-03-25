@@ -14,8 +14,6 @@ Welcome to the Cricket Score API! This project is designed to provide real-time 
 
 ## 🚀 Status
 
-<!-- [![Firebase Deployment](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/firebase-hosting-merge.yml/badge.svg?branch=main)](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/firebase-hosting-merge.yml) -->
-
 [![Run Tests](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/test.yml/badge.svg)](https://github.com/deveshsangwan/cricketScoreApi/actions/workflows/test.yml)
 
 ## 📊 Code Coverage
