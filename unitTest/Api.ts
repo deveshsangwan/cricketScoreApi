@@ -1,7 +1,7 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import server from '../app/app.js';
-import { Token } from '../app/src/Token';
+import { Token } from '../app/dist/Token';
 import dotenv from 'dotenv';
 
 dotenv.config();
