@@ -1,6 +1,6 @@
 import { apiCall } from './Api';
-import { MatchStats } from '../app/dist/MatchStats';
-import { getTeamData } from '../app/dist/MatchStats/MatchUtils';
+import { MatchStats } from '../app/dist/src/MatchStats';
+import { getTeamData } from '../app/dist/src/MatchStats/MatchUtils';
 import { testData } from './TestData/MatchStats';
 import { assert } from 'chai';
 import sinon from 'sinon';

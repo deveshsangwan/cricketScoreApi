@@ -1,13 +1,30 @@
-const Mongoose = require('mongoose');
-const { writeLogInfo, writeLogError } = require('../core/logger');
+import Mongoose, { Document, Model, Schema } from 'mongoose';
+import { writeLogInfo, writeLogError } from './logger';
 
-const MODEL_NAMES = {
-    LIVE_MATCHES: 'liveMatches',
-    MATCH_STATS: 'matchStats'
-};
+enum MODEL_NAMES {
+    LIVE_MATCHES = 'liveMatches',
+    MATCH_STATS = 'matchStats'
+}
+
+interface ILiveMatches extends Document {
+    _id: string;
+    matchUrl: string;
+    matchName: string;
+}
+
+interface IMatchStats extends Document {
+    createdAt: Date;
+    _id: string;
+    team1: object;
+    team2: object;
+    onBatting: object;
+    summary: object;
+    tournamentName: string;
+    matchName: string;
+}
 
 // define model
-const liveMatches = new Mongoose.Schema({
+const liveMatches: Schema<ILiveMatches> = new Schema({
     _id: {
         type: String,
         required: true
@@ -22,7 +39,7 @@ const liveMatches = new Mongoose.Schema({
     },
 });
 
-const matchStats = new Mongoose.Schema({
+const matchStats: Schema<IMatchStats> = new Schema({
     createdAt: {
         type: Date,
         default: Date.now
@@ -57,15 +74,15 @@ const matchStats = new Mongoose.Schema({
     },
 });
 
-const LiveMatches = Mongoose.model(MODEL_NAMES.LIVE_MATCHES, liveMatches);
-const MatchStats = Mongoose.model(MODEL_NAMES.MATCH_STATS, matchStats);
+const LiveMatches: Model<ILiveMatches> = Mongoose.model(MODEL_NAMES.LIVE_MATCHES, liveMatches);
+const MatchStats: Model<IMatchStats> = Mongoose.model(MODEL_NAMES.MATCH_STATS, matchStats);
 
 /**
  * Find all matches from a specified model
  * @param {String} modelName - The name of the model to query
  * @returns {Array} - An array of matches
  */
-const findAll = async (modelName) => {
+const findAll = async (modelName: string) => {
     try {
         const response = await Mongoose.model(modelName).find({});
         return response;
@@ -82,7 +99,7 @@ const findAll = async (modelName) => {
  * @param {String} modelName - The name of the model to query
  * @returns {Object} - The match object if found, null otherwise
  */
-const findById = async (matchId, modelName) => {
+const findById = async (matchId: string, modelName: string) => {
     try {
         const response = await Mongoose.model(modelName).find({ _id: matchId });
         return response;
@@ -98,7 +115,7 @@ const findById = async (matchId, modelName) => {
  * @param {String} matchUrl - The URL of the match to find
  * @returns {Object} - The match object if found, null otherwise
  */
-const findIdByMatchUrl = async (matchUrl) => {
+const findIdByMatchUrl = async (matchUrl: string) => {
     try {
         return await Mongoose.model(MODEL_NAMES.LIVE_MATCHES).find({ matchUrl: matchUrl });
     } catch (err) {
@@ -113,11 +130,11 @@ const findIdByMatchUrl = async (matchUrl) => {
  * @param {String} modelName - model name
  * @returns {Object} - response
  */
-const insert = async (data, modelName) => {
+const insert = async (data: object, modelName: string) => {
     try {
         const Model = Mongoose.model(modelName);
         const response = await Model.findOneAndUpdate(
-            { _id: data._id }, // find a document with `_id` same as `data._id`
+            { _id: (data as any)._id }, // find a document with `_id` same as `data._id`
             data, // document to insert when nothing was found
             { upsert: true, new: true, runValidators: true } // options
         );
@@ -136,7 +153,7 @@ const insert = async (data, modelName) => {
  * @param {String} modelName - The name of the model to insert into
  * @returns {Array} - An array of the inserted match objects
  */
-const insertMany = async (matches, modelName) => {
+const insertMany = async (matches: object[], modelName: string) => {
     try {
         const response = await Mongoose.model(modelName).insertMany(matches);
         return response;
@@ -148,7 +165,7 @@ const insertMany = async (matches, modelName) => {
 };
 
 
-module.exports = {
+export {
     findAll,
     findById,
     findIdByMatchUrl,
