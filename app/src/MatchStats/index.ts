@@ -1,7 +1,7 @@
 import { LiveMatches } from '../LiveMatches';
 import { Utils } from '../Utils';
-import * as mongo from '../../core/baseModel';
-import { writeLogError } from '../../core/logger';
+import * as mongo from '../../core/BaseModel';
+import { writeLogError } from '../../core/Logger';
 import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from '../errors';
 import { LiveMatchesResponse, MatchData } from './MatchStatsInterfaces';
 import { getTeamScoreString, getTeamData, getBatsmanData } from './MatchUtils';

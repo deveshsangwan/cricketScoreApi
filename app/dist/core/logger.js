@@ -30,4 +30,4 @@ const writeLogError = (arr) => {
     logger.error(arr);
 };
 exports.writeLogError = writeLogError;
-//# sourceMappingURL=logger.js.map
+//# sourceMappingURL=Logger.js.map

@@ -1,26 +1,10 @@
-import Mongoose, { Document, Model, Schema } from 'mongoose';
-import { writeLogInfo, writeLogError } from './logger';
+import Mongoose, { Model, Schema } from 'mongoose';
+import { ILiveMatches, IMatchStats } from './BaseModelInterfaces';
+import { writeLogInfo, writeLogError } from './Logger';
 
 enum MODEL_NAMES {
     LIVE_MATCHES = 'liveMatches',
     MATCH_STATS = 'matchStats'
-}
-
-interface ILiveMatches extends Document {
-    _id: string;
-    matchUrl: string;
-    matchName: string;
-}
-
-interface IMatchStats extends Document {
-    createdAt: Date;
-    _id: string;
-    team1: object;
-    team2: object;
-    onBatting: object;
-    summary: object;
-    tournamentName: string;
-    matchName: string;
 }
 
 // define model

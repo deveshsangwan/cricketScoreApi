@@ -1,9 +1,9 @@
 import { Utils } from '../Utils';
-import { writeLogError } from '../../core/logger';
+import { writeLogError } from '../../core/Logger';
 import { MatchData } from './LiveMatchesInterfaces';
 import { insertDataToLiveMatchesTable } from './LiveMatchesUtility';
 import { CustomError } from '../errors';
-import * as mongo from '../../core/baseModel';
+import * as mongo from '../../core/BaseModel';
 import randomstring from 'randomstring';
 import _ from 'underscore';
 

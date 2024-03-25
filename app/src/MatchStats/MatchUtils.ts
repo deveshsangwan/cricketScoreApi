@@ -1,4 +1,4 @@
-import { writeLogInfo } from '../../core/logger';
+import { writeLogInfo } from '../../core/Logger';
 import { ITeamData } from './MatchStatsInterfaces';
 
 export function getTeamScoreString($, isLive: boolean, isCurrentTeam: boolean): string {

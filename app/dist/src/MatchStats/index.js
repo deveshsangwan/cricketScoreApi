@@ -29,8 +29,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatchStats = void 0;
 const LiveMatches_1 = require("../LiveMatches");
 const Utils_1 = require("../Utils");
-const mongo = __importStar(require("../../core/baseModel"));
-const logger_1 = require("../../core/logger");
+const mongo = __importStar(require("../../core/BaseModel"));
+const Logger_1 = require("../../core/Logger");
 const errors_1 = require("../errors");
 const MatchUtils_1 = require("./MatchUtils");
 const underscore_1 = __importDefault(require("underscore"));
@@ -61,7 +61,7 @@ class MatchStats {
             return this.getStatsForAllMatches(liveMatchesResponse);
         }
         catch (error) {
-            (0, logger_1.writeLogError)(['matchStats | getMatchStats | error', error]);
+            (0, Logger_1.writeLogError)(['matchStats | getMatchStats | error', error]);
             throw error; // re-throw the original error
         }
     }
@@ -121,7 +121,7 @@ class MatchStats {
             return Promise.resolve(finalResponse);
         }
         catch (error) {
-            (0, logger_1.writeLogError)(['matchStats | scrapeData |', error, url]);
+            (0, Logger_1.writeLogError)(['matchStats | scrapeData |', error, url]);
             return Promise.reject(error);
         }
     }
@@ -158,7 +158,7 @@ class MatchStats {
                 resolve(matchData);
             }
             catch (error) {
-                (0, logger_1.writeLogError)(['matchStats | getMatchStatsByMatchId |', error]);
+                (0, Logger_1.writeLogError)(['matchStats | getMatchStatsByMatchId |', error]);
                 reject(error);
             }
         });

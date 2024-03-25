@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Token = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const logger_1 = require("../core/logger");
+const Logger_1 = require("../core/Logger");
 const errors_1 = require("./errors");
 const dotenv_1 = __importDefault(require("dotenv"));
 const configuration_1 = __importDefault(require("../core/configuration"));
@@ -22,7 +22,7 @@ class Token {
         this.clientSecret = process.env.CLIENT_SECRET;
     }
     handleError(location, error) {
-        (0, logger_1.writeLogError)([`${location} | error`, error]);
+        (0, Logger_1.writeLogError)([`${location} | error`, error]);
         throw new errors_1.CustomError(error.message);
     }
     generateToken(credentials) {

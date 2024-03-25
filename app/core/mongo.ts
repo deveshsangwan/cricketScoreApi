@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import Mongoose, { Mongoose as MongooseType } from 'mongoose';
-import { writeLogInfo, writeLogError } from './logger';
+import { writeLogInfo, writeLogError } from './Logger';
 
 dotenv.config();
 

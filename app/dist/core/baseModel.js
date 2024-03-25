@@ -25,7 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.insertMany = exports.insert = exports.findIdByMatchUrl = exports.findById = exports.findAll = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const logger_1 = require("./logger");
+const Logger_1 = require("./Logger");
 var MODEL_NAMES;
 (function (MODEL_NAMES) {
     MODEL_NAMES["LIVE_MATCHES"] = "liveMatches";
@@ -94,7 +94,7 @@ const findAll = async (modelName) => {
     }
     catch (err) {
         const collectionName = modelName === 'matchStats' ? 'MATCH_STATS' : 'LIVE_MATCHES';
-        (0, logger_1.writeLogError)([`findAll ${collectionName} error: `, err]);
+        (0, Logger_1.writeLogError)([`findAll ${collectionName} error: `, err]);
         throw err;
     }
 };
@@ -112,7 +112,7 @@ const findById = async (matchId, modelName) => {
     }
     catch (err) {
         const collectionName = modelName === 'matchStats' ? 'MATCH_STATS' : 'LIVE_MATCHES';
-        (0, logger_1.writeLogError)([`findById ${collectionName} error: `, err]);
+        (0, Logger_1.writeLogError)([`findById ${collectionName} error: `, err]);
         throw err;
     }
 };
@@ -127,7 +127,7 @@ const findIdByMatchUrl = async (matchUrl) => {
         return await mongoose_1.default.model(MODEL_NAMES.LIVE_MATCHES).find({ matchUrl: matchUrl });
     }
     catch (err) {
-        (0, logger_1.writeLogError)(['findIdByMatchUrl error: ', err]);
+        (0, Logger_1.writeLogError)(['findIdByMatchUrl error: ', err]);
         throw err;
     }
 };
@@ -149,7 +149,7 @@ const insert = async (data, modelName) => {
     }
     catch (err) {
         const collectionName = modelName === 'matchStats' ? 'MATCH_STATS' : 'LIVE_MATCHES';
-        (0, logger_1.writeLogError)([`insert ${collectionName} error: `, err]);
+        (0, Logger_1.writeLogError)([`insert ${collectionName} error: `, err]);
         throw err;
     }
 };
@@ -167,9 +167,9 @@ const insertMany = async (matches, modelName) => {
     }
     catch (err) {
         const collectionName = modelName === 'matchStats' ? 'MATCH_STATS' : 'LIVE_MATCHES';
-        (0, logger_1.writeLogError)([`insertMany ${collectionName} error: `, err]);
+        (0, Logger_1.writeLogError)([`insertMany ${collectionName} error: `, err]);
         throw err;
     }
 };
 exports.insertMany = insertMany;
-//# sourceMappingURL=baseModel.js.map
+//# sourceMappingURL=BaseModel.js.map

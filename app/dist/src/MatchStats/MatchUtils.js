@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getBatsmanData = exports.getTeamData = exports.getTeamScoreString = void 0;
-const logger_1 = require("../../core/logger");
+const Logger_1 = require("../../core/Logger");
 function getTeamScoreString($, isLive, isCurrentTeam) {
     const element = isLive
         ? (isCurrentTeam ? $('span.cb-font-20.text-bold') : $('div.cb-text-gray.cb-font-16'))
@@ -13,7 +13,7 @@ function getTeamData(input, isBatting = false) {
     const regex = /(\w+)\s+(\d+)(?:\/(\d+))?(?:\s*&\s*(\d+)(?:\/(\d+))?)?(?:\s*\(\s*([\d.]+)\s*\))?/;
     const match = input.match(regex);
     if (!match) {
-        (0, logger_1.writeLogInfo)(['matchStats | getTeamData | input', input]);
+        (0, Logger_1.writeLogInfo)(['matchStats | getTeamData | input', input]);
         return {};
     }
     const [, name, score1, wickets1 = '10', score2, wickets2 = '10', overs] = match;

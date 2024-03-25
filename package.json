@@ -10,7 +10,7 @@
     "test": "NODE_ENV=test mocha",
     "test:coverage": "NODE_ENV=test nyc mocha && npm run posttest",
     "posttest": "istanbul-badges-readme",
-    "lint": "eslint 'app/ts_src/**/*.ts'"
+    "lint": "eslint 'app/**/*.ts'"
   },
   "keywords": [],
   "author": "Devesh Sangwan",

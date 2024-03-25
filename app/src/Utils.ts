@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { writeLogError } from '../core/logger';
-import * as mongo from '../core/baseModel';
+import { writeLogError } from '../core/Logger';
+import * as mongo from '../core/BaseModel';
 
 export class Utils {
     constructor() {
