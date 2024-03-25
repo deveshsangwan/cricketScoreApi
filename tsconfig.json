@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "CommonJS",
-    "outDir": "app/src",
+    "outDir": "app/dist",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
@@ -10,7 +10,8 @@
     "noUnusedParameters": true
   },
   "include": [
-    "app/ts_src/**/*.ts"
+    "app/src/**/*.ts",
+    "app/core/**/*.ts"
   ],
   "exclude": [
     "node_modules",

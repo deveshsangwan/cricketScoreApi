@@ -3,7 +3,7 @@ const router = express.Router();
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 
-const controller = require(path.join(__dirname, 'src', 'controller'));
+const controller = require(path.join(__dirname, 'dist', 'controller'));
 
 const generateTokenLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
