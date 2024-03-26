@@ -27,11 +27,11 @@ exports.insertDataToLiveMatchesTable = void 0;
 const mongo = __importStar(require("../../core/BaseModel"));
 async function insertDataToLiveMatchesTable(matchesData) {
     const dataToInsert = Object.entries(matchesData).map(([key, value]) => ({
-        _id: key,
+        id: key,
         matchUrl: value.matchUrl,
         matchName: value.matchName
     }));
-    await mongo.insertMany(dataToInsert, 'liveMatches');
+    await mongo.insertMany(dataToInsert, 'livematches');
 }
 exports.insertDataToLiveMatchesTable = insertDataToLiveMatchesTable;
 //# sourceMappingURL=LiveMatchesUtility.js.map

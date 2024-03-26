@@ -34,8 +34,8 @@ export class Utils {
 
     // function for inserting data into matchStats table
     public async insertDataToMatchStatsTable(scrapedData: { [key: string]: any }, matchId?: string) {
-        const dataToInsert = { ...scrapedData, _id: matchId ?? scrapedData['matchId'] };
+        const dataToInsert = { ...scrapedData, id: matchId ?? scrapedData['matchId'] };
         delete dataToInsert['matchId'];
-        await mongo.insert(dataToInsert, 'matchStats');
+        await mongo.insert(dataToInsert, 'matchstats');
     }
 }

@@ -7,7 +7,7 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    // "noUnusedParameters": true
   },
   "include": [
     "app/src/**/*.ts",

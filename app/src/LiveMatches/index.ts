@@ -14,7 +14,7 @@ export class LiveMatches {
     private utilsObj: Utils;
 
     constructor() {
-        this.tableName = 'liveMatches';
+        this.tableName = 'livematches';
         this.utilsObj = new Utils();
     }
 
@@ -33,10 +33,10 @@ export class LiveMatches {
     private async getMatchById(matchId: string): Promise<{}> {
         try {
             const mongoData = await mongo.findById(matchId, this.tableName);
-            if (mongoData.length) {
-                mongoData[0]['matchId'] = mongoData[0]['_id'];
-                delete mongoData[0]['_id'];
-                return mongoData[0];
+            if (mongoData) {
+                mongoData['matchId'] = mongoData['id'];
+                delete mongoData['id'];
+                return mongoData;
             } else {
                 throw new Error(`No match found with id: ${matchId}`);
             }
@@ -79,7 +79,7 @@ export class LiveMatches {
                 const existingMatch = mongoData.find((item) => item.matchUrl === matchUrl);
 
                 if (existingMatch) {
-                    existingMatches[existingMatch._id] = { matchUrl, matchName };
+                    existingMatches[existingMatch.id] = { matchUrl, matchName };
                 } else {
                     const matchId = randomstring.generate({ length: MATCH_ID_LENGTH, charset: 'alphanumeric' });
                     newMatches[matchId] = { matchUrl, matchName };

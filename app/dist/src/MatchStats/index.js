@@ -39,7 +39,7 @@ class MatchStats {
     liveMatchesObj;
     utilsObj;
     constructor() {
-        this.tableName = 'matchStats';
+        this.tableName = 'matchstats';
         this.liveMatchesObj = new LiveMatches_1.LiveMatches();
         this.utilsObj = new Utils_1.Utils();
     }
@@ -72,7 +72,7 @@ class MatchStats {
             const scrapedData = await this.scrapeData(match.matchUrl, matchId);
             underscore_1.default.extend(scrapedData, { matchName: match.matchName });
             // Check if data already exists in the fetched data
-            const mongoData = allMongoData.find(data => data._id === matchId);
+            const mongoData = allMongoData.find(data => data.id === matchId);
             if (!mongoData) {
                 await this.utilsObj.insertDataToMatchStatsTable(scrapedData, matchId);
             }
@@ -86,16 +86,16 @@ class MatchStats {
     }
     async getStatsForSingleMatch(liveMatchesResponse, matchId) {
         const mongoData = await mongo.findById(matchId, this.tableName);
-        if (mongoData.length) {
+        if (mongoData) {
             // Only add the properties you need
             const returnObj = {
-                matchId: mongoData[0]._id,
-                team1: mongoData[0].team1,
-                team2: mongoData[0].team2,
-                onBatting: mongoData[0].onBatting,
-                summary: mongoData[0].summary,
-                tournamentName: mongoData[0].tournamentName,
-                matchName: mongoData[0].matchName
+                matchId: mongoData.id,
+                team1: mongoData.team1,
+                team2: mongoData.team2,
+                onBatting: mongoData.onBatting,
+                summary: mongoData.summary,
+                tournamentName: mongoData.tournamentName,
+                matchName: mongoData.matchName
             };
             return returnObj;
         }

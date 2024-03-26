@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+type MatchstatsOnBatting {
+  player1 MatchstatsOnBattingPlayer1
+  player2 MatchstatsOnBattingPlayer2
+}
+
+type MatchstatsOnBattingPlayer1 {
+  balls String
+  name  String
+  runs  String
+}
+
+type MatchstatsOnBattingPlayer2 {
+  balls String
+  name  String
+  runs  String
+}
+
+type MatchstatsTeam1 {
+  isBatting       Boolean
+  name            String
+  overs           String
+  previousInnings MatchstatsTeam1PreviousInnings?
+  score           String
+  wickets         String
+}
+
+type MatchstatsTeam1PreviousInnings {
+  score   String
+  wickets String
+}
+
+type MatchstatsTeam2 {
+  isBatting       Boolean
+  name            String
+  overs           String?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  previousInnings Json?
+  score           String
+  wickets         String
+}
+
+model livematches {
+  id        String @id @map("_id")
+  // v         Int    @map("__v")
+  matchName String
+  matchUrl  String @unique
+}
+
+model matchstats {
+  id             String              @id @map("_id")
+  // v              Int                 @map("__v")
+  createdAt      DateTime            @db.Date
+  matchName      String
+  onBatting      MatchstatsOnBatting
+  summary        String
+  team1          MatchstatsTeam1
+  team2          MatchstatsTeam2
+  tournamentName String
+  isLive         Boolean
+
+  @@index([createdAt], map: "createdAt_1")
+}
