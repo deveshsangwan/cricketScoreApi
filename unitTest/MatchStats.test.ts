@@ -1,11 +1,12 @@
-import { apiCall } from './Api';
+import HttpClient from './HttpClient';
 import { MatchStats } from '../app/dist/src/MatchStats';
 import { getTeamData } from '../app/dist/src/MatchStats/MatchUtils';
 import { testData } from './TestData/MatchStats';
-import { assert } from 'chai';
+import chai, { assert } from 'chai';
 import sinon from 'sinon';
 
 const ErrorMessage = 'Test failed due to error:';
+const httpClient = new HttpClient(chai);
 const TIMEOUT = 20000;
 
 function assertResultSubset(result, expectedOutput) {
@@ -25,8 +26,8 @@ describe('MatchStats API', function () {
         const id = 'nLSAYi2BckuKRVA8'; // replace with a valid match id
 
         try {
-            const body = await apiCall(`/matchStats/${id}`);
-            assert.equal(body.status, true);
+            const response = await httpClient.get(`/matchStats/${id}`, {});
+            assert.equal(response?.body?.status, true);
         } catch (err) {
             assert.fail(`${ErrorMessage} ${err.message}`);
         }
@@ -36,7 +37,7 @@ describe('MatchStats API', function () {
         const { id, expectedOutput } = testData.invalidMatchId;
 
         try {
-            const res = await apiCall(`/matchStats/${id}`);
+            const res = await httpClient.get(`/matchStats/${id}`, {});
             assert.equal(res.status, 500);
             assert.deepEqual(res.body, expectedOutput);
         } catch (err) {
@@ -48,9 +49,9 @@ describe('MatchStats API', function () {
         const { id, expectedOutput } = testData.nonExistentMatchId;
 
         try {
-            const res = await apiCall(`/matchStats/${id}`);
-            assert.equal(res.status, 500);
-            assert.deepEqual(res.body, expectedOutput);
+            const response = await httpClient.get(`/matchStats/${id}`, {});
+            assert.equal(response?.status, 500);
+            assert.deepEqual(response?.body, expectedOutput);
         } catch (err) {
             assert.fail(`${ErrorMessage} ${err.message}`);
         }
@@ -58,8 +59,8 @@ describe('MatchStats API', function () {
 
     it('retrieves stats for all live matches', async function () {
         try {
-            const body = await apiCall('/matchStats');
-            assert.equal(body.status, true);
+            const response = await httpClient.get(`/matchStats`, {});
+            assert.equal(response?.body?.status, true);
         } catch (err) {
             assert.fail(`${ErrorMessage} ${err.message}`);
         }
