@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const httpContext = require('express-http-context');
-const Mongo = require('./dist/core/Mongo');
 const { expressjwt, UnauthorizedError } = require('express-jwt');
 require('dotenv').config();
 
