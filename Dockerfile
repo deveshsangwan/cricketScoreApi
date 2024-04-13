@@ -17,6 +17,12 @@ RUN apk add --no-cache bash
 RUN npm cache clean --force
 RUN npm install
 
+# Copy Prisma schema
+COPY prisma ./prisma
+
+# Generate Prisma client
+RUN npx prisma generate
+
 # Copy the rest of the application code
 COPY ./ .
 

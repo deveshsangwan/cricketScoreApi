@@ -1,6 +1,6 @@
 # 🏏 Cricket Score API
 
-Welcome to the Cricket Score API! This project is designed to provide real-time cricket scores using TypeScript and npm. It uses technologies like Cheerio for web scraping, MongoDB for caching, Express-jwt for authentication, and Chai and Mocha for testing. The project is also Dockerized for easy setup and deployment.
+Welcome to the Cricket Score API! This project is designed to provide real-time cricket scores using TypeScript and npm. It uses technologies like Cheerio for web scraping, Prisma for accessing MongoDB, Express-jwt for authentication, and Chai and Mocha for testing. The project is also Dockerized for easy setup and deployment.
 
 ## 📚 Table of Contents
 
@@ -30,13 +30,14 @@ To get a copy of the project up and running on your local machine, follow these 
 
 1. Clone the repository: `git clone https://github.com/deveshsangwan/cricketScoreApi.git`
 2. Install dependencies: `npm install`
-3. Create a `.env` file in the root directory of the project. Add the MongoDB URL like so: `MONGO_URL=<your-mongodb-url>`. Replace `<your-mongodb-url>` with your actual MongoDB URL.
-4. Start the server: `npm run dev`
+3. Create a `.env` file in the root directory of the project. Add the MongoDB URL like so: `DATABASE_URL=<your-mongodb-url>`. Replace `<your-mongodb-url>` with your actual MongoDB URL.
+4. Generate Prisma client: `npx prisma generate`
+5. Start the server: `npm run dev`
 
 You can also run the project with Docker:
 
 1. Build the Docker image: `docker build -t cricket-score-api .`
-2. Run the Docker container, passing the MongoDB URL as an environment variable: `docker run -p 3000:3000 -d -e MONGO_URL=<your-mongodb-url> cricket-score-api`
+2. Run the Docker container, passing the MongoDB URL as an environment variable: `docker run -p 3000:3000 -d -e DATABASE_URL=<your-mongodb-url> cricket-score-api`
 
 Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
 
@@ -45,7 +46,7 @@ Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
 This project uses a number of technologies and tools:
 
 - **Cheerio**: Used for web scraping to fetch live cricket match data.
-- **MongoDB**: Used as a database for caching match data to improve performance.
+- **Prisma**: Used as an ORM for accessing MongoDB to improve performance.
 - **Express-jwt**: Used for authentication. A valid token is required to hit all the endpoints other than `/generateToken`.
 - **Chai and Mocha**: These libraries are used for writing and running tests to ensure the quality of the project.
 - **Docker**: Used for creating a containerized version of the application, ensuring that it runs the same way in every environment.
