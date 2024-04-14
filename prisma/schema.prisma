@@ -39,13 +39,13 @@ type MatchstatsTeam1PreviousInnings {
 }
 
 type MatchstatsTeam2 {
-  isBatting       Boolean
-  name            String
+  isBatting       Boolean?
+  name            String?
   overs           String?
   /// Could not determine type: the field only had null or empty values in the sample set.
   previousInnings Json?
-  score           String
-  wickets         String
+  score           String?
+  wickets         String?
 }
 
 model livematches {
