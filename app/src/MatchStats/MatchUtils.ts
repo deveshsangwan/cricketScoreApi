@@ -2,8 +2,8 @@ import { writeLogInfo } from '../../core/Logger';
 import { ITeamData } from './MatchStatsInterfaces';
 
 export function getTeamScoreString($, isLive: boolean, isCurrentTeam: boolean): string {
-    const element = isLive 
-        ? (isCurrentTeam ? $('span.cb-font-20.text-bold') : $('div.cb-text-gray.cb-font-16')) 
+    const element = isLive
+        ? (isCurrentTeam ? $('span.cb-font-20.text-bold') : $('div.cb-text-gray.cb-font-16'))
         : $('div.cb-col.cb-col-100.cb-min-tm').eq(isCurrentTeam ? 1 : 0);
     return element.text().trim();
 }
@@ -37,4 +37,11 @@ export function getBatsmanData($, index: number): { name: string, runs: string, 
         runs: $('div.cb-col.cb-col-10.ab.text-right').eq(index * 2).text(),
         balls: $('div.cb-col.cb-col-10.ab.text-right').eq(index * 2 + 1).text()
     };
+}
+
+export function getRunRate($): { currentRunRate: string, requiredRunRate: string } {
+    const element = $('span.cb-font-12.cb-text-gray') //cb-font-12 cb-text-gray
+    const currentRunRate = element.eq(0).text().trim();
+    const requiredRunRate = element.eq(1).text().trim() || '';
+    return { currentRunRate, requiredRunRate };
 }

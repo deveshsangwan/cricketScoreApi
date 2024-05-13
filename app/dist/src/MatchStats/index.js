@@ -86,7 +86,7 @@ class MatchStats {
     }
     async getStatsForSingleMatch(liveMatchesResponse, matchId) {
         const mongoData = await mongo.findById(matchId, this.tableName);
-        if (mongoData) {
+        if (false && mongoData) {
             // Only add the properties you need
             const returnObj = {
                 matchId: mongoData.id,
@@ -142,6 +142,8 @@ class MatchStats {
         return new Promise((resolve, reject) => {
             try {
                 const isLive = $('div.cb-text-complete').length === 0;
+                const runRate = (0, MatchUtils_1.getRunRate)($);
+                console.log('runRate=====', runRate);
                 const currentTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, true);
                 const otherTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, false);
                 const matchData = {

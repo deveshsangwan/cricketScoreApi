@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBatsmanData = exports.getTeamData = exports.getTeamScoreString = void 0;
+exports.getRunRate = exports.getBatsmanData = exports.getTeamData = exports.getTeamScoreString = void 0;
 const Logger_1 = require("../../core/Logger");
 function getTeamScoreString($, isLive, isCurrentTeam) {
     const element = isLive
@@ -36,4 +36,11 @@ function getBatsmanData($, index) {
     };
 }
 exports.getBatsmanData = getBatsmanData;
+function getRunRate($) {
+    const element = $('span.cb-font-12.cb-text-gray'); //cb-font-12 cb-text-gray
+    const currentRunRate = element.eq(0).text().trim();
+    const requiredRunRate = element.eq(1).text().trim() || '';
+    return { currentRunRate, requiredRunRate };
+}
+exports.getRunRate = getRunRate;
 //# sourceMappingURL=MatchUtils.js.map
