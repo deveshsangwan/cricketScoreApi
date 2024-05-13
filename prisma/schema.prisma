@@ -25,12 +25,12 @@ type MatchstatsOnBattingPlayer2 {
 }
 
 type MatchstatsTeam1 {
-  isBatting       Boolean
-  name            String
-  overs           String
+  isBatting       Boolean?
+  name            String?
+  overs           String?
   previousInnings MatchstatsTeam1PreviousInnings?
-  score           String
-  wickets         String
+  score           String?
+  wickets         String?
 }
 
 type MatchstatsTeam1PreviousInnings {
@@ -42,30 +42,33 @@ type MatchstatsTeam2 {
   isBatting       Boolean?
   name            String?
   overs           String?
-  /// Could not determine type: the field only had null or empty values in the sample set.
-  previousInnings Json?
+  previousInnings MatchstatsTeam2PreviousInnings?
   score           String?
   wickets         String?
 }
 
+type MatchstatsTeam2PreviousInnings {
+  score   String
+  wickets String
+}
+
 model livematches {
   id        String @id @map("_id")
-  // v         Int    @map("__v")
+  v         Int?   @map("__v")
   matchName String
   matchUrl  String @unique
 }
 
 model matchstats {
   id             String              @id @map("_id")
-  // v              Int                 @map("__v")
   createdAt      DateTime            @db.Date
+  isLive         Boolean
   matchName      String
   onBatting      MatchstatsOnBatting
   summary        String
   team1          MatchstatsTeam1
   team2          MatchstatsTeam2
   tournamentName String
-  isLive         Boolean
 
   @@index([createdAt], map: "createdAt_1")
 }
