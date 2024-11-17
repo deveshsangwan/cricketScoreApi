@@ -40,7 +40,7 @@ app.use(function (err, req, res, next) {
     next(err);
 });
 
-require(__basedir + 'app/route')(app);
+require(__basedir + 'app/routes')(app);
 
 app.use(function (req, res) {
     return res.status(404).json({
