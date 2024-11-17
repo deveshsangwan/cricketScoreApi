@@ -9,10 +9,7 @@ const winston_1 = __importDefault(require("winston"));
 const logger = winston_1.default.createLogger({
     format: winston_1.default.format.combine(winston_1.default.format.label({ label: configuration_1.default.get('logging:label') }), winston_1.default.format.errors({ stack: true }), winston_1.default.format.timestamp({ format: 'YYYY-MM-DD hh:mm:ss' }), winston_1.default.format.printf(({ timestamp, label, level, message, meta, stack }) => {
         const text = '[' + timestamp + '] ' +
-            label + '.' + level.toUpperCase() + ': ' + (message ??
-            '') + (meta && Object.keys(meta).length ?
-            '\n' + JSON.stringify(meta, null, 4) :
-            '');
+            label + '.' + level.toUpperCase() + ': ' + (message ?? '') + (meta && Object.keys(meta).length ? '\n' + JSON.stringify(meta, null, 4) : '');
         return stack ? text + '\n' + stack : text;
     }), winston_1.default.format.colorize({ all: true })),
     transports: [

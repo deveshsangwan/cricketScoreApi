@@ -20,6 +20,9 @@ class Token {
         this.expiresIn = configuration_1.default.get('tokenExpiry');
         this.clientId = process.env.CLIENT_ID;
         this.clientSecret = process.env.CLIENT_SECRET;
+        if (!this.secret || !this.clientId || !this.clientSecret) {
+            throw new Error('Missing required environment variables');
+        }
     }
     handleError(location, error) {
         (0, Logger_1.writeLogError)([`${location} | error`, error]);
@@ -28,19 +31,14 @@ class Token {
     generateToken(credentials) {
         try {
             const { clientId, clientSecret } = credentials;
-            if (clientId === this.clientId && clientSecret === this.clientSecret) {
-                const payload = {
-                    clientId
-                };
-                const token = jsonwebtoken_1.default.sign(payload, this.secret, { algorithm: 'HS256', expiresIn: this.expiresIn });
-                return token;
-            }
-            else {
+            if (clientId !== this.clientId || clientSecret !== this.clientSecret) {
                 throw new Error('Invalid credentials');
             }
+            const payload = { clientId };
+            return jsonwebtoken_1.default.sign(payload, this.secret, { algorithm: 'HS256', expiresIn: this.expiresIn });
         }
         catch (error) {
-            this.handleError('Token | generateToken', error);
+            return this.handleError('Token | generateToken', error);
         }
     }
 }

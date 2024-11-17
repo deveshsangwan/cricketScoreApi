@@ -73,7 +73,7 @@ export class MatchStats {
 
     private async getStatsForSingleMatch(liveMatchesResponse: LiveMatchesResponse, matchId: string): Promise<{} | 'Match Id is invalid'> {
         const mongoData = await mongo.findById(matchId, this.tableName);
-        if (false && mongoData) {
+        if (mongoData) {
             // Only add the properties you need
             const returnObj = {
                 matchId: mongoData.id,
@@ -100,7 +100,9 @@ export class MatchStats {
 
     private async scrapeData(url, matchId: string): Promise<{}> {
         try {
-            if (!matchId) { return Promise.resolve('Match Id is required'); }
+            if (!matchId) {
+                throw new MatchIdRequriedError();
+            }
 
             url = 'https://www.cricbuzz.com' + url;
             const response = await this.utilsObj.fetchData(url);
@@ -113,7 +115,7 @@ export class MatchStats {
             return Promise.resolve(finalResponse);
         } catch (error) {
             writeLogError(['matchStats | scrapeData |', error, url]);
-            return Promise.reject(error);
+            throw error;
         }
     }
 
