@@ -1,34 +1,45 @@
-# Use multi-stage build
-FROM node:alpine
+# Build stage
+FROM node:20-alpine AS builder
 
-ENV NODE_VERSION 20.11.0
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-WORKDIR /usr/app
+WORKDIR /app
 
-# Copy package.json and package-lock.json first
-COPY package*.json ./
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
 
-# Set NODE_ENV to production before running npm install
-ENV NODE_ENV production
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
-# Install bash
-RUN apk add --no-cache bash
+# Copy source code
+COPY . .
 
-RUN npm cache clean --force
-RUN npm install
+# Build the application
+RUN pnpm build
 
-# Copy Prisma schema
-COPY prisma ./prisma
+# Production stage
+FROM node:20-alpine
 
-# Generate Prisma client
-RUN npx prisma generate
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copy the rest of the application code
-COPY ./ .
+WORKDIR /app
 
-ENV NODE_PORT 3000
-ENV NODE_ENV production
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
 
-EXPOSE $NODE_PORT
+# Install production dependencies only
+RUN pnpm install --prod --frozen-lockfile
 
-CMD [ "npm", "start" ]
+# Copy built files from builder stage
+COPY --from=builder /app/build ./build
+
+# Set environment variables
+ENV NODE_ENV=production
+
+# Expose port (adjust if needed)
+EXPOSE 3000
+
+# Start the application
+CMD ["pnpm", "start"]

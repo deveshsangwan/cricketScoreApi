@@ -1,6 +1,6 @@
 # 🏏 Cricket Score API
 
-Welcome to the Cricket Score API! This project is designed to provide real-time cricket scores using TypeScript and npm. It uses technologies like Cheerio for web scraping, Prisma for accessing MongoDB, Express-jwt for authentication, and Chai and Mocha for testing. The project is also Dockerized for easy setup and deployment.
+Welcome to the Cricket Score API! This project is designed to provide real-time cricket scores using TypeScript and pnpm. It uses technologies like Cheerio for web scraping, Prisma for accessing MongoDB, Express-jwt for authentication, and Chai and Mocha for testing. The project is also Dockerized for easy setup and deployment.
 
 ## 📚 Table of Contents
 
@@ -29,10 +29,11 @@ Our aim is to maintain high code coverage to ensure the quality of the project. 
 To get a copy of the project up and running on your local machine, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/deveshsangwan/cricketScoreApi.git`
-2. Install dependencies: `npm install`
-3. Create a `.env` file in the root directory of the project. Add the MongoDB URL like so: `DATABASE_URL=<your-mongodb-url>`. Replace `<your-mongodb-url>` with your actual MongoDB URL.
-4. Generate Prisma client: `npx prisma generate`
-5. Start the server: `npm run dev`
+2. Install pnpm if you haven't already: `npm install -g pnpm`
+3. Install dependencies: `pnpm install`
+4. Create a `.env` file in the root directory of the project. Add the MongoDB URL like so: `DATABASE_URL=<your-mongodb-url>`. Replace `<your-mongodb-url>` with your actual MongoDB URL.
+5. Generate Prisma client: `pnpm prisma generate`
+6. Start the server: `pnpm dev`
 
 You can also run the project with Docker:
 
@@ -45,11 +46,12 @@ Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
 
 This project uses a number of technologies and tools:
 
-- **Cheerio**: Used for web scraping to fetch live cricket match data.
-- **Prisma**: Used as an ORM for accessing MongoDB to improve performance.
-- **Express-jwt**: Used for authentication. A valid token is required to hit all the endpoints other than `/generateToken`.
-- **Chai and Mocha**: These libraries are used for writing and running tests to ensure the quality of the project.
-- **Docker**: Used for creating a containerized version of the application, ensuring that it runs the same way in every environment.
+- **pnpm**: Used as the package manager for better dependency management and disk space efficiency
+- **Cheerio**: Used for web scraping to fetch live cricket match data
+- **Prisma**: Used as an ORM for accessing MongoDB to improve performance
+- **Express-jwt**: Used for authentication. A valid token is required to hit all the endpoints other than `/generateToken`
+- **Chai and Mocha**: These libraries are used for writing and running tests to ensure the quality of the project
+- **Docker**: Used for creating a containerized version of the application, ensuring that it runs the same way in every environment
 
 ## 📝 Usage
 
@@ -71,11 +73,11 @@ This project uses a number of technologies and tools:
 
 After setting up the project, you can run the tests to ensure everything is working as expected. Follow these steps:
 
-1. Run the test command: `npm run test`
+1. Run the test command: `pnpm test`
 
 This command will run the test suite for the project.
 
-2. If you want to check the code coverage of your tests, you can run: `npm run test:coverage`
+2. If you want to check the code coverage of your tests, you can run: `pnpm test:coverage`
 
 This command will run the tests and generate a coverage report.
 

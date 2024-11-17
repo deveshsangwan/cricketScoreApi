@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.insertDataToLiveMatchesTable = void 0;
+exports.insertDataToLiveMatchesTable = insertDataToLiveMatchesTable;
 const mongo = __importStar(require("../../core/BaseModel"));
 async function insertDataToLiveMatchesTable(matchesData) {
     const dataToInsert = Object.entries(matchesData).map(([key, value]) => ({
@@ -33,5 +33,4 @@ async function insertDataToLiveMatchesTable(matchesData) {
     }));
     await mongo.insertMany(dataToInsert, 'livematches');
 }
-exports.insertDataToLiveMatchesTable = insertDataToLiveMatchesTable;
 //# sourceMappingURL=LiveMatchesUtility.js.map
