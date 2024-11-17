@@ -1,9 +1,19 @@
 "use strict";
+/**
+ * Database operations module using Prisma client
+ * Provides CRUD operations for match data
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.insertMany = exports.insert = exports.findIdByMatchUrl = exports.findById = exports.findAll = void 0;
 const client_1 = require("@prisma/client");
 const Logger_1 = require("./Logger");
 const prisma = new client_1.PrismaClient();
+/**
+ * Retrieves all records from specified model
+ * @param modelName - Name of the Prisma model to query
+ * @returns Promise resolving to array of records
+ * @throws Error if database operation fails
+ */
 const findAll = async (modelName) => {
     try {
         const response = await prisma[modelName].findMany();
@@ -15,6 +25,13 @@ const findAll = async (modelName) => {
     }
 };
 exports.findAll = findAll;
+/**
+ * Finds a record by ID in specified model
+ * @param matchId - ID of the record to find
+ * @param modelName - Name of the Prisma model to query
+ * @returns Promise resolving to matching record or null
+ * @throws Error if database operation fails
+ */
 const findById = async (matchId, modelName) => {
     try {
         const response = await prisma[modelName].findUnique({ where: { id: matchId } });

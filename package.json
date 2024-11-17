@@ -35,7 +35,10 @@
     "nyc": "^15.1.0",
     "prisma": "^5.13.0",
     "sinon": "^17.0.1",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "@types/domhandler": "^2.4.4",
+    "@types/htmlparser2": "^3.10.7",
+    "@types/logform": "1.10.1"
   },
   "dependencies": {
     "@prisma/client": "^5.13.0",
