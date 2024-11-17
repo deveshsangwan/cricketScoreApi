@@ -31,37 +31,74 @@ const axios_1 = __importDefault(require("axios"));
 const cheerio = __importStar(require("cheerio"));
 const Logger_1 = require("../core/Logger");
 const mongo = __importStar(require("../core/BaseModel"));
+/**
+ * Utility class providing common functionality across the application
+ */
 class Utils {
-    constructor() {
-    }
+    DEFAULT_USER_AGENT = 'Mozilla/5.0 (compatible; CricketStatsBot/1.0)';
+    REQUEST_TIMEOUT = 10000; // 10 seconds
+    /**
+     * Fetches and parses HTML data from a given URL
+     * @param url - URL to fetch data from
+     * @returns Promise resolving to Cheerio instance
+     * @throws Error if fetch fails or status is not 200
+     */
     async fetchData(url) {
+        if (!url) {
+            throw new Error('URL is required');
+        }
         const options = this.prepareRequestOptions(url);
         try {
             const response = await (0, axios_1.default)(options);
             if (response.status === 200) {
-                const $ = cheerio.load(response.data);
-                return Promise.resolve($);
+                return cheerio.load(response.data);
             }
-            throw new Error(`Error while fetching data from url: ${url}`);
+            throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
         }
         catch (error) {
-            (0, Logger_1.writeLogError)(['Utils | scrapeData | error', error]);
-            return Promise.reject(error);
+            (0, Logger_1.writeLogError)(['Utils | fetchData | error', error]);
+            throw error; // Let caller handle the error
         }
     }
+    /**
+     * Prepares request options for HTTP requests
+     * @param url - Target URL
+     * @returns AxiosRequestConfig containing request configuration
+     */
     prepareRequestOptions(url) {
         return {
             url,
+            timeout: this.REQUEST_TIMEOUT,
             headers: {
-                'User-Agent': 'request'
-            }
+                'User-Agent': this.DEFAULT_USER_AGENT,
+                'Accept': 'text/html,application/xhtml+xml,application/xml',
+                'Accept-Language': 'en-US,en;q=0.9'
+            },
+            validateStatus: (status) => status === 200
         };
     }
-    // function for inserting data into matchStats table
+    /**
+     * Inserts or updates match statistics in the database
+     * @param scrapedData - Match data to be inserted
+     * @param matchId - Optional match ID for the record
+     * @throws Error if database operation fails
+     */
     async insertDataToMatchStatsTable(scrapedData, matchId) {
-        const dataToInsert = { ...scrapedData, id: matchId ?? scrapedData['matchId'] };
-        delete dataToInsert['matchId'];
-        await mongo.insert(dataToInsert, 'matchstats');
+        if (!scrapedData) {
+            throw new Error('Scraped data is required');
+        }
+        try {
+            const dataToInsert = {
+                ...scrapedData,
+                id: matchId ?? scrapedData['matchId']
+            };
+            delete dataToInsert['matchId'];
+            await mongo.insert(dataToInsert, 'matchstats');
+        }
+        catch (error) {
+            (0, Logger_1.writeLogError)(['Utils | insertDataToMatchStatsTable | error', error]);
+            throw error;
+        }
     }
 }
 exports.Utils = Utils;

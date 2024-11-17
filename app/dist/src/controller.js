@@ -83,4 +83,4 @@ module.exports = {
     matchStats,
     getMatchStats
 };
-//# sourceMappingURL=controller.js.map
+//# sourceMappingURL=Controller.js.map

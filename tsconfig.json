@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "CommonJS",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "app/dist",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
+    "strict": false,
     "esModuleInterop": true,
     "noUnusedLocals": true,
-    // "noUnusedParameters": true
+    // "noUnusedParameters": true,
+    // "noImplicitAny": true
   },
   "include": [
     "app/src/**/*.ts",

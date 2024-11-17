@@ -12,7 +12,7 @@
     "lines": 80,
     "statements": 80,
     "exclude": [
-        "**/unitTest/**",
+        "**/test/**",
         "**/*.spec.js",
         "coverage/**",
         "build/**",

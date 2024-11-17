@@ -111,7 +111,7 @@ class MatchStats {
     async scrapeData(url, matchId) {
         try {
             if (!matchId) {
-                return Promise.resolve('Match Id is required');
+                throw new errors_1.MatchIdRequriedError();
             }
             url = 'https://www.cricbuzz.com' + url;
             const response = await this.utilsObj.fetchData(url);
@@ -122,7 +122,7 @@ class MatchStats {
         }
         catch (error) {
             (0, Logger_1.writeLogError)(['matchStats | scrapeData |', error, url]);
-            return Promise.reject(error);
+            throw error;
         }
     }
     async getTournamentName($) {
@@ -142,6 +142,8 @@ class MatchStats {
         return new Promise((resolve, reject) => {
             try {
                 const isLive = $('div.cb-text-complete').length === 0;
+                const runRate = (0, MatchUtils_1.getRunRate)($);
+                console.log('runRate=====', runRate);
                 const currentTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, true);
                 const otherTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, false);
                 const matchData = {

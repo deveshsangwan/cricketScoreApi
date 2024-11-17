@@ -21,11 +21,11 @@ export interface ITeamData {
 export interface MatchData {
     matchId: string;
     isLive: boolean;
-    team1: ITeamData | {};
-    team2: ITeamData | {};
+    team1: ITeamData | object;
+    team2: ITeamData | object;
     onBatting: {
-        player1: any;
-        player2: any;
+        player1: object;
+        player2: object;
     };
     summary: string;
 }

@@ -1,4 +1,4 @@
-name: zDeploy selfhost
+name: Deploy selfhost
 on:
   push:
     branches:
@@ -8,13 +8,29 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: 'Use Node.js'
-        uses: actions/setup-node@v3
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
-      - run: npm install
-      - run: npm install pm2@latest -g
-      - run: pm2 ls
-      - run: pm2 restart crickety
-      - run: pm2 ls
+          node-version: "20"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install PM2
+        run: pnpm add -g pm2@latest
+
+      - name: Check PM2 status
+        run: pm2 ls
+
+      - name: Restart application
+        run: pm2 restart crickety
+
+      - name: Verify restart
+        run: pm2 ls

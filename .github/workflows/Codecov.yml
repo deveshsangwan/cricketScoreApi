@@ -1,4 +1,4 @@
-name: Run Tests
+name: Code Coverage
 
 on:
   push:
@@ -13,19 +13,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Install Dependencies
-        run: npm i
+        run: pnpm install --frozen-lockfile
 
       - name: Run Build
-        run: npm run build
+        run: pnpm run build
 
       - name: Run Tests
-        run: npm run test:coverage
+        run: pnpm run test:coverage
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -33,7 +51,7 @@ jobs:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
       - name: Upload Coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage/lcov.info

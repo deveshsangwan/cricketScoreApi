@@ -1,8 +1,19 @@
+/**
+ * Database operations module using Prisma client
+ * Provides CRUD operations for match data
+ */
+
 import { PrismaClient } from '@prisma/client';
-import { writeLogInfo, writeLogError } from './Logger';
+import { writeLogError } from './Logger';
 
 const prisma = new PrismaClient();
 
+/**
+ * Retrieves all records from specified model
+ * @param modelName - Name of the Prisma model to query
+ * @returns Promise resolving to array of records
+ * @throws Error if database operation fails
+ */
 const findAll = async (modelName: string) => {
     try {
         const response = await prisma[modelName].findMany();
@@ -13,6 +24,13 @@ const findAll = async (modelName: string) => {
     }
 };
 
+/**
+ * Finds a record by ID in specified model
+ * @param matchId - ID of the record to find
+ * @param modelName - Name of the Prisma model to query
+ * @returns Promise resolving to matching record or null
+ * @throws Error if database operation fails
+ */
 const findById = async (matchId: string, modelName: string) => {
     try {
         const response = await prisma[modelName].findUnique({ where: { id: matchId } });

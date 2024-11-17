@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const httpContext = require('express-http-context');
 const { expressjwt, UnauthorizedError } = require('express-jwt');
 require('dotenv').config();
+// const cors = require('cors');
 
 const app = express();
 
@@ -40,7 +41,13 @@ app.use(function (err, req, res, next) {
     next(err);
 });
 
-require(__basedir + 'app/route')(app);
+/* app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+})); */
+
+require(__basedir + 'app/routes')(app);
 
 app.use(function (req, res) {
     return res.status(404).json({

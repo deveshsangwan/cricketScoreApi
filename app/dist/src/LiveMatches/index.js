@@ -35,6 +35,10 @@ const mongo = __importStar(require("../../core/BaseModel"));
 const randomstring_1 = __importDefault(require("randomstring"));
 const underscore_1 = __importDefault(require("underscore"));
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
+/**
+ * Class responsible for handling live cricket match data
+ * Fetches and processes live match information from Cricbuzz
+ */
 class LiveMatches {
     tableName;
     utilsObj;
@@ -42,10 +46,21 @@ class LiveMatches {
         this.tableName = 'livematches';
         this.utilsObj = new Utils_1.Utils();
     }
+    /**
+     * Handles error logging and rejection
+     * @param location - Location where error occurred for logging
+     * @param error - Error object to be handled
+     * @returns Rejected promise with CustomError
+     */
     handleError(location, error) {
         (0, Logger_1.writeLogError)([`${location} | error`, error]);
         return Promise.reject(new errors_1.CustomError(error.message));
     }
+    /**
+     * Gets match data either for a specific match or all matches
+     * @param matchId - Optional ID of specific match to fetch (defaults to '0' for all matches)
+     * @returns Promise resolving to match data
+     */
     async getMatches(matchId = '0') {
         if (matchId !== '0') {
             return this.getMatchById(matchId);
@@ -89,6 +104,13 @@ class LiveMatches {
             return this.handleError('LiveMatches | scrapeData', error);
         }
     }
+    /**
+     * Processes HTML data to extract match information
+     * @param $ - Cheerio instance containing parsed HTML
+     * @param mongoData - Existing match data from database
+     * @returns Tuple of [existing matches, new matches]
+     * @throws Error if no matches are found
+     */
     processData($, mongoData) {
         const MATCH_ID_LENGTH = 16;
         const existingMatches = {};

@@ -8,10 +8,7 @@ const logger = winston.createLogger({
         winston.format.timestamp({ format: 'YYYY-MM-DD hh:mm:ss' }),
         winston.format.printf(({ timestamp, label, level, message, meta, stack }) => {
             const text = '[' + timestamp + '] ' +
-                label + '.' + level.toUpperCase() + ': ' + (message ??
-                    '') + (meta && Object.keys(meta).length ?
-                        '\n' + JSON.stringify(meta, null, 4) :
-                        '');
+                label + '.' + level.toUpperCase() + ': ' + (message ?? '') + (meta && Object.keys(meta).length ? '\n' + JSON.stringify(meta, null, 4) : '');
             return stack ? text + '\n' + stack : text;
         }),
         winston.format.colorize({ all: true }),
