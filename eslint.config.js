@@ -1,7 +1,7 @@
-import typeScriptParser from '@typescript-eslint/parser';
-import globals from 'globals';
+const typeScriptParser = require('@typescript-eslint/parser');
+const globals = require('globals');
 
-export default [
+module.exports = [
   {
     languageOptions: {
       parser: typeScriptParser,

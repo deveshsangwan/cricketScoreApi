@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { assert } from 'chai';
 import sinon from 'sinon';
 
 describe('Prisma Client', () => {
@@ -10,7 +10,7 @@ describe('Prisma Client', () => {
         // Backup original env
         originalEnv = { ...process.env };
         // Clear module cache to test initialization
-        delete require.cache[require.resolve('../app/dist/core/prisma')];
+        delete require.cache[require.resolve('../../app/dist/core/prisma')];
         // Clear global prisma instance
         delete global.prisma;
 
@@ -44,22 +44,25 @@ describe('Prisma Client', () => {
         // Clear module cache
         delete require.cache[require.resolve('@prisma/client')];
         delete require.cache[require.resolve('@prisma/extension-optimize')];
-        delete require.cache[require.resolve('../app/dist/core/prisma')];
+        delete require.cache[require.resolve('../../app/dist/core/prisma')];
     });
 
     it('should throw error when DATABASE_URL is missing', () => {
         delete process.env.DATABASE_URL;
-        expect(() => require('../app/dist/core/prisma')).to.throw('DATABASE_URL environment variable is required');
+        assert.throws(
+            () => require('../../app/dist/core/prisma'),
+            'DATABASE_URL environment variable is required'
+        );
     });
 
     it('should create basic client when only DATABASE_URL is present', () => {
         process.env.DATABASE_URL = 'test-database-url';
         delete process.env.OPTIMIZE_API_KEY;
 
-        require('../app/dist/core/prisma');
+        require('../../app/dist/core/prisma');
 
-        expect(prismaStub.calledOnce).to.be.true;
-        expect(prismaStub.firstCall.args[0]).to.deep.equal({
+        assert.isTrue(prismaStub.calledOnce);
+        assert.deepEqual(prismaStub.firstCall.args[0], {
             datasources: {
                 db: {
                     url: 'test-database-url'
@@ -72,10 +75,10 @@ describe('Prisma Client', () => {
         process.env.DATABASE_URL = 'test-database-url';
         process.env.OPTIMIZE_API_KEY = 'test-optimize-key';
 
-        require('../app/dist/core/prisma');
+        require('../../app/dist/core/prisma');
 
-        expect(optimizeStub.calledOnce).to.be.true;
-        expect(optimizeStub.firstCall.args[0]).to.deep.equal({
+        assert.isTrue(optimizeStub.calledOnce);
+        assert.deepEqual(optimizeStub.firstCall.args[0], {
             apiKey: 'test-optimize-key'
         });
     });
@@ -84,17 +87,17 @@ describe('Prisma Client', () => {
         process.env.DATABASE_URL = 'test-database-url';
         process.env.NODE_ENV = 'development';
 
-        require('../app/dist/core/prisma');
+        require('../../app/dist/core/prisma');
 
-        expect(global.prisma).to.not.be.undefined;
+        assert.isDefined(global.prisma);
     });
 
     it('should not save prisma reference to global in production', () => {
         process.env.DATABASE_URL = 'test-database-url';
         process.env.NODE_ENV = 'production';
 
-        require('../app/dist/core/prisma');
+        require('../../app/dist/core/prisma');
 
-        expect(global.prisma).to.be.undefined;
+        assert.isUndefined(global.prisma);
     });
 });
