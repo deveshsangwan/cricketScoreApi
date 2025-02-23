@@ -56,6 +56,7 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          OPTIMIZE_API_KEY: ${{ secrets.OPTIMIZE_API_KEY }}
 
       - name: Run Tests
         run: pnpm run test:coverage
@@ -64,6 +65,7 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          OPTIMIZE_API_KEY: ${{ secrets.OPTIMIZE_API_KEY }}
 
       # - name: Commit coverage badge
       #   run: |
