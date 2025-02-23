@@ -3,11 +3,13 @@
  * Database operations module using Prisma client
  * Provides CRUD operations for match data
  */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.insertMany = exports.insert = exports.findIdByMatchUrl = exports.findById = exports.findAll = void 0;
-const client_1 = require("@prisma/client");
+const prisma_1 = __importDefault(require("./prisma"));
 const Logger_1 = require("./Logger");
-const prisma = new client_1.PrismaClient();
 /**
  * Retrieves all records from specified model
  * @param modelName - Name of the Prisma model to query
@@ -16,7 +18,7 @@ const prisma = new client_1.PrismaClient();
  */
 const findAll = async (modelName) => {
     try {
-        const response = await prisma[modelName].findMany();
+        const response = await prisma_1.default[modelName].findMany();
         return response;
     }
     catch (err) {
@@ -34,7 +36,7 @@ exports.findAll = findAll;
  */
 const findById = async (matchId, modelName) => {
     try {
-        const response = await prisma[modelName].findUnique({ where: { id: matchId } });
+        const response = await prisma_1.default[modelName].findUnique({ where: { id: matchId } });
         return response;
     }
     catch (err) {
@@ -45,7 +47,7 @@ const findById = async (matchId, modelName) => {
 exports.findById = findById;
 const findIdByMatchUrl = async (matchUrl) => {
     try {
-        return await prisma.livematches.findUnique({ where: { matchUrl: matchUrl } });
+        return await prisma_1.default.livematches.findUnique({ where: { matchUrl: matchUrl } });
     }
     catch (err) {
         (0, Logger_1.writeLogError)(['findIdByMatchUrl error: ', err]);
@@ -56,7 +58,7 @@ exports.findIdByMatchUrl = findIdByMatchUrl;
 const insert = async (data, modelName) => {
     try {
         const { id, ...restData } = data;
-        const response = await prisma[modelName].upsert({
+        const response = await prisma_1.default[modelName].upsert({
             where: { id: id },
             update: restData,
             create: {
@@ -78,7 +80,7 @@ const insertMany = async (matches, modelName) => {
         if (!matches.length) {
             return;
         }
-        const response = await prisma[modelName].createMany({ data: matches });
+        const response = await prisma_1.default[modelName].createMany({ data: matches });
         return response;
     }
     catch (err) {
