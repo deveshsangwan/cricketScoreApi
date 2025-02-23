@@ -3,10 +3,8 @@
  * Provides CRUD operations for match data
  */
 
-import { PrismaClient } from '@prisma/client';
+import prisma from './prisma';
 import { writeLogError } from './Logger';
-
-const prisma = new PrismaClient();
 
 /**
  * Retrieves all records from specified model
