@@ -45,6 +45,18 @@ jobs:
       - name: Run Build
         run: pnpm run build
 
+      - name: Check Environment Variables
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "DATABASE_URL is missing"; else echo "DATABASE_URL is set"; fi
+          if [ -z "$SECRET_KEY" ]; then echo "SECRET_KEY is missing"; else echo "SECRET_KEY is set"; fi 
+          if [ -z "$CLIENT_ID" ]; then echo "CLIENT_ID is missing"; else echo "CLIENT_ID is set"; fi
+          if [ -z "$CLIENT_SECRET" ]; then echo "CLIENT_SECRET is missing"; else echo "CLIENT_SECRET is set"; fi
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+
       - name: Run Tests
         run: pnpm run test:coverage
         env:
