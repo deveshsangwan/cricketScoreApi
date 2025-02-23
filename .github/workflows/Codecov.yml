@@ -41,6 +41,9 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPTIMIZE_API_KEY: ${{ secrets.OPTIMIZE_API_KEY }}
 
       - name: Run Build
         run: pnpm run build
@@ -52,6 +55,7 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          OPTIMIZE_API_KEY: ${{ secrets.OPTIMIZE_API_KEY }}
 
       - name: Upload Coverage
         uses: codecov/codecov-action@v3
