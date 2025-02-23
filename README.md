@@ -22,7 +22,7 @@ Our aim is to maintain high code coverage to ensure the quality of the project. 
 
 [![codecov](https://codecov.io/gh/deveshsangwan/cricketScoreApi/graph/badge.svg?token=A3JMLLNTG4)](https://codecov.io/gh/deveshsangwan/cricketScoreApi)
 ![Functions](https://img.shields.io/badge/functions-92.98%25-brightgreen.svg?style=flat)
-![Lines](https://img.shields.io/badge/lines-85.07%25-yellow.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-85.35%25-yellow.svg?style=flat)
 
 ## 🚀 Getting Started
 
