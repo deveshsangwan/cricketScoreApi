@@ -69,12 +69,18 @@ jobs:
           else 
             echo "✅ CLIENT_SECRET is set and has length: ${#CLIENT_SECRET}"
           fi
+          if [ -z "$OPTIMIZE_API_KEY" ]; then 
+            echo "❌ OPTIMIZE_API_KEY is missing"
+          else 
+            echo "✅ OPTIMIZE_API_KEY is set and has length: ${#OPTIMIZE_API_KEY}"
+          fi
         env:
           NODE_ENV: test
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          OPTIMIZE_API_KEY: ${{ secrets.OPTIMIZE_API_KEY }}
 
       - name: Run Tests
         run: |
