@@ -1,19 +1,16 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { writeLogError } from '../core/Logger';
 import { CustomError } from './errors';
 import dotenv from 'dotenv';
 import config from '../core/configuration';
+import { ClientCredentials } from './TokenInterfaces';
 
 dotenv.config();
 
-interface ClientCredentials {
-    clientId: string;
-    clientSecret: string;
-}
 
 export class Token {
     private readonly secret: string;
-    private readonly expiresIn: string;
+    private readonly expiresIn: SignOptions['expiresIn'];
     private readonly clientId: string;
     private readonly clientSecret: string;
 
