@@ -35,7 +35,10 @@ class Token {
                 throw new Error('Invalid credentials');
             }
             const payload = { clientId };
-            return jsonwebtoken_1.default.sign(payload, this.secret, { algorithm: 'HS256', expiresIn: this.expiresIn });
+            return {
+                token: jsonwebtoken_1.default.sign(payload, this.secret, { algorithm: 'HS256', expiresIn: this.expiresIn }),
+                expiresAt: new Date(Date.now() + 3600000).toISOString()
+            };
         }
         catch (error) {
             return this.handleError('Token | generateToken', error);

@@ -3,7 +3,7 @@ import { Utils } from '../Utils';
 import * as mongo from '../../core/BaseModel';
 import { writeLogError } from '../../core/Logger';
 import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from '../errors';
-import { LiveMatchesResponse, MatchData } from './MatchStatsInterfaces';
+import { LiveMatchesResponse, MatchStatsResponse } from '../types';
 import { getTeamScoreString, getTeamData, getBatsmanData, getRunRate } from './MatchUtils';
 import _ from 'underscore';
 
@@ -132,7 +132,7 @@ export class MatchStats {
         }
     }
 
-    private getMatchStatsByMatchId($, matchId: string): Promise<MatchData> {
+    private getMatchStatsByMatchId($, matchId: string): Promise<MatchStatsResponse> {
         return new Promise((resolve, reject) => {
             try {
                 const isLive = $('div.cb-text-complete').length === 0;
@@ -141,7 +141,7 @@ export class MatchStats {
                 const currentTeamScoreString = getTeamScoreString($, isLive, true);
                 const otherTeamScoreString = getTeamScoreString($, isLive, false);
 
-                const matchData: MatchData = {
+                const matchData: MatchStatsResponse = {
                     matchId: matchId,
                     team1: getTeamData(currentTeamScoreString, true),
                     team2: getTeamData(otherTeamScoreString),

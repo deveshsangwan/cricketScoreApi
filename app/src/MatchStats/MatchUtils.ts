@@ -3,7 +3,7 @@
  */
 
 import { writeLogInfo } from '../../core/Logger';
-import { ITeamData } from './MatchStatsInterfaces';
+import { ITeamData } from '../types';
 
 /**
  * Extracts team score string from the DOM

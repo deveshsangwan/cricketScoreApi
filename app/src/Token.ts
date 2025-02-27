@@ -3,7 +3,7 @@ import { writeLogError } from '../core/Logger';
 import { CustomError } from './errors';
 import dotenv from 'dotenv';
 import config from '../core/configuration';
-import { ClientCredentials } from './TokenInterfaces';
+import { TokenRequest, TokenResponse } from './types';
 
 dotenv.config();
 
@@ -30,7 +30,7 @@ export class Token {
         throw new CustomError(error.message);
     }
 
-    public generateToken(credentials: ClientCredentials): string {
+    public generateToken(credentials: TokenRequest): TokenResponse {
         try {
             const { clientId, clientSecret } = credentials;
 
@@ -39,7 +39,10 @@ export class Token {
             }
 
             const payload = { clientId };
-            return jwt.sign(payload, this.secret, { algorithm: 'HS256', expiresIn: this.expiresIn });
+            return {
+                token: jwt.sign(payload, this.secret, { algorithm: 'HS256', expiresIn: this.expiresIn }),
+                expiresAt: new Date(Date.now() + 3600000).toISOString()
+            };
         } catch (error) {
             return this.handleError('Token | generateToken', error as Error);
         }

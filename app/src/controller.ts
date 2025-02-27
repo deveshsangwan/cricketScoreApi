@@ -2,12 +2,14 @@ import { Request, Response } from 'express';
 import { Token } from './Token';
 import { LiveMatches } from './LiveMatches';
 import { MatchStats } from './MatchStats';
+// Import types
+import { TokenRequest, TokenResponse, MatchStatsResponse, LiveMatchesResponse } from './types';
 
 const generateToken = async (req: Request, res: Response) => {
     try {
-        const data = req.body;
+        const data = req.body as TokenRequest;
         const tokenObj = new Token();
-        const tokenResponse = tokenObj.generateToken(data);
+        const tokenResponse = tokenObj.generateToken(data) as TokenResponse;
 
         return res.status(200).send({
             status: true,
@@ -26,7 +28,7 @@ const generateToken = async (req: Request, res: Response) => {
 const live = async (_req: Request, res: Response) => {
     try {
         const liveMatchesObj = new LiveMatches();
-        const liveMatchesResponse = await liveMatchesObj.getMatches();
+        const liveMatchesResponse = await liveMatchesObj.getMatches() as LiveMatchesResponse;
 
         return res.status(200).send({
             status: true,
@@ -46,7 +48,7 @@ const matchStats = async (req: Request, res: Response) => {
     try {
         const matchId = req.params.matchId;
         const matchStatsObj = new MatchStats();
-        const matchStatsResponse = await matchStatsObj.getMatchStats(matchId);
+        const matchStatsResponse = await matchStatsObj.getMatchStats(matchId) as MatchStatsResponse;
 
         return res.status(200).send({
             status: true,
@@ -65,7 +67,7 @@ const matchStats = async (req: Request, res: Response) => {
 const getMatchStats = async (_req: Request, res: Response) => {
     try {
         const matchStatsObj = new MatchStats();
-        const matchStatsResponse = await matchStatsObj.getMatchStats('0');
+        const matchStatsResponse = await matchStatsObj.getMatchStats('0') as MatchStatsResponse;
 
         return res.status(200).send({
             status: true,

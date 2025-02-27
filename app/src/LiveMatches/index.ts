@@ -1,6 +1,6 @@
 import { Utils } from '../Utils';
 import { writeLogError } from '../../core/Logger';
-import { MatchData } from './LiveMatchesInterfaces';
+import { MatchData } from '../types';
 import { insertDataToLiveMatchesTable } from './LiveMatchesUtility';
 import { CustomError } from '../errors';
 import * as mongo from '../../core/BaseModel';
