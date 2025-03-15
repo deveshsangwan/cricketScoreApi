@@ -1,8 +1,7 @@
 {
     "require": [
         "ts-node/register",
-        "test/setup.js",
-        "mocha-suppress-logs"
+        "test/setup.js"
     ],
     "spec": [
         "test/*test.ts",

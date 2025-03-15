@@ -16,25 +16,25 @@ describe('Prisma Client', () => {
 
         // Setup stubs
         prismaStub = sinon.stub().returns({
-            $extends: sinon.stub().returns({ extended: true })
+            $extends: sinon.stub().returns({ extended: true }),
         });
         optimizeStub = sinon.stub().returns({});
 
         // Create module stubs
         const prismaModule = {
-            PrismaClient: prismaStub
+            PrismaClient: prismaStub,
         };
         const optimizeModule = {
-            withOptimize: optimizeStub
+            withOptimize: optimizeStub,
         };
 
         // Use module.exports to properly mock the modules
         require.cache[require.resolve('@prisma/client')] = {
-            exports: prismaModule
+            exports: prismaModule,
         } as NodeModule;
 
         require.cache[require.resolve('@prisma/extension-optimize')] = {
-            exports: optimizeModule
+            exports: optimizeModule,
         } as NodeModule;
     });
 
@@ -65,9 +65,9 @@ describe('Prisma Client', () => {
         assert.deepEqual(prismaStub.firstCall.args[0], {
             datasources: {
                 db: {
-                    url: 'test-database-url'
-                }
-            }
+                    url: 'test-database-url',
+                },
+            },
         });
     });
 
@@ -79,7 +79,7 @@ describe('Prisma Client', () => {
 
         assert.isTrue(optimizeStub.calledOnce);
         assert.deepEqual(optimizeStub.firstCall.args[0], {
-            apiKey: 'test-optimize-key'
+            apiKey: 'test-optimize-key',
         });
     });
 

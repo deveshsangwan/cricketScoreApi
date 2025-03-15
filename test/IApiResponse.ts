@@ -1,4 +1,4 @@
-type ResponseBody = { [key: string]: any, status?: boolean};
+type ResponseBody = { [key: string]: any; status?: boolean };
 
 export interface IApiResponse {
     body: ResponseBody;

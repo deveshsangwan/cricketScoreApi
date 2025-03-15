@@ -1,4 +1,4 @@
 export interface MatchData {
-  matchUrl: string;
-  matchName: string;
+    matchUrl: string;
+    matchName: string;
 }

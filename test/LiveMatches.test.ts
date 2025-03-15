@@ -6,7 +6,7 @@ const ErrorMessage = 'Test failed due to error:';
 const httpClient = new HttpClient(chai);
 
 describe('LiveMatches API', function () {
-    let stubObj: StubModule = new StubModule
+    let stubObj: StubModule = new StubModule();
 
     afterEach(() => {
         stubObj.restoreStubs();
@@ -32,5 +32,5 @@ describe('LiveMatches API', function () {
         } catch (err) {
             assert.fail(`${ErrorMessage} ${err.message}`);
         }
-    })
+    });
 });

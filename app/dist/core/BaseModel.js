@@ -65,7 +65,7 @@ const insert = async (data, modelName) => {
                 id,
                 ...restData,
                 createdAt: new Date(),
-            }
+            },
         });
         return response;
     }
