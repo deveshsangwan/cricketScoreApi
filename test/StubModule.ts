@@ -8,11 +8,14 @@ class StubModule {
     constructor() {
         this.sandbox = sinon.createSandbox();
         this.moduleMap = {
-            'mongo': mongo
+            mongo: mongo,
         };
     }
 
-    stubModuleMethod(moduleType: keyof typeof this.moduleMap, methodName: string): SinonStub | never {
+    stubModuleMethod(
+        moduleType: keyof typeof this.moduleMap,
+        methodName: string
+    ): SinonStub | never {
         const module = this.moduleMap[moduleType];
         if (!module) {
             throw new Error(`Unsupported module type: ${moduleType}`);

@@ -11,14 +11,14 @@ const createPrismaClient = () => {
     const client = new client_1.PrismaClient({
         datasources: {
             db: {
-                url: process.env.DATABASE_URL
-            }
-        }
+                url: process.env.DATABASE_URL,
+            },
+        },
     });
     // Add optimize extension if API key is available
     if (process.env.OPTIMIZE_API_KEY) {
         return client.$extends((0, extension_optimize_1.withOptimize)({
-            apiKey: process.env.OPTIMIZE_API_KEY
+            apiKey: process.env.OPTIMIZE_API_KEY,
         }));
     }
     // Return base client if no optimize key

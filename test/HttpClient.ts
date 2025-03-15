@@ -1,6 +1,6 @@
 import chaiHttp from 'chai-http';
-import server from '../app/app.js';
-import { Token } from '../app/dist/src/Token.js';
+import server from '../app/dist/app.js';
+import { Token } from '../app/dist/services/Token';
 import { IApiResponse } from './IApiResponse.js';
 import dotenv from 'dotenv';
 
@@ -8,7 +8,7 @@ dotenv.config();
 
 class HttpClient {
     private chai: any;
-    
+
     constructor(chai: any) {
         this.chai = chai;
         this.chai.use(chaiHttp);
@@ -16,11 +16,20 @@ class HttpClient {
 
     private async getToken(): Promise<string> {
         const tokenObj = new Token();
-        const token = tokenObj.generateToken({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
-        return token;
+        const token = tokenObj.generateToken({
+            clientId: process.env.CLIENT_ID,
+            clientSecret: process.env.CLIENT_SECRET,
+        });
+        return token['token'];
     }
 
-    private async executeRequest(method: 'get' | 'post', endPoint: string, headers: { [key: string]: string }, body?: any, params?: { [key: string]: string }): Promise<IApiResponse> {
+    private async executeRequest(
+        method: 'get' | 'post',
+        endPoint: string,
+        headers: { [key: string]: string },
+        body?: any,
+        params?: { [key: string]: string }
+    ): Promise<IApiResponse> {
         let token = '';
 
         if (endPoint !== '/token') {
@@ -60,11 +69,20 @@ class HttpClient {
         });
     }
 
-    public get(endPoint: string, headers: { [key: string]: string }, params?: { [key: string]: string }): Promise<IApiResponse> {
+    public get(
+        endPoint: string,
+        headers: { [key: string]: string },
+        params?: { [key: string]: string }
+    ): Promise<IApiResponse> {
         return this.executeRequest('get', endPoint, headers, undefined, params);
     }
 
-    public post(endPoint: string, body: any, headers: { [key: string]: string }, params?: { [key: string]: string }): Promise<IApiResponse> {
+    public post(
+        endPoint: string,
+        body: any,
+        headers: { [key: string]: string },
+        params?: { [key: string]: string }
+    ): Promise<IApiResponse> {
         return this.executeRequest('post', endPoint, headers, body, params);
     }
 }
