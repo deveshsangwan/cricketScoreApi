@@ -29,13 +29,13 @@ function getTeamScoreString($, isLive, isCurrentTeam) {
  * Handles single innings and two innings formats
  */
 function getTeamData(input, isBatting = false) {
-    const regex = /^(\w+)\s+(\d+)(?:\/(\d+))?(?:\s*&\s*(\d+)(?:\/(\d+))?)?(?:\s*\(\s*([\d.]+)\s*\))?$/;
+    const regex = /^(?<name>\w+)\s+(?<score1>\d+)(?:\/(?<wickets1>\d+))?(?:\s*&\s*(?<score2>\d+)(?:\/(?<wickets2>\d+))?)?(?:\s*\(\s*(?<overs>[\d.]+)\s*\))?$/;
     const match = input.match(regex);
-    if (!match) {
+    if (!match || !match.groups) {
         (0, Logger_1.writeLogInfo)(['matchStats | getTeamData | Invalid input format', input]);
         return {};
     }
-    const [, name, score1, wickets1 = '10', score2, wickets2 = '10', overs] = match;
+    const { name, score1, wickets1 = '10', score2, wickets2 = '10', overs } = match.groups;
     const hasTwoInnings = score2 !== undefined;
     const result = {
         isBatting,
@@ -49,7 +49,8 @@ function getTeamData(input, isBatting = false) {
             },
         }),
     };
-    if (overs && parseFloat(overs) > 0) {
+    const parsedOvers = parseFloat(overs);
+    if (!isNaN(parsedOvers) && parsedOvers > 0) {
         result.overs = overs;
     }
     return result;

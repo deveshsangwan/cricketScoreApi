@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Token = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const Logger_1 = require("@core/Logger");
-const _errors_1 = require("@errors");
 const dotenv_1 = __importDefault(require("dotenv"));
 const configuration_1 = __importDefault(require("@core/configuration"));
 dotenv_1.default.config();
@@ -25,8 +24,9 @@ class Token {
         }
     }
     handleError(location, error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         (0, Logger_1.writeLogError)([`${location} | error`, error]);
-        throw new _errors_1.CustomError(error.message);
+        return { token: '', expiresAt: '', error: errorMessage };
     }
     generateToken(credentials) {
         try {

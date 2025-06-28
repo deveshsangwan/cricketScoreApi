@@ -4,7 +4,7 @@ import httpContext from 'express-http-context';
 import { expressjwt, UnauthorizedError } from 'express-jwt';
 import dotenv from 'dotenv';
 import routes from '@api/routes';
-// import cors from 'cors';
+import cors from 'cors';
 
 // Load environment variables
 dotenv.config();
@@ -38,7 +38,8 @@ protectedRoutes.forEach((route: string): void => {
 
 // Error handling middleware
 app.use(function (err: any, _req: Request, res: Response, next: NextFunction): void {
-    console.log(err);
+    console.log("=======req========", _req.body, _req.headers);
+    console.log("========error===========", err);
     if (err instanceof UnauthorizedError && err.message === 'jwt expired') {
         res.status(401).json({
             status: false,
@@ -49,11 +50,11 @@ app.use(function (err: any, _req: Request, res: Response, next: NextFunction): v
     next(err);
 });
 
-/* app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+app.use(cors({
+  origin: '*',
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-})); */
+  allowedHeaders: ['*'],
+}));
 
 routes(app);
 

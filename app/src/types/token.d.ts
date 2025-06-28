@@ -15,4 +15,6 @@ export interface TokenResponse {
     token: string;
     /** When the token expires */
     expiresAt: string;
+    /** Error message if token generation fails */
+    error?: string;
 }

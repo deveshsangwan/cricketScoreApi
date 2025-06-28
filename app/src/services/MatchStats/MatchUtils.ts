@@ -31,15 +31,15 @@ export function getTeamScoreString($: any, isLive: boolean, isCurrentTeam: boole
  */
 export function getTeamData(input: string, isBatting: boolean = false): ITeamData {
     const regex =
-        /^(\w+)\s+(\d+)(?:\/(\d+))?(?:\s*&\s*(\d+)(?:\/(\d+))?)?(?:\s*\(\s*([\d.]+)\s*\))?$/;
+        /^(?<name>\w+)\s+(?<score1>\d+)(?:\/(?<wickets1>\d+))?(?:\s*&\s*(?<score2>\d+)(?:\/(?<wickets2>\d+))?)?(?:\s*\(\s*(?<overs>[\d.]+)\s*\))?$/;
     const match = input.match(regex);
 
-    if (!match) {
+    if (!match || !match.groups) {
         writeLogInfo(['matchStats | getTeamData | Invalid input format', input]);
         return {} as ITeamData;
     }
 
-    const [, name, score1, wickets1 = '10', score2, wickets2 = '10', overs] = match;
+    const { name, score1, wickets1 = '10', score2, wickets2 = '10', overs } = match.groups;
     const hasTwoInnings = score2 !== undefined;
 
     const result: ITeamData = {
@@ -55,7 +55,8 @@ export function getTeamData(input: string, isBatting: boolean = false): ITeamDat
         }),
     };
 
-    if (overs && parseFloat(overs) > 0) {
+    const parsedOvers = parseFloat(overs);
+    if (!isNaN(parsedOvers) && parsedOvers > 0) {
         result.overs = overs;
     }
 

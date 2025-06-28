@@ -1,6 +1,5 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { writeLogError } from '@core/Logger';
-import { CustomError } from '@errors';
 import dotenv from 'dotenv';
 import config from '@core/configuration';
 import { TokenRequest, TokenResponse } from '@types';
@@ -24,9 +23,10 @@ export class Token {
         }
     }
 
-    private handleError(location: string, error: Error): never {
+    private handleError(location: string, error: Error): TokenResponse {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         writeLogError([`${location} | error`, error]);
-        throw new CustomError(error.message);
+        return { token: '', expiresAt: '', error: errorMessage };
     }
 
     public generateToken(credentials: TokenRequest): TokenResponse {
@@ -46,7 +46,7 @@ export class Token {
                 expiresAt: new Date(Date.now() + 3600000).toISOString(),
             };
         } catch (error) {
-            return this.handleError('Token | generateToken', error as Error);
+            return this.handleError('Token | generateToken', error);
         }
     }
 }
