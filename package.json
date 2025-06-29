@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.23.1",
+    "framer-motion": "^12.19.2",
     "geist": "^1.4.2",
     "next": "15.3.4",
     "react": "19.0.0-rc-66855b96-20241106",
