@@ -2,32 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global styles for redesigned CricketScore UI */
+/* Updated global styles for the CricketScore UI to match the new design.
+  The background is a subtle, deep teal gradient.
+*/
 body {
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #0f172a, #0b2f3a, #001f3f);
-  color: #f1f5f9; /* slate-100 */
+  /* A darker, more direct teal gradient to match the design image */
+  background: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
+  color: #f1f5f9; /* slate-100 is a good default light text color */
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Soft glow with gradient highlights */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image:
-    radial-gradient(circle at 25% 30%, rgba(56, 189, 248, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 75% 70%, rgba(147, 197, 253, 0.1) 0%, transparent 50%);
-  z-index: -1;
-  pointer-events: none;
-}
-
-/* Optional: Smooth scroll and antialiasing */
+/* Optional: Smooth scroll and antialiasing for a better user experience */
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
