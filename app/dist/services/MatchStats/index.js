@@ -177,9 +177,7 @@ class MatchStats {
         return $('div.cb-text-complete').length === 0;
     }
     _getSummary($) {
-        return $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress')
-            .text()
-            .trim();
+        return $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim();
     }
 }
 exports.MatchStats = MatchStats;

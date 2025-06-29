@@ -13,11 +13,7 @@ describe('BaseModel Error handling', () => {
         sinon.restore();
     });
 
-    const testErrorHandling = async (
-        method,
-        modelArgs,
-        expectedArgs
-    ) => {
+    const testErrorHandling = async (method, modelArgs, expectedArgs) => {
         const methodStub = sinon.stub().throws(error);
 
         try {
@@ -29,34 +25,18 @@ describe('BaseModel Error handling', () => {
     };
 
     it('findAll: should handle errors', async () => {
-        await testErrorHandling(
-            findAll,
-            ['matchstats'],
-            sinon.match.any
-        );
+        await testErrorHandling(findAll, ['matchstats'], sinon.match.any);
     });
 
     it('findById: should handle errors', async () => {
-        await testErrorHandling(
-            findById,
-            ['testId', 'matchstats'],
-            { id: 'testId' }
-        );
+        await testErrorHandling(findById, ['testId', 'matchstats'], { id: 'testId' });
     });
 
     it('findIdByMatchUrl: should handle errors', async () => {
-        await testErrorHandling(
-            findIdByMatchUrl,
-            ['testUrl'],
-            { matchUrl: 'testUrl' }
-        );
+        await testErrorHandling(findIdByMatchUrl, ['testUrl'], { matchUrl: 'testUrl' });
     });
 
     it('insertMany: should handle errors', async () => {
-        await testErrorHandling(
-            insertMany,
-            [{ id: 'testId' }, 'matchstats'],
-            'testData'
-        );
+        await testErrorHandling(insertMany, [{ id: 'testId' }, 'matchstats'], 'testData');
     });
 });

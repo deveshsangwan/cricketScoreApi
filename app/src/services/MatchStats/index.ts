@@ -173,8 +173,6 @@ export class MatchStats {
     }
 
     private _getSummary($: CheerioAPI): string {
-        return $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress')
-            .text()
-            .trim();
+        return $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim();
     }
 }

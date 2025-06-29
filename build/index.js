@@ -14,7 +14,7 @@ require('tsconfig-paths').register({
 });
 
 global.__basedir = process.cwd() + '/';
-const port = process.env.NODE_PORT || 3000;
+const port = process.env.NODE_PORT || 3001;
 const app = require(__basedir + 'app/dist/app.js').default;
 const { writeLogInfo } = require(__basedir + 'app/dist/core/Logger');
 //const config = require(__basedir + 'app/core/configuration');

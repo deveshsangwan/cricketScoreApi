@@ -19,7 +19,7 @@ describe('Validation Middleware', () => {
         jsonStub = sinon.stub();
         statusStub = sinon.stub().returns({ json: jsonStub });
         res = {
-            status: statusStub
+            status: statusStub,
         };
         next = sinon.spy();
     });
@@ -31,12 +31,12 @@ describe('Validation Middleware', () => {
     describe('validateParams', () => {
         const paramsSchema = z.object({
             id: z.string().uuid(),
-            page: z.coerce.number().optional()
+            page: z.coerce.number().optional(),
         });
 
         it('should call next() when params validation succeeds', () => {
             req.params = {
-                id: '123e4567-e89b-12d3-a456-426614174000'
+                id: '123e4567-e89b-12d3-a456-426614174000',
             };
 
             const middleware = validateParams(paramsSchema);
@@ -44,14 +44,14 @@ describe('Validation Middleware', () => {
 
             assert.isFalse(statusStub.called);
             assert.deepEqual(req.params, {
-                id: '123e4567-e89b-12d3-a456-426614174000'
+                id: '123e4567-e89b-12d3-a456-426614174000',
             });
         });
 
         it('should return 400 with error details when params validation fails', () => {
             req.params = {
                 id: 'invalid-uuid',
-                page: 'not-a-number'
+                page: 'not-a-number',
             };
 
             const middleware = validateParams(paramsSchema);
@@ -59,7 +59,7 @@ describe('Validation Middleware', () => {
 
             assert.isTrue(statusStub.calledWith(400));
             assert.isTrue(jsonStub.calledOnce);
-            
+
             const response = jsonStub.firstCall.args[0];
             assert.isFalse(response.status);
             assert.equal(response.message, 'Invalid request parameters');
@@ -70,7 +70,7 @@ describe('Validation Middleware', () => {
             const errorSchema = {
                 parse: () => {
                     throw new Error('Non-Zod error');
-                }
+                },
             } as unknown as z.ZodSchema;
 
             const middleware = validateParams(errorSchema);
@@ -84,14 +84,14 @@ describe('Validation Middleware', () => {
         const bodySchema = z.object({
             name: z.string().min(3),
             email: z.string().email(),
-            age: z.number().optional()
+            age: z.number().optional(),
         });
 
         it('should call next() when body validation succeeds', () => {
             req.body = {
                 name: 'John Doe',
                 email: 'john@example.com',
-                age: 30
+                age: 30,
             };
 
             const middleware = validateBody(bodySchema);
@@ -101,14 +101,14 @@ describe('Validation Middleware', () => {
             assert.deepEqual(req.body, {
                 name: 'John Doe',
                 email: 'john@example.com',
-                age: 30
+                age: 30,
             });
         });
 
         it('should return 400 with error details when body validation fails', () => {
             req.body = {
                 name: 'Jo',
-                email: 'not-an-email'
+                email: 'not-an-email',
             };
 
             const middleware = validateBody(bodySchema);
@@ -116,7 +116,7 @@ describe('Validation Middleware', () => {
 
             assert.isTrue(statusStub.calledWith(400));
             assert.isTrue(jsonStub.calledOnce);
-            
+
             const response = jsonStub.firstCall.args[0];
             assert.isFalse(response.status);
             assert.equal(response.message, 'Invalid request body');
@@ -127,7 +127,7 @@ describe('Validation Middleware', () => {
             const errorSchema = {
                 parse: () => {
                     throw new Error('Some other error');
-                }
+                },
             } as unknown as z.ZodSchema;
 
             const middleware = validateBody(errorSchema);

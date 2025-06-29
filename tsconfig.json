@@ -25,7 +25,8 @@
   },
   "include": [
     "app/src/**/*.ts",
-    "app/src/core/**/*.ts"
+    "app/src/core/**/*.ts",
+    "app/types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",

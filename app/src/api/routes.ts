@@ -1,22 +1,15 @@
 import express, { Request, Response, NextFunction, Router, Application } from 'express';
-import rateLimit from 'express-rate-limit';
+import { getAuth } from '@clerk/express';
 
 // Import controller and validation modules with proper types
 import controller from './controller';
-import { validateBody, validateParams } from './validation';
+import { validateParams } from './validation';
 
 // Import generated schemas
-import { tokenRequestSchema } from '@schema/token.zod';
 import { matchStatsParamsSchema } from '@schema/matchStats.zod';
+import { writeLogInfo } from '@/core/Logger';
 
 const router: Router = express.Router();
-
-// Define rate limiter
-const generateTokenLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests created from this IP, please try again after 15 minutes',
-});
 
 // Error handler function with proper types
 const errorHandler =
@@ -35,24 +28,39 @@ const errorHandler =
         }
     };
 
+// Custom requireAuth middleware for API endpoints that returns JSON
+const apiRequireAuth = () => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        const auth = getAuth(req);
+        writeLogInfo([
+            `API Request: ${req.method} ${req.originalUrl} - User ID: ${auth?.userId || 'Not Authenticated'}`,
+        ]);
+
+        if (!auth || !auth.userId) {
+            return res.status(401).json({
+                status: false,
+                statusMessage: '401 - Unauthorized',
+                errorMessage: 'Authentication Failed',
+            });
+        }
+
+        next();
+    };
+};
+
 // Export a function that sets up routes
 export default function setupRoutes(app: Application): void {
     app.use('/', router);
 
-    router.post(
-        '/generateToken',
-        generateTokenLimiter,
-        validateBody(tokenRequestSchema),
-        errorHandler(controller.generateToken)
-    );
-
-    router.get('/liveMatches', errorHandler(controller.live));
+    // Apply custom apiRequireAuth middleware to protected routes
+    router.get('/liveMatches', apiRequireAuth(), errorHandler(controller.live));
 
     router.get(
         '/matchStats/:matchId',
+        apiRequireAuth(),
         validateParams(matchStatsParamsSchema),
         errorHandler(controller.matchStats)
     );
 
-    router.get('/matchStats', errorHandler(controller.getMatchStats));
+    router.get('/matchStats', apiRequireAuth(), errorHandler(controller.getMatchStats));
 }

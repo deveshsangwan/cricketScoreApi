@@ -1,10 +1,13 @@
 import chaiHttp from 'chai-http';
 import server from '../app/dist/app.js';
-import { Token } from '../app/dist/services/Token';
 import { IApiResponse } from './IApiResponse.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+if (!process.env.TEST_USER_TOKEN) {
+    throw new Error('TEST_USER_TOKEN is not set in environment variables.');
+}
 
 class HttpClient {
     private chai: any;
@@ -14,15 +17,6 @@ class HttpClient {
         this.chai.use(chaiHttp);
     }
 
-    private async getToken(): Promise<string> {
-        const tokenObj = new Token();
-        const token = tokenObj.generateToken({
-            clientId: process.env.CLIENT_ID,
-            clientSecret: process.env.CLIENT_SECRET,
-        });
-        return token['token'];
-    }
-
     private async executeRequest(
         method: 'get' | 'post',
         endPoint: string,
@@ -30,18 +24,9 @@ class HttpClient {
         body?: any,
         params?: { [key: string]: string }
     ): Promise<IApiResponse> {
-        let token = '';
-
-        if (endPoint !== '/token') {
-            token = await this.getToken();
-        }
-
         return new Promise((resolve, reject) => {
             let request = this.chai.request(server)[method](endPoint);
-
-            if (token) {
-                request.set('Authorization', `Bearer ${token}`);
-            }
+            request.set('Authorization', `Bearer ${process.env.TEST_USER_TOKEN}`);
 
             if (method === 'post') {
                 request = request.send(body);

@@ -4,15 +4,15 @@ import { Utils } from '../../app/dist/utils/Utils';
 
 describe('Utils', () => {
     let utils: Utils;
-    
+
     beforeEach(() => {
         utils = new Utils();
     });
-    
+
     afterEach(() => {
         sinon.restore();
     });
-    
+
     describe('fetchData', () => {
         it('should throw an error if URL is not provided', async () => {
             try {
@@ -23,7 +23,7 @@ describe('Utils', () => {
             }
         });
     });
-    
+
     describe('insertDataToMatchStatsTable', () => {
         it('should throw an error if scrapedData is not provided', async () => {
             try {
