@@ -54,8 +54,8 @@ export class MatchStats {
         const allMongoData = await mongo.findAll(this.tableName);
 
         const dataPromises = Object.entries(liveMatchesResponse).map(async ([matchId, match]) => {
-            const scrapedData = await this.scrapeData(match.matchUrl, matchId);
-            _.extend(scrapedData, { matchName: match.matchName });
+            let scrapedData = await this.scrapeData(match.matchUrl, matchId);
+            scrapedData = { ...scrapedData, matchName: match.matchName };
 
             // Check if data already exists in the fetched data
             const mongoData = allMongoData.find((data: { id: string }) => data.id === matchId);
@@ -87,16 +87,18 @@ export class MatchStats {
                 team1: mongoData.team1,
                 team2: mongoData.team2,
                 onBatting: mongoData.onBatting,
+                runRate: mongoData.runRate,
                 summary: mongoData.summary,
                 tournamentName: mongoData.tournamentName,
                 matchName: mongoData.matchName,
+                isLive: mongoData.isLive,
             };
 
             return returnObj;
         } else if (_.has(liveMatchesResponse, 'matchId')) {
             const url = liveMatchesResponse.matchUrl;
-            const scrapedData = await this.scrapeData(url, matchId);
-            _.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
+            let scrapedData = await this.scrapeData(url, matchId);
+            scrapedData = { ...scrapedData, matchName: liveMatchesResponse.matchName };
             await this.utilsObj.insertDataToMatchStatsTable(scrapedData);
 
             return scrapedData;
@@ -143,9 +145,9 @@ export class MatchStats {
 
     private getMatchStatsByMatchId($: CheerioAPI, matchId: string): MatchStatsResponse {
         try {
-            const isLive = $('div.cb-text-complete').length === 0;
+            const isLive = this._getIsLiveStatus($);
             const runRate = getRunRate($);
-            console.log('runRate=======', runRate);
+            console.log('Run Rate:', runRate);
             const currentTeamScoreString = getTeamScoreString($, isLive, true);
             const otherTeamScoreString = getTeamScoreString($, isLive, false);
 
@@ -157,9 +159,8 @@ export class MatchStats {
                     player1: getBatsmanData($, 0),
                     player2: getBatsmanData($, 1),
                 },
-                summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress')
-                    .text()
-                    .trim(),
+                runRate: runRate,
+                summary: this._getSummary($),
                 isLive: isLive,
             };
 
@@ -168,5 +169,13 @@ export class MatchStats {
             writeLogError(['matchStats | getMatchStatsByMatchId |', error]);
             throw error;
         }
+    }
+
+    private _getIsLiveStatus($: CheerioAPI): boolean {
+        return $('div.cb-text-complete').length === 0;
+    }
+
+    private _getSummary($: CheerioAPI): string {
+        return $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim();
     }
 }

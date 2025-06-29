@@ -6,6 +6,8 @@ import { CustomError } from '@errors';
 import * as mongo from '@core/BaseModel';
 import randomstring from 'randomstring';
 import _ from 'underscore';
+import { CheerioAPI } from 'cheerio';
+import { Element } from 'domhandler';
 
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 
@@ -16,6 +18,7 @@ const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 export class LiveMatches {
     private tableName: string;
     private utilsObj: Utils;
+    private readonly MATCH_ID_LENGTH = 16;
 
     constructor() {
         this.tableName = 'livematches';
@@ -74,8 +77,8 @@ export class LiveMatches {
             const response = await this.utilsObj.fetchData(MATCH_URL);
             let matchesData = this.processData(response, mongoData);
             await insertDataToLiveMatchesTable(matchesData[1]);
-            matchesData = _.extend(matchesData[0], matchesData[1]);
-            return matchesData;
+            let mergedMatchesData = { ...matchesData[0], ...matchesData[1] };
+            return mergedMatchesData;
         } catch (error) {
             return this.handleError('LiveMatches | scrapeData', error);
         }
@@ -89,28 +92,40 @@ export class LiveMatches {
      * @throws Error if no matches are found
      */
     private processData(
-        $: any,
+        $: CheerioAPI,
         mongoData: any[]
     ): [Record<string, MatchData>, Record<string, MatchData>] {
-        const MATCH_ID_LENGTH = 16;
         const existingMatches: Record<string, MatchData> = {};
         const newMatches: Record<string, MatchData> = {};
 
-        $('.cb-col-100 .cb-col .cb-schdl').each((_: number, el: string) => {
+        const extractMatchInfo = (el: Element) => {
             const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
             const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
+            return { matchUrl, matchName };
+        };
+
+        const handleExistingMatch = (existingMatch: any, matchUrl: string, matchName: string) => {
+            existingMatches[existingMatch.id] = { matchUrl, matchName };
+        };
+
+        const handleNewMatch = (matchUrl: string, matchName: string) => {
+            const matchId = randomstring.generate({
+                length: this.MATCH_ID_LENGTH,
+                charset: 'alphanumeric',
+            });
+            newMatches[matchId] = { matchUrl, matchName };
+        };
+
+        $('.cb-col-100 .cb-col .cb-schdl').each((_: number, el: Element) => {
+            const { matchUrl, matchName } = extractMatchInfo(el);
 
             if (matchUrl && matchName) {
                 const existingMatch = mongoData.find((item) => item.matchUrl === matchUrl);
 
                 if (existingMatch) {
-                    existingMatches[existingMatch.id] = { matchUrl, matchName };
+                    handleExistingMatch(existingMatch, matchUrl, matchName);
                 } else {
-                    const matchId = randomstring.generate({
-                        length: MATCH_ID_LENGTH,
-                        charset: 'alphanumeric',
-                    });
-                    newMatches[matchId] = { matchUrl, matchName };
+                    handleNewMatch(matchUrl, matchName);
                 }
             }
         });

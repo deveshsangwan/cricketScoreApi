@@ -31,15 +31,15 @@ export function getTeamScoreString($: any, isLive: boolean, isCurrentTeam: boole
  */
 export function getTeamData(input: string, isBatting: boolean = false): ITeamData {
     const regex =
-        /^(\w+)\s+(\d+)(?:\/(\d+))?(?:\s*&\s*(\d+)(?:\/(\d+))?)?(?:\s*\(\s*([\d.]+)\s*\))?$/;
+        /^(?<name>\w+)\s+(?<score1>\d+)(?:\/(?<wickets1>\d+))?(?:\s*&\s*(?<score2>\d+)(?:\/(?<wickets2>\d+))?)?(?:\s*\(\s*(?<overs>[\d.]+)\s*\))?$/;
     const match = input.match(regex);
 
-    if (!match) {
+    if (!match || !match.groups) {
         writeLogInfo(['matchStats | getTeamData | Invalid input format', input]);
         return {} as ITeamData;
     }
 
-    const [, name, score1, wickets1 = '10', score2, wickets2 = '10', overs] = match;
+    const { name, score1, wickets1 = '10', score2, wickets2 = '10', overs } = match.groups;
     const hasTwoInnings = score2 !== undefined;
 
     const result: ITeamData = {
@@ -55,7 +55,8 @@ export function getTeamData(input: string, isBatting: boolean = false): ITeamDat
         }),
     };
 
-    if (overs && parseFloat(overs) > 0) {
+    const parsedOvers = parseFloat(overs);
+    if (!isNaN(parsedOvers) && parsedOvers > 0) {
         result.overs = overs;
     }
 
@@ -90,8 +91,20 @@ export function getRunRate($: CheerioAPI): RunRateData {
     const selector = 'span.cb-font-12.cb-text-gray';
     const elements = $(selector);
 
+    let currentRunRateElement = elements.eq(0).text().trim();
+    let requiredRunRateElement = elements.eq(1).text().trim();
+    let currentRunRate = 0, requiredRunRate = 0;
+
+    if (currentRunRateElement.includes('CRR')) {
+        currentRunRate = Number(currentRunRateElement.split(':')[1].trim());
+    }
+
+    if (requiredRunRateElement.includes('RRR')) {
+        requiredRunRate = Number(requiredRunRateElement.split(':')[1].trim());
+    }
+
     return {
-        currentRunRate: elements.eq(0).text().trim(),
-        requiredRunRate: elements.eq(1).text().trim() || '',
+        currentRunRate,
+        requiredRunRate,
     };
 }

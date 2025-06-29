@@ -8,7 +8,8 @@ import { MatchStatsResponse } from '@types';
  * Utility class providing common functionality across the application
  */
 export class Utils {
-    private readonly DEFAULT_USER_AGENT = 'Mozilla/5.0 (compatible; CricketStatsBot/1.0)';
+    private readonly DEFAULT_USER_AGENT =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36';
     private readonly REQUEST_TIMEOUT = 10000; // 10 seconds
 
     /**
@@ -34,7 +35,7 @@ export class Utils {
             throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
         } catch (error) {
             writeLogError(['Utils | fetchData | error', error]);
-            throw error; // Let caller handle the error
+            throw error;
         }
     }
 

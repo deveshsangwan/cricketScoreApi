@@ -24,6 +24,11 @@ type MatchstatsOnBattingPlayer2 {
   runs  String
 }
 
+type MatchstatsRunRate {
+  currentRunRate  Float
+  requiredRunRate Float
+}
+
 type MatchstatsTeam1 {
   isBatting       Boolean?
   name            String?
@@ -65,6 +70,7 @@ model matchstats {
   isLive         Boolean
   matchName      String
   onBatting      MatchstatsOnBatting
+  runRate        MatchstatsRunRate
   summary        String
   team1          MatchstatsTeam1
   team2          MatchstatsTeam2

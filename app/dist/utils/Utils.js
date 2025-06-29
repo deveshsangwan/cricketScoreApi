@@ -45,7 +45,7 @@ const mongo = __importStar(require("@core/BaseModel"));
  * Utility class providing common functionality across the application
  */
 class Utils {
-    DEFAULT_USER_AGENT = 'Mozilla/5.0 (compatible; CricketStatsBot/1.0)';
+    DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36';
     REQUEST_TIMEOUT = 10000; // 10 seconds
     /**
      * Fetches and parses HTML data from a given URL
@@ -67,7 +67,7 @@ class Utils {
         }
         catch (error) {
             (0, Logger_1.writeLogError)(['Utils | fetchData | error', error]);
-            throw error; // Let caller handle the error
+            throw error;
         }
     }
     /**

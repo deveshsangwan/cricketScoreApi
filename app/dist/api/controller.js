@@ -1,27 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Token_1 = require("@services/Token");
 const LiveMatches_1 = require("@services/LiveMatches");
 const MatchStats_1 = require("@services/MatchStats");
-const generateToken = async (req, res) => {
-    try {
-        const data = req.body;
-        const tokenObj = new Token_1.Token();
-        const tokenResponse = tokenObj.generateToken(data);
-        return res.status(200).send({
-            status: true,
-            message: 'Token generated',
-            response: tokenResponse,
-        });
-    }
-    catch (error) {
-        return res.status(500).send({
-            status: false,
-            message: 'Error generating token',
-            error: error.message,
-        });
-    }
-};
 const live = async (_req, res) => {
     try {
         const liveMatchesObj = new LiveMatches_1.LiveMatches();
@@ -78,7 +58,6 @@ const getMatchStats = async (_req, res) => {
     }
 };
 exports.default = {
-    generateToken,
     live,
     matchStats,
     getMatchStats,

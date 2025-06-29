@@ -173,7 +173,9 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
         for (const invalidId of invalidIds) {
             try {
                 await matchStatsObj.getMatchStats(invalidId);
-                assert.fail(`Expected getMatchStats to throw an InvalidMatchIdError for ID: ${invalidId}`);
+                assert.fail(
+                    `Expected getMatchStats to throw an InvalidMatchIdError for ID: ${invalidId}`
+                );
             } catch (error) {
                 assert.include(error.message, `Invalid match id: ${invalidId}`);
             }
@@ -218,7 +220,9 @@ describe('MatchStats | MatchIdRequriedError handling', function () {
         for (const emptyValue of emptyValues) {
             try {
                 await matchStatsObj.getMatchStats(emptyValue);
-                assert.fail(`Expected getMatchStats to throw a MatchIdRequriedError for empty value: ${emptyValue}`);
+                assert.fail(
+                    `Expected getMatchStats to throw a MatchIdRequriedError for empty value: ${emptyValue}`
+                );
             } catch (error) {
                 assert.equal(error.message, 'Match Id is required');
             }
@@ -254,7 +258,6 @@ describe('MatchStats | Error logging functionality', function () {
     });
 });
 
-
 describe('MatchStats | NoMatchesFoundError handling', function () {
     let matchStatsObj: MatchStats;
 
@@ -268,8 +271,10 @@ describe('MatchStats | NoMatchesFoundError handling', function () {
 
     it('throws NoMatchesFoundError when no live matches are available', async () => {
         // Stub liveMatchesObj.getMatches to return an empty object (no matches)
-        const getMatchesStub = sinon.stub(matchStatsObj['liveMatchesObj'], 'getMatches').resolves({});
-        
+        const getMatchesStub = sinon
+            .stub(matchStatsObj['liveMatchesObj'], 'getMatches')
+            .resolves({});
+
         try {
             // '0' is the special matchId that tells the service to get all matches
             await matchStatsObj.getMatchStats('0');

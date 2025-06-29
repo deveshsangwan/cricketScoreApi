@@ -4,13 +4,17 @@ Welcome to the Cricket Score API! This project is designed to provide real-time 
 
 ## 📚 Table of Contents
 
-- [Cricket Score API](#cricket-score-api)
-- [Status](#status)
-- [Code Coverage](#code-coverage)
-- [Getting Started](#getting-started)
-- [Usage](#usage)
-- [Running Tests](#running-tests)
-- [License](#license)
+- [🏏 Cricket Score API](#-cricket-score-api)
+  - [📚 Table of Contents](#-table-of-contents)
+  - [🚀 Status](#-status)
+  - [📊 Code Coverage](#-code-coverage)
+  - [🚀 Getting Started](#-getting-started)
+  - [🛠️ Technologies Used](#️-technologies-used)
+  - [📝 Usage](#-usage)
+    - [Protected Routes (Require Authentication)](#protected-routes-require-authentication)
+    - [Authentication](#authentication)
+  - [🧪 Running Tests](#-running-tests)
+  - [📜 License](#-license)
 
 ## 🚀 Status
 
@@ -21,8 +25,8 @@ Welcome to the Cricket Score API! This project is designed to provide real-time 
 Our aim is to maintain high code coverage to ensure the quality of the project. Here are our current stats:
 
 [![codecov](https://codecov.io/gh/deveshsangwan/cricketScoreApi/graph/badge.svg?token=A3JMLLNTG4)](https://codecov.io/gh/deveshsangwan/cricketScoreApi)
-![Functions](https://img.shields.io/badge/functions-95%25-brightgreen.svg?style=flat)
-![Lines](https://img.shields.io/badge/lines-89.16%25-yellow.svg?style=flat)
+![Functions](https://img.shields.io/badge/functions-95.16%25-brightgreen.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-90.66%25-brightgreen.svg?style=flat)
 
 ## 🚀 Getting Started
 
@@ -42,6 +46,7 @@ You can also run the project with Docker:
 
 Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
 
+
 ## 🛠️ Technologies Used
 
 This project uses a number of technologies and tools:
@@ -49,25 +54,25 @@ This project uses a number of technologies and tools:
 - **pnpm**: Used as the package manager for better dependency management and disk space efficiency
 - **Cheerio**: Used for web scraping to fetch live cricket match data
 - **Prisma**: Used as an ORM for accessing MongoDB to improve performance
-- **Express-jwt**: Used for authentication. A valid token is required to hit all the endpoints other than `/generateToken`
+- **Clerk**: Used for authentication and user management. Protected endpoints require Clerk authentication
 - **Chai and Mocha**: These libraries are used for writing and running tests to ensure the quality of the project
 - **Docker**: Used for creating a containerized version of the application, ensuring that it runs the same way in every environment
 
 ## 📝 Usage
 
+All API endpoints except for public routes require authentication via Clerk. You'll need to include the Clerk session token in your requests.
+
+### Protected Routes (Require Authentication)
 - Make a GET request to `/liveMatches` to get the URLs of all the current live matches.
 - Make a GET request to `/matchStats` to get the statistics for all matches.
 - Make a GET request to `/matchStats/:matchId` to get the statistics for a single match. Replace `:matchId` with the ID of the match you want statistics for.
-- Make a POST request to `/generateToken` with a JSON body containing `clientId` and `clientSecret` to generate a token. The JSON body should look like this:
 
-```json
-{
-    "clientId": "yourClientId",
-    "clientSecret": "yourClientSecret"
-}
-```
+### Authentication
+This API uses Clerk for authentication. To use the protected endpoints:
 
-**Note:** A valid token is required for hitting all the endpoints other than `/generateToken`. Include the token in the Authorization header of your requests.
+1. Sign up and sign in using Clerk in your frontend application
+2. Clerk will automatically handle the authentication tokens
+3. Make requests from your frontend application with the Clerk session
 
 ## 🧪 Running Tests
 

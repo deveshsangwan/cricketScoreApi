@@ -79,8 +79,8 @@ class MatchStats {
         // Fetch all data from the database at once
         const allMongoData = await mongo.findAll(this.tableName);
         const dataPromises = Object.entries(liveMatchesResponse).map(async ([matchId, match]) => {
-            const scrapedData = await this.scrapeData(match.matchUrl, matchId);
-            underscore_1.default.extend(scrapedData, { matchName: match.matchName });
+            let scrapedData = await this.scrapeData(match.matchUrl, matchId);
+            scrapedData = { ...scrapedData, matchName: match.matchName };
             // Check if data already exists in the fetched data
             const mongoData = allMongoData.find((data) => data.id === matchId);
             if (!mongoData) {
@@ -103,16 +103,18 @@ class MatchStats {
                 team1: mongoData.team1,
                 team2: mongoData.team2,
                 onBatting: mongoData.onBatting,
+                runRate: mongoData.runRate,
                 summary: mongoData.summary,
                 tournamentName: mongoData.tournamentName,
                 matchName: mongoData.matchName,
+                isLive: mongoData.isLive,
             };
             return returnObj;
         }
         else if (underscore_1.default.has(liveMatchesResponse, 'matchId')) {
             const url = liveMatchesResponse.matchUrl;
-            const scrapedData = await this.scrapeData(url, matchId);
-            underscore_1.default.extend(scrapedData, { matchName: liveMatchesResponse.matchName });
+            let scrapedData = await this.scrapeData(url, matchId);
+            scrapedData = { ...scrapedData, matchName: liveMatchesResponse.matchName };
             await this.utilsObj.insertDataToMatchStatsTable(scrapedData);
             return scrapedData;
         }
@@ -150,9 +152,9 @@ class MatchStats {
     }
     getMatchStatsByMatchId($, matchId) {
         try {
-            const isLive = $('div.cb-text-complete').length === 0;
+            const isLive = this._getIsLiveStatus($);
             const runRate = (0, MatchUtils_1.getRunRate)($);
-            console.log('runRate=======', runRate);
+            console.log('Run Rate:', runRate);
             const currentTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, true);
             const otherTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, false);
             const matchData = {
@@ -163,9 +165,8 @@ class MatchStats {
                     player1: (0, MatchUtils_1.getBatsmanData)($, 0),
                     player2: (0, MatchUtils_1.getBatsmanData)($, 1),
                 },
-                summary: $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress')
-                    .text()
-                    .trim(),
+                runRate: runRate,
+                summary: this._getSummary($),
                 isLive: isLive,
             };
             return matchData;
@@ -174,6 +175,12 @@ class MatchStats {
             (0, Logger_1.writeLogError)(['matchStats | getMatchStatsByMatchId |', error]);
             throw error;
         }
+    }
+    _getIsLiveStatus($) {
+        return $('div.cb-text-complete').length === 0;
+    }
+    _getSummary($) {
+        return $('div.cb-text-stumps, div.cb-text-complete, div.cb-text-inprogress').text().trim();
     }
 }
 exports.MatchStats = MatchStats;

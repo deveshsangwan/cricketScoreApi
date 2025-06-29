@@ -43,7 +43,6 @@ const LiveMatchesUtility_1 = require("./LiveMatchesUtility");
 const _errors_1 = require("@errors");
 const mongo = __importStar(require("@core/BaseModel"));
 const randomstring_1 = __importDefault(require("randomstring"));
-const underscore_1 = __importDefault(require("underscore"));
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 /**
  * Class responsible for handling live cricket match data
@@ -52,6 +51,7 @@ const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 class LiveMatches {
     tableName;
     utilsObj;
+    MATCH_ID_LENGTH = 16;
     constructor() {
         this.tableName = 'livematches';
         this.utilsObj = new Utils_1.Utils();
@@ -107,8 +107,8 @@ class LiveMatches {
             const response = await this.utilsObj.fetchData(MATCH_URL);
             let matchesData = this.processData(response, mongoData);
             await (0, LiveMatchesUtility_1.insertDataToLiveMatchesTable)(matchesData[1]);
-            matchesData = underscore_1.default.extend(matchesData[0], matchesData[1]);
-            return matchesData;
+            let mergedMatchesData = { ...matchesData[0], ...matchesData[1] };
+            return mergedMatchesData;
         }
         catch (error) {
             return this.handleError('LiveMatches | scrapeData', error);
@@ -122,23 +122,32 @@ class LiveMatches {
      * @throws Error if no matches are found
      */
     processData($, mongoData) {
-        const MATCH_ID_LENGTH = 16;
         const existingMatches = {};
         const newMatches = {};
-        $('.cb-col-100 .cb-col .cb-schdl').each((_, el) => {
+        const extractMatchInfo = (el) => {
             const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
             const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
+            return { matchUrl, matchName };
+        };
+        const handleExistingMatch = (existingMatch, matchUrl, matchName) => {
+            existingMatches[existingMatch.id] = { matchUrl, matchName };
+        };
+        const handleNewMatch = (matchUrl, matchName) => {
+            const matchId = randomstring_1.default.generate({
+                length: this.MATCH_ID_LENGTH,
+                charset: 'alphanumeric',
+            });
+            newMatches[matchId] = { matchUrl, matchName };
+        };
+        $('.cb-col-100 .cb-col .cb-schdl').each((_, el) => {
+            const { matchUrl, matchName } = extractMatchInfo(el);
             if (matchUrl && matchName) {
                 const existingMatch = mongoData.find((item) => item.matchUrl === matchUrl);
                 if (existingMatch) {
-                    existingMatches[existingMatch.id] = { matchUrl, matchName };
+                    handleExistingMatch(existingMatch, matchUrl, matchName);
                 }
                 else {
-                    const matchId = randomstring_1.default.generate({
-                        length: MATCH_ID_LENGTH,
-                        charset: 'alphanumeric',
-                    });
-                    newMatches[matchId] = { matchUrl, matchName };
+                    handleNewMatch(matchUrl, matchName);
                 }
             }
         });
