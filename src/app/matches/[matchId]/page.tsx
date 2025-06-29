@@ -79,14 +79,56 @@ export default function MatchDetailsPage() {
         <div className="bg-card p-8 rounded-xl shadow-lg border border-border">
           <h2 className="text-3xl font-semibold mb-6 text-center">Scorecard</h2>
           <div className="space-y-4">
-            {matchStats.team1.name && <div className="flex justify-between items-center bg-background p-4 rounded-lg">
-              <p className="font-semibold text-lg">{matchStats.team1.name}</p>
-              <p className="font-bold text-xl text-primary">{matchStats.team1.score}</p>
-            </div>}
-            {matchStats.team2.name && <div className="flex justify-between items-center bg-background p-4 rounded-lg">
-              <p className="font-semibold text-lg">{matchStats.team2.name}</p>
-              <p className="font-bold text-xl text-primary">{matchStats.team2.score}</p>
-            </div>}
+            {matchStats.team1.name && (
+              <div className="flex justify-between items-center bg-background p-4 rounded-lg">
+                <p className="font-semibold text-lg">{matchStats.team1.name} {matchStats.team1.isBatting && '(Batting)'}</p>
+                <p className="font-bold text-xl text-primary">
+                  {matchStats.team1.score}/{matchStats.team1.wickets} {matchStats.team1.overs && `(${matchStats.team1.overs} overs)`}
+                </p>
+              </div>
+            )}
+            {matchStats.team2.name && (
+              <div className="flex justify-between items-center bg-background p-4 rounded-lg">
+                <p className="font-semibold text-lg">{matchStats.team2.name} {matchStats.team2.isBatting && '(Batting)'}</p>
+                <p className="font-bold text-xl text-primary">
+                  {matchStats.team2.score}/{matchStats.team2.wickets} {matchStats.team2.overs && `(${matchStats.team2.overs} overs)`}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="bg-card p-8 rounded-xl shadow-lg border border-border">
+          <h2 className="text-3xl font-semibold mb-6 text-center">Current Batting</h2>
+          <div className="space-y-4">
+            {matchStats.onBatting?.player1 && (
+              <div className="flex justify-between items-center bg-background p-4 rounded-lg">
+                <p className="font-semibold text-lg">{matchStats.onBatting.player1.name}</p>
+                <p className="font-bold text-xl text-primary">
+                  {matchStats.onBatting.player1.runs} ({matchStats.onBatting.player1.balls})
+                </p>
+              </div>
+            )}
+            {matchStats.onBatting?.player2 && (
+              <div className="flex justify-between items-center bg-background p-4 rounded-lg">
+                <p className="font-semibold text-lg">{matchStats.onBatting.player2.name}</p>
+                <p className="font-bold text-xl text-primary">
+                  {matchStats.onBatting.player2.runs} ({matchStats.onBatting.player2.balls})
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="bg-card p-8 rounded-xl shadow-lg border border-border">
+          <h2 className="text-3xl font-semibold mb-6 text-center">Run Rates</h2>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center bg-background p-4 rounded-lg">
+              <p className="font-semibold text-lg">Current Run Rate</p>
+              <p className="font-bold text-xl text-primary">{matchStats?.runRate?.currentRunRate}</p>
+            </div>
+            <div className="flex justify-between items-center bg-background p-4 rounded-lg">
+              <p className="font-semibold text-lg">Required Run Rate</p>
+              <p className="font-bold text-xl text-primary">{matchStats?.runRate?.requiredRunRate}</p>
+            </div>
           </div>
         </div>
         <div className="bg-card p-8 rounded-xl shadow-lg border border-border">
