@@ -19,4 +19,46 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Ensure html also has the background for full coverage */
+  background: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
+  min-height: 100%;
+}
+
+/* Prevent layout shifts and improve scroll performance */
+* {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Ensure smooth scrolling without white flashes */
+#__next {
+  background: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
+  min-height: 100vh;
+}
+
+/* Optimize rendering for better scroll performance */
+body {
+  -webkit-overflow-scrolling: touch;
+  will-change: scroll-position;
+}
+
+/* ...existing code... */
+
+/* Fix for white overscroll boundaries */
+html, body {
+  background-color: #0a192f; /* Solid fallback color matching your gradient start */
+  overflow-x: hidden;
+  min-height: 100%;
+  height: 100%;
+}
+
+/* Ensure mobile browsers show the background during bounce/overscroll */
+@supports (-webkit-touch-callout: none) {
+  body {
+    /* Mobile Safari specific height for overscroll */
+    height: -webkit-fill-available;
+  }
+  html {
+    height: -webkit-fill-available;
+  }
 }

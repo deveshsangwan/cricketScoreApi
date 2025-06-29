@@ -4,7 +4,7 @@ import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@cl
 
 export default function Navbar() {
   return (
-    <nav className="shadow-lg"> 
+    <nav className="shadow-lg bg-slate-900/80 backdrop-blur-sm border-b border-slate-800/50 sticky top-0 z-50"> 
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold text-slate-100">
           CricketScore

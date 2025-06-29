@@ -1,213 +1,375 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
-import { MatchStats } from '@/types/matchStats';
 import { motion } from 'framer-motion';
+import { useRealTimeMatchStats } from '@/hooks/useMatchStats';
+import { FullPageLoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { MatchStats } from '@/types/api';
 
-// A map to get country codes for flags
-const teamToCountryCode: { [key: string]: string } = {
-  'South Africa': 'za',
-  'Zimbabwe': 'zw',
-  'India': 'in',
-  'Australia': 'au',
-  'England': 'gb-eng',
-  'New Zealand': 'nz',
-  'Pakistan': 'pk',
-  'Sri Lanka': 'lk',
-  'West Indies': 'ag',
-  'Bangladesh': 'bd',
+// Comprehensive cricket team to ISO country code mapping
+// Based on ICC members and uses ISO 3166-1 alpha-2 country codes
+const cricketTeamMapping = new Map<string, string>([
+  // ICC Full Members
+  ['Afghanistan', 'af'],
+  ['Australia', 'au'],
+  ['Bangladesh', 'bd'],
+  ['England', 'gb'],
+  ['India', 'in'],
+  ['Ireland', 'ie'],
+  ['New Zealand', 'nz'],
+  ['Pakistan', 'pk'],
+  ['South Africa', 'za'],
+  ['Sri Lanka', 'lk'],
+  ['West Indies', 'ag'],  // Using Antigua & Barbuda as representative
+  ['Zimbabwe', 'zw'],
+  
+  // ICC Associate Members with frequent appearances
+  ['Scotland', 'gb-sct'],
+  ['Netherlands', 'nl'],
+  ['Nepal', 'np'],
+  ['Oman', 'om'],
+  ['United Arab Emirates', 'ae'],
+  ['Hong Kong', 'hk'],
+  ['Canada', 'ca'],
+  ['USA', 'us'],
+  ['United States', 'us'],
+  ['Papua New Guinea', 'pg'],
+  ['Namibia', 'na'],
+  ['Kenya', 'ke'],
+  ['Uganda', 'ug'],
+  ['Jersey', 'je'],
+  ['Guernsey', 'gg'],
+  ['Malaysia', 'my'],
+  ['Singapore', 'sg'],
+  ['Thailand', 'th'],
+  ['Kuwait', 'kw'],
+  ['Qatar', 'qa'],
+  ['Bahrain', 'bh'],
+  ['Bermuda', 'bm'],
+  ['Cayman Islands', 'ky'],
+  ['Denmark', 'dk'],
+  ['Germany', 'de'],
+  ['Italy', 'it'],
+  ['France', 'fr'],
+  ['Norway', 'no'],
+  ['Sweden', 'se'],
+  ['Austria', 'at'],
+  ['Belgium', 'be'],
+  ['Spain', 'es'],
+  ['Portugal', 'pt'],
+  ['Czech Republic', 'cz'],
+  ['Finland', 'fi'],
+  ['Estonia', 'ee'],
+  ['Latvia', 'lv'],
+  ['Lithuania', 'lt'],
+  ['Poland', 'pl'],
+  ['Brazil', 'br'],
+  ['Argentina', 'ar'],
+  ['Chile', 'cl'],
+  ['Mexico', 'mx'],
+  ['Peru', 'pe'],
+  ['Japan', 'jp'],
+  ['China', 'cn'],
+  ['South Korea', 'kr'],
+  ['Indonesia', 'id'],
+  ['Philippines', 'ph'],
+  ['Vietnam', 'vn'],
+  ['Cambodia', 'kh'],
+  ['Laos', 'la'],
+  ['Myanmar', 'mm'],
+  ['Israel', 'il'],
+  ['Turkey', 'tr'],
+  ['Greece', 'gr'],
+  ['Cyprus', 'cy'],
+  ['Malta', 'mt'],
+  ['Gibraltar', 'gi'],
+  ['Isle of Man', 'im'],
+  ['Fiji', 'fj'],
+  ['Vanuatu', 'vu'],
+  ['Cook Islands', 'ck'],
+  ['Samoa', 'ws'],
+  ['Tanzania', 'tz'],
+  ['Botswana', 'bw'],
+  ['Ghana', 'gh'],
+  ['Nigeria', 'ng'],
+  ['Gambia', 'gm'],
+  ['Sierra Leone', 'sl'],
+  ['Rwanda', 'rw'],
+  ['Malawi', 'mw'],
+  ['Mozambique', 'mz'],
+  ['Lesotho', 'ls'],
+  ['Eswatini', 'sz'],
+  ['Hungary', 'hu'],
+  
+  // Alternative/common name variations
+  ['UAE', 'ae'],
+  ['United States of America', 'us'],
+  ['UK', 'gb'],
+  ['Britain', 'gb'],
+  ['Great Britain', 'gb'],
+  ['Northern Ireland', 'gb'],
+  ['Wales', 'gb'],
+  ['Windies', 'ag'],
+  ['WI', 'ag'],
+  ['West Indies Cricket Team', 'ag'],
+  ['South Korea', 'kr'],
+  ['Republic of Korea', 'kr'],
+  ['North Korea', 'kp'],
+  ['Democratic Republic of Congo', 'cd'],
+  ['Congo', 'cg'],
+  ['Czech', 'cz'],
+  ['Holland', 'nl'],
+  ['Burma', 'mm'],
+]);
+
+// Enhanced flag URL generator with better fallback logic
+const getTeamFlag = (teamName: string): string => {
+  if (!teamName) {
+    return generatePlaceholder('TBD');
+  }
+
+  // Clean and normalize team name
+  const cleanTeamName = teamName.trim();
+  
+  // Direct mapping lookup
+  const countryCode = cricketTeamMapping.get(cleanTeamName);
+  
+  if (countryCode) {
+    return `https://flagcdn.com/w80/${countryCode}.png`;
+  }
+
+  // Fuzzy matching for partial names or different formats
+  const fuzzyMatch = findFuzzyMatch(cleanTeamName);
+  if (fuzzyMatch) {
+    return `https://flagcdn.com/w80/${fuzzyMatch}.png`;
+  }
+
+  // Generate placeholder for unknown teams
+  return generatePlaceholder(cleanTeamName);
 };
 
-// Helper to get the flag URL
-const getTeamFlag = (teamName: string) => {
-  const code = teamToCountryCode[teamName];
-  if (code) {
-    return `https://flagcdn.com/w80/${code}.png`;
+// Helper function for fuzzy matching team names
+const findFuzzyMatch = (teamName: string): string | null => {
+  const lowerTeamName = teamName.toLowerCase();
+  
+  // Check if team name contains any mapped team name
+  for (const [key, value] of cricketTeamMapping.entries()) {
+    const lowerKey = key.toLowerCase();
+    if (lowerTeamName.includes(lowerKey) || lowerKey.includes(lowerTeamName)) {
+      return value;
+    }
   }
-  const placeholderText = teamName?.substring(0, 3).toUpperCase();
-  return `https://placehold.co/48x48/1e293b/ffffff?text=${placeholderText}`;
+  
+  // Special cases for common variations
+  const specialCases = new Map<string, string>([
+    ['eng', 'gb'],
+    ['aus', 'au'],
+    ['ind', 'in'],
+    ['aut', 'at'],
+    ['pak', 'pk'],
+    ['sa', 'za'],
+    ['rsa', 'za'],
+    ['nz', 'nz'],
+    ['ban', 'bd'],
+    ['sl', 'lk'],
+    ['afg', 'af'],
+    ['ire', 'ie'],
+    ['zim', 'zw'],
+    ['wi', 'ag'],
+    ['sco', 'gb-sct'],
+    ['ned', 'nl'],
+    ['nep', 'np'],
+    ['oma', 'om'],
+    ['png', 'pg'],
+    ['nam', 'na'],
+    ['ken', 'ke'],
+    ['uga', 'ug'],
+  ]);
+  
+  return specialCases.get(lowerTeamName) || null;
+};
+
+// Generate placeholder image with team initials
+const generatePlaceholder = (teamName: string): string => {
+  const initials = teamName
+    .split(/\s+/)
+    .map(word => word.charAt(0))
+    .join('')
+    .toUpperCase()
+    .substring(0, 3);
+  
+  // Using a more reliable placeholder service with better styling
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=1e293b&color=ffffff&size=80&font-size=0.6&bold=true&format=png`;
 };
 
 // Reusable components
-const InfoCard = ({ title, children, className = '' }: { title: string, children: React.ReactNode, className?: string }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4 }}
-    className={`bg-gradient-to-br from-[#142D3B] to-[#0f2230] border border-[#234354] rounded-2xl p-6 shadow-xl flex flex-col ${className}`}
-  >
-    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-      <div className="h-1 w-5 bg-sky-400 rounded-full"></div>
-      {title}
-    </h2>
-    <div className="flex-grow space-y-5">
-      {children}
-    </div>
-  </motion.div>
+const InfoCard = React.memo<{ title: string; children: React.ReactNode; className?: string }>(
+  ({ title, children, className = '' }) => (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      layout={false}
+      className={`bg-gradient-to-br from-[#142D3B] to-[#0f2230] border border-[#234354] rounded-2xl p-6 shadow-xl flex flex-col ${className}`}
+    >
+      <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+        <div className="h-1 w-5 bg-sky-400 rounded-full"></div>
+        {title}
+      </h2>
+      <div className="flex-grow space-y-5">
+        {children}
+      </div>
+    </motion.div>
+  )
 );
 
-const TeamScore = ({ team, isBatting }: { team: any, isBatting?: boolean }) => (
-  <div className="flex items-center justify-between gap-4 p-4 rounded-lg bg-slate-900/60 backdrop-blur-sm transition-all hover:bg-slate-800/70">
-    <div className="flex items-center gap-4">
-      <div className="relative">
-        <img 
-          src={getTeamFlag(team.name)} 
-          alt={`${team.name} Flag`} 
-          className="w-12 h-12 object-cover rounded-full border-2 border-slate-600 shadow-lg" 
-        />
-        {isBatting && (
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-slate-800 animate-pulse"></div>
-        )}
-      </div>
-      <div>
-        <p className="text-xl font-bold text-white">
-          {team.name}
-          {team.isBatting && (
-            <span className="ml-2 text-xs font-medium text-red-400 uppercase tracking-wider bg-red-500/10 py-1 px-2 rounded-full">
-              Batting
-            </span>
+InfoCard.displayName = 'InfoCard';
+
+const TeamScore = React.memo<{ team: any; isBatting?: boolean }>(
+  ({ team, isBatting }) => (
+    <div className="flex items-center justify-between gap-4 p-4 rounded-lg bg-slate-900/60 backdrop-blur-sm transition-all hover:bg-slate-800/70">
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          <img 
+            src={getTeamFlag(team.name)} 
+            alt={`${team.name} Flag`} 
+            className="w-12 h-12 object-cover rounded-full border-2 border-slate-600 shadow-lg" 
+          />
+          {isBatting && (
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-slate-800 animate-pulse"></div>
           )}
-        </p>
-        {team.overs !== undefined && (
-          <p className="text-sm font-medium text-slate-400">
-            <span className="inline-block mr-1">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </span>
-            {team.overs} Overs
+        </div>
+        <div>
+          <p className="text-xl font-bold text-white">
+            {team.name}
+            {team.isBatting && (
+              <span className="ml-2 text-xs font-medium text-red-400 uppercase tracking-wider bg-red-500/10 py-1 px-2 rounded-full">
+                Batting
+              </span>
+            )}
           </p>
-        )}
+          {team.overs !== undefined && (
+            <p className="text-sm font-medium text-slate-400">
+              <span className="inline-block mr-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+              {team.overs} Overs
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="text-right">
+        <p className="text-3xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+          {team.score !== undefined ? team.score : '0'}
+          {team.wickets !== undefined && `/${team.wickets}`}
+        </p>
       </div>
     </div>
-    <div className="text-right">
-      <p className="text-3xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-        {team.score !== undefined ? team.score : '0'}
-        {team.wickets !== undefined && `/${team.wickets}`}
-      </p>
+  )
+);
+
+TeamScore.displayName = 'TeamScore';
+
+const BattingPlayer = React.memo<{ player: any; isStriker?: boolean }>(
+  ({ player, isStriker }) => (
+    <div className={`flex justify-between items-center p-3 rounded-lg ${isStriker ? 'bg-sky-950/40' : 'bg-slate-800/20'}`}>
+      <div className="flex items-center gap-2">
+        <div className={`w-2 h-2 rounded-full ${isStriker ? 'bg-sky-400' : 'bg-slate-600'}`}></div>
+        <p className={`font-semibold ${isStriker ? 'text-sky-300' : 'text-slate-300'}`}>
+          {player.name} {isStriker && <span className="text-sky-500">*</span>}
+        </p>
+      </div>
+      <div className="flex items-baseline gap-1">
+        <p className="font-bold text-lg text-white">{player.runs}</p>
+        <span className="text-xs font-normal text-slate-400">({player.balls})</span>
+      </div>
     </div>
+  )
+);
+
+BattingPlayer.displayName = 'BattingPlayer';
+
+// Enhanced error component
+const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error, onRetry }) => (
+  <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-4">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="w-full max-w-md text-center bg-slate-800/60 backdrop-blur-sm border border-red-500/30 rounded-2xl p-8 shadow-2xl"
+    >
+      <div className="w-16 h-16 mx-auto bg-red-500/10 rounded-full flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h2 className="mt-4 text-2xl font-bold text-white">Connection Error</h2>
+      <p className="mt-2 text-slate-300">{error}</p>
+      <div className="mt-6 flex gap-3 justify-center">
+        <button 
+          onClick={onRetry}
+          className="bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:from-sky-600 hover:to-sky-700 transition-all shadow-lg hover:shadow-sky-500/25 focus:ring-2 focus:ring-sky-500/50 focus:outline-none"
+        >
+          Try Again
+        </button>
+        <button 
+          onClick={() => window.history.back()}
+          className="bg-slate-700 text-slate-300 font-semibold px-5 py-2.5 rounded-lg hover:bg-slate-600 transition-all focus:ring-2 focus:ring-slate-500/50 focus:outline-none"
+        >
+          Go Back
+        </button>
+      </div>
+    </motion.div>
   </div>
 );
 
-const BattingPlayer = ({ player, isStriker }: { player: any, isStriker?: boolean }) => (
-  <div className={`flex justify-between items-center p-3 rounded-lg ${isStriker ? 'bg-sky-950/40' : 'bg-slate-800/20'}`}>
-    <div className="flex items-center gap-2">
-      <div className={`w-2 h-2 rounded-full ${isStriker ? 'bg-sky-400' : 'bg-slate-600'}`}></div>
-      <p className={`font-semibold ${isStriker ? 'text-sky-300' : 'text-slate-300'}`}>
-        {player.name} {isStriker && <span className="text-sky-500">*</span>}
-      </p>
-    </div>
-    <div className="flex items-baseline gap-1">
-      <p className="font-bold text-lg text-white">{player.runs}</p>
-      <span className="text-xs font-normal text-slate-400">({player.balls})</span>
-    </div>
+// Not found component
+const NotFoundDisplay: React.FC = () => (
+  <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-4">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="w-full max-w-md text-center bg-slate-800/60 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 shadow-2xl"
+    >
+      <div className="w-16 h-16 mx-auto bg-slate-700/30 rounded-full flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+      <h2 className="mt-4 text-2xl font-bold text-white">Match Not Found</h2>
+      <p className="mt-2 text-slate-300">We couldn't find the details for this match.</p>
+      <button 
+        onClick={() => window.history.back()}
+        className="mt-6 bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:from-sky-600 hover:to-sky-700 transition-all shadow-lg hover:shadow-sky-500/25 focus:ring-2 focus:ring-sky-500/50 focus:outline-none"
+      >
+        Go Back
+      </button>
+    </motion.div>
   </div>
 );
 
 export default function MatchDetailsPage() {
   const params = useParams();
   const matchId = params.matchId as string;
-  const [matchStats, setMatchStats] = useState<MatchStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { getToken, isLoaded, isSignedIn } = useAuth();
-
-  useEffect(() => {
-    const fetchMatchStats = async () => {
-      if (!isLoaded || !isSignedIn) return;
-
-      try {
-        const token = await getToken();
-        const response = await fetch(`http://localhost:3001/matchStats/${matchId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch match stats. Please check if the server is running.');
-        }
-
-        const data = await response.json();
-        setMatchStats(data.response);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (isLoaded && isSignedIn) {
-      fetchMatchStats();
-    }
-  }, [matchId, isLoaded, isSignedIn, getToken]);
+  
+  // Use real-time hook with 30-second polling for live matches
+  const { matchStats, isLoading, error, refetch } = useRealTimeMatchStats(matchId, 30000);
 
   // Loading State
-  if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-slate-100">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-12 h-12 border-4 border-sky-400/20 border-t-sky-500 rounded-full animate-spin"></div>
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-8 h-8 border-4 border-indigo-400/20 border-t-indigo-500 rounded-full animate-spin-slow"></div>
-          </div>
-        </div>
-        <p className="mt-6 text-lg font-medium text-slate-100">Loading Match Details</p>
-        <p className="text-sm text-slate-400">Fetching the latest cricket action...</p>
-      </div>
-    );
+  if (isLoading) {
+    return <FullPageLoadingSkeleton />;
   }
 
   // Error State
   if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-4">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md text-center bg-slate-800/60 backdrop-blur-sm border border-red-500/30 rounded-2xl p-8 shadow-2xl"
-        >
-          <div className="w-16 h-16 mx-auto bg-red-500/10 rounded-full flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <h2 className="mt-4 text-2xl font-bold text-white">Connection Error</h2>
-          <p className="mt-2 text-slate-300">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-6 bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:from-sky-600 hover:to-sky-700 transition-all shadow-lg hover:shadow-sky-500/25 focus:ring-2 focus:ring-sky-500/50 focus:outline-none"
-          >
-            Try Again
-          </button>
-        </motion.div>
-      </div>
-    );
+    return <ErrorDisplay error={error} onRetry={refetch} />;
   }
 
   // Not Found State
   if (!matchStats) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md text-center bg-slate-800/60 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 shadow-2xl"
-        >
-          <div className="w-16 h-16 mx-auto bg-slate-700/30 rounded-full flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          </div>
-          <h2 className="mt-4 text-2xl font-bold text-white">Match Not Found</h2>
-          <p className="mt-2 text-slate-300">We couldn't find the details for this match.</p>
-        </motion.div>
-      </div>
-    );
+    return <NotFoundDisplay />;
   }
 
   // Main render with match data
@@ -216,9 +378,10 @@ export default function MatchDetailsPage() {
       <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-6xl">
         {/* Header: Match Title and Status */}
         <motion.header 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          layout={false}
           className="mb-8 text-center"
         >
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-sky-500/10 text-sky-400 mb-3">
