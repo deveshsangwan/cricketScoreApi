@@ -63,7 +63,7 @@ export default function LiveMatches() {
     console.log("Loading matches...");
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-lg font-medium text-secondary animate-pulse">
+        <div className="text-lg font-medium text-slate-400 animate-pulse">
           Loading matches...
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function LiveMatches() {
 
   return (
     <section className="container mx-auto px-6 py-12">
-      <h2 className="text-4xl font-bold text-foreground mb-8">Live Matches</h2>
+      <h2 className="text-4xl font-bold text-slate-100 mb-8">Live Matches</h2>
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {matches.map((match) => (
           <div 
@@ -104,7 +104,7 @@ export default function LiveMatches() {
         ))}
       </div>
       {matches.length === 0 && (
-        <div className="text-center text-secondary py-12">
+        <div className="text-center text-slate-400 py-12">
           No live matches available at the moment.
         </div>
       )}

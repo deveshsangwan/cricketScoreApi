@@ -21,10 +21,10 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-12 space-y-12">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl text-slate-200 antialiased">
       <section className="text-center">
-        <h1 className="text-5xl font-extrabold text-foreground mb-4">Welcome to CricketScore</h1>
-        <p className="text-xl text-secondary mb-8">
+        <h1 className="text-5xl font-extrabold text-slate-100 mb-4">Welcome to CricketScore</h1>
+        <p className="text-xl text-slate-400 mb-8">
           Your ultimate source for real-time cricket scores and updates.
         </p>
       </section>
@@ -32,7 +32,7 @@ export default function Home() {
       {/* Clerk will automatically handle the authentication UI */}
       <div className="max-w-md mx-auto">
         <SignInButton mode="modal">
-          <button className="w-full py-3 px-4 bg-primary text-white rounded-lg">
+          <button className="w-full py-3 px-4 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600 transition-colors">
             Sign In
           </button>
         </SignInButton>

@@ -2,47 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'Geist';
-  src: url('/fonts/GeistVF.woff') format('woff');
-  font-weight: 100 900;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'GeistMono';
-  src: url('/fonts/GeistMonoVF.woff') format('woff');
-  font-weight: 100 900;
-  font-style: normal;
-}
-
-:root {
-  --background: #f9f9f9;
-  --foreground: #1a1a1a;
-  --primary: #0070f3;
-  --secondary: #6c757d;
-  --border: #eaeaea;
-  --card-background: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1a1a1a;
-    --foreground: #f9f9f9;
-    --primary: #0070f3;
-    --secondary: #888;
-    --border: #333;
-    --card-background: #2a2a2a;
-  }
-}
-
+/* Global styles for redesigned CricketScore UI */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: 'Geist', sans-serif;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #0f172a, #0b2f3a, #001f3f);
+  color: #f1f5f9; /* slate-100 */
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Geist', sans-serif;
-  font-weight: 700;
+/* Soft glow with gradient highlights */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle at 25% 30%, rgba(56, 189, 248, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 75% 70%, rgba(147, 197, 253, 0.1) 0%, transparent 50%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Optional: Smooth scroll and antialiasing */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
 }

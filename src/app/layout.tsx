@@ -20,7 +20,10 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={inter.className}>
+        <head>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        </head>
+        <body className={`${inter.className} min-h-screen overflow-x-hidden`}>
           <Navbar />
           <main className="flex-grow">
             {children}

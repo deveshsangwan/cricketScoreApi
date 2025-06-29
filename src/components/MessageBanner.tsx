@@ -8,12 +8,12 @@ export default function MessageBanner({ message }: { message: string }) {
   if (!isVisible) return null;
 
   return (
-    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+    <div className="bg-sky-900 border-l-4 border-sky-500 p-4 mb-6">
       <div className="flex justify-between items-center">
-        <p className="text-blue-700">{message}</p>
+        <p className="text-sky-100">{message}</p>
         <button
           onClick={() => setIsVisible(false)}
-          className="text-blue-500 hover:text-blue-700"
+          className="text-sky-400 hover:text-sky-200"
         >
           ×
         </button>
