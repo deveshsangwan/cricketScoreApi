@@ -19,7 +19,6 @@ const errorHandler = (fn) => async (req, res, _next) => {
         await fn(req, res);
     }
     catch (err) {
-        console.error('An error occurred:', err);
         res.status(err.statusCode || 500);
         return res.json({
             status: false,

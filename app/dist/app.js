@@ -28,13 +28,12 @@ app.use((req, _res, next) => {
     next();
 });
 // Error handling middleware
-app.use(function (err, _req, res, next) {
+app.use(function (err, _req, res, _next) {
     res.json({
         status: false,
         statusMessage: res.statusCode + ' - ' + err.message,
         errorMessage: err.message,
     });
-    next(err);
 });
 (0, routes_1.default)(app);
 app.use(function (_req, res) {

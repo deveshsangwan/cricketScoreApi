@@ -39,6 +39,7 @@ export interface MatchStatsResponse {
         player1: PlayerData;
         player2: PlayerData;
     };
+    runRate?: RunRateData;
     summary: string;
     tournamentName?: string;
     matchName?: string;
@@ -51,6 +52,6 @@ export interface PlayerData {
 }
 
 export interface RunRateData {
-    currentRunRate: string;
-    requiredRunRate: string;
+    currentRunRate: number;
+    requiredRunRate: number;
 }

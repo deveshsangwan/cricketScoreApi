@@ -18,7 +18,6 @@ const errorHandler =
         try {
             await fn(req, res);
         } catch (err: any) {
-            console.error('An error occurred:', err);
             res.status(err.statusCode || 500);
             return res.json({
                 status: false,

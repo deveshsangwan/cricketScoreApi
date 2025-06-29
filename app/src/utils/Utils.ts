@@ -34,9 +34,8 @@ export class Utils {
 
             throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
         } catch (error) {
-            console.error('Error fetching data:', error);
             writeLogError(['Utils | fetchData | error', error]);
-            throw error; // Let caller handle the error
+            throw error;
         }
     }
 

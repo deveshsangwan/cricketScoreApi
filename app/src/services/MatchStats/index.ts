@@ -87,9 +87,11 @@ export class MatchStats {
                 team1: mongoData.team1,
                 team2: mongoData.team2,
                 onBatting: mongoData.onBatting,
+                runRate: mongoData.runRate,
                 summary: mongoData.summary,
                 tournamentName: mongoData.tournamentName,
                 matchName: mongoData.matchName,
+                isLive: mongoData.isLive,
             };
 
             return returnObj;
@@ -157,6 +159,7 @@ export class MatchStats {
                     player1: getBatsmanData($, 0),
                     player2: getBatsmanData($, 1),
                 },
+                runRate: runRate,
                 summary: this._getSummary($),
                 isLive: isLive,
             };

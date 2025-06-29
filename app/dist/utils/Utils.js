@@ -66,9 +66,8 @@ class Utils {
             throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
         }
         catch (error) {
-            console.error('Error fetching data:', error);
             (0, Logger_1.writeLogError)(['Utils | fetchData | error', error]);
-            throw error; // Let caller handle the error
+            throw error;
         }
     }
     /**
