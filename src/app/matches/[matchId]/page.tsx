@@ -1,8 +1,9 @@
+// src/app/matches/[matchId]/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useToken } from '@/hooks/useToken';
+import { useAuth } from '@clerk/nextjs';
 import { MatchStats } from '@/types/matchStats';
 
 export default function MatchDetailsPage() {
@@ -11,13 +12,14 @@ export default function MatchDetailsPage() {
   const [matchStats, setMatchStats] = useState<MatchStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { token } = useToken();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
 
   useEffect(() => {
     const fetchMatchStats = async () => {
-      if (!token) return;
+      if (!isLoaded || !isSignedIn) return;
 
       try {
+        const token = await getToken();
         const response = await fetch(`http://localhost:3001/matchStats/${matchId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -38,7 +40,7 @@ export default function MatchDetailsPage() {
     };
 
     fetchMatchStats();
-  }, [matchId, token]);
+  }, [matchId, isLoaded, isSignedIn, getToken]);
 
   if (loading) {
     return (
@@ -77,14 +79,14 @@ export default function MatchDetailsPage() {
         <div className="bg-card p-8 rounded-xl shadow-lg border border-border">
           <h2 className="text-3xl font-semibold mb-6 text-center">Scorecard</h2>
           <div className="space-y-4">
-            <div className="flex justify-between items-center bg-background p-4 rounded-lg">
-              <p className="font-semibold text-lg">{matchStats.team1.name}:</p>
+            {matchStats.team1.name && <div className="flex justify-between items-center bg-background p-4 rounded-lg">
+              <p className="font-semibold text-lg">{matchStats.team1.name}</p>
               <p className="font-bold text-xl text-primary">{matchStats.team1.score}</p>
-            </div>
-            <div className="flex justify-between items-center bg-background p-4 rounded-lg">
-              <p className="font-semibold text-lg">{matchStats.team2.name}:</p>
+            </div>}
+            {matchStats.team2.name && <div className="flex justify-between items-center bg-background p-4 rounded-lg">
+              <p className="font-semibold text-lg">{matchStats.team2.name}</p>
               <p className="font-bold text-xl text-primary">{matchStats.team2.score}</p>
-            </div>
+            </div>}
           </div>
         </div>
         <div className="bg-card p-8 rounded-xl shadow-lg border border-border">
@@ -96,6 +98,6 @@ export default function MatchDetailsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

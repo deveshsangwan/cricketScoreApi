@@ -1,7 +1,8 @@
+// src/components/LiveMatches.tsx
 'use client';
 
 import { useState, useEffect } from "react";
-import { useToken } from "@/hooks/useToken";
+import { useAuth } from "@clerk/nextjs";
 import { useRouter } from 'next/navigation';
 
 interface Match {
@@ -14,14 +15,17 @@ export default function LiveMatches() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { token } = useToken();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     const fetchMatches = async () => {
-      if (!token) return;
+      if (!isLoaded || !isSignedIn) return;
       
       try {
+        // Get token from Clerk
+        const token = await getToken();
+        
         const response = await fetch('http://localhost:3001/liveMatches', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -47,13 +51,16 @@ export default function LiveMatches() {
     };
 
     fetchMatches();
-  }, [token]);
+  }, [isLoaded, isSignedIn, getToken]);
 
+  // Rest of your component remains the same
   const handleViewMatchDetails = (matchId: string) => {
     router.push(`/matches/${matchId}`);
   };
 
+  // Loading and error states remain the same
   if (loading) {
+    console.log("Loading matches...");
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-lg font-medium text-secondary animate-pulse">
@@ -64,6 +71,7 @@ export default function LiveMatches() {
   }
 
   if (error) {
+    console.error("Error fetching matches:", error);
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-lg font-medium text-red-500 bg-red-100 px-6 py-4 rounded-lg border border-red-200">
