@@ -81,6 +81,12 @@ export interface CurrentBatting {
   player2: DetailedPlayer;
 }
 
+export interface CommentaryItem {
+  commentary: string;
+  hasOver: boolean;
+  over?: string;
+}
+
 export interface MatchSummary {
   text: string;
   type: 'info' | 'result' | 'toss' | 'weather';
@@ -97,6 +103,8 @@ export interface MatchStats {
   runRate?: RunRate;
   summary: string;
   isLive: boolean;
+  matchCommentary?: CommentaryItem[];
+  keyStats?: Record<string, string>;
   matchType?: 'Test' | 'ODI' | 'T20' | 'T10';
   venue?: string;
   weather?: string;
