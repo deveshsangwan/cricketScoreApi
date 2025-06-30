@@ -96,6 +96,7 @@ class MatchStats {
     }
     async getStatsForSingleMatch(liveMatchesResponse, matchId) {
         const mongoData = await mongo.findById(matchId, this.tableName);
+        console.log('Mongo Data:', mongoData);
         if (mongoData) {
             // Only add the properties you need
             const returnObj = {
@@ -105,6 +106,8 @@ class MatchStats {
                 onBatting: mongoData.onBatting,
                 runRate: mongoData.runRate,
                 summary: mongoData.summary,
+                matchCommentary: mongoData.matchCommentary,
+                keyStats: mongoData.keyStats,
                 tournamentName: mongoData.tournamentName,
                 matchName: mongoData.matchName,
                 isLive: mongoData.isLive,
@@ -154,7 +157,6 @@ class MatchStats {
         try {
             const isLive = this._getIsLiveStatus($);
             const runRate = (0, MatchUtils_1.getRunRate)($);
-            console.log('Run Rate:', runRate);
             const currentTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, true);
             const otherTeamScoreString = (0, MatchUtils_1.getTeamScoreString)($, isLive, false);
             const matchData = {
@@ -169,6 +171,10 @@ class MatchStats {
                 summary: this._getSummary($),
                 isLive: isLive,
             };
+            const matchCommentary = (0, MatchUtils_1.getMatchCommentary)($);
+            matchData['matchCommentary'] = matchCommentary;
+            const keyStats = (0, MatchUtils_1.getKeyStats)($);
+            matchData['keyStats'] = keyStats;
             return matchData;
         }
         catch (error) {
