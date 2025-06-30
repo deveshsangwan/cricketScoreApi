@@ -51,6 +51,14 @@ Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
 
 This project uses a number of technologies and tools:
 
+![pnpm](https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white)
+![Cheerio](https://img.shields.io/badge/Cheerio-E85A4F?style=for-the-badge&logo=javascript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![Clerk](https://img.shields.io/badge/Clerk-6C47FF?style=for-the-badge&logo=clerk&logoColor=white)
+![Chai](https://img.shields.io/badge/Chai-A30701?style=for-the-badge&logo=chai&logoColor=white)
+![Mocha](https://img.shields.io/badge/Mocha-8D6748?style=for-the-badge&logo=mocha&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+
 - **pnpm**: Used as the package manager for better dependency management and disk space efficiency
 - **Cheerio**: Used for web scraping to fetch live cricket match data
 - **Prisma**: Used as an ORM for accessing MongoDB to improve performance
