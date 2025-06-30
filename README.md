@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cricket Score Frontend
+
+This is a Next.js application for viewing live cricket scores and match details.
+
+## Features
+
+*   **Live Match Scores:** Get real-time updates on live cricket matches.
+*   **Match Details:** View detailed information for each match, including team scores and commentary.
+*   **User Authentication:** Secure user authentication powered by Clerk.
+*   **Modern UI:** A clean and modern user interface built with Tailwind CSS and animations by Framer Motion.
+*   **Responsive Design:** The application is optimized for all screen sizes.
 
 ## Getting Started
 
-First, run the development server:
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Prerequisites
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+*   [Node.js](https://nodejs.org/) (v20 or later)
+*   [pnpm](https://pnpm.io/)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Installation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/your-username/cricket-score-frontend.git
+    cd cricket-score-frontend
+    ```
 
-## Learn More
+2.  Install the dependencies:
+    ```bash
+    pnpm install
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+3.  Set up your environment variables. Create a `.env.local` file by copying the example:
+    ```bash
+    cp .env.example .env.local
+    ```
+    Update the `.env.local` file with your Clerk credentials and API URL. See the [Environment Variables](#environment-variables) section for more details.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4.  Run the development server:
+    ```bash
+    pnpm dev
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The application will be available at `http://localhost:3000`.
 
-## Deploy on Vercel
+## Available Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+In the project directory, you can run:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*   `pnpm dev`: Runs the app in development mode.
+*   `pnpm build`: Builds the app for production.
+*   `pnpm start`: Starts a production server.
+*   `pnpm lint`: Lints the code using Next.js' built-in ESLint configuration.
+
+## Environment Variables
+
+The following environment variables are required to run the application. These should be placed in a `.env.local` file in the root of the project.
+
+*   `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: Your publishable API key from Clerk.
+*   `CLERK_SECRET_KEY`: Your secret API key from Clerk.
+*   `NEXT_PUBLIC_CLERK_SIGN_IN_URL`: The sign-in URL for your Clerk application (e.g., `/sign-in`).
+*   `NEXT_PUBLIC_CLERK_SIGN_UP_URL`: The sign-up URL for your Clerk application (e.g., `/sign-up`).
+*   `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL`: The URL to redirect to after sign-in (e.g., `/`).
+*   `NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL`: The URL to redirect to after sign-up (e.g., `/`).
+*   `NEXT_PUBLIC_API_URL`: The base URL of the cricket score API.
+
+## Technologies Used
+
+*   [Next.js](https://nextjs.org/) - React framework
+*   [React](https://reactjs.org/) - JavaScript library for building user interfaces
+*   [TypeScript](https://www.typescriptlang.org/) - Typed superset of JavaScript
+*   [Clerk](https://clerk.com/) - User authentication and management
+*   [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+*   [Framer Motion](https://www.framer.com/motion/) - Animation library for React
+*   [pnpm](https://pnpm.io/) - Package manager
