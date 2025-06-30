@@ -47,7 +47,7 @@ const getBooleanEnvVar = (key: string, defaultValue: boolean = false): boolean =
 
 export const config: AppConfig = {
   api: {
-    baseUrl: getEnvVar('NEXT_PUBLIC_API_BASE_URL', 'http://localhost:3001'),
+    baseUrl: getEnvVar('NEXT_PUBLIC_API_BASE_URL', 'https://cricketapi-r9zv.onrender.com'),
     timeout: 10000, // 10 seconds
   },
   app: {
@@ -74,11 +74,13 @@ export const endpoints = {
 
 // Validate required environment variables
 export const validateConfig = () => {
-  const requiredVars = [
-    'NEXT_PUBLIC_API_BASE_URL',
+  // Only validate if no defaults are provided in the config
+  const requiredVarsWithoutDefaults: string[] = [
+    // Add any environment variables here that don't have defaults
+    // 'NEXT_PUBLIC_API_BASE_URL' has a default, so we don't validate it
   ];
 
-  const missing = requiredVars.filter(
+  const missing = requiredVarsWithoutDefaults.filter(
     (varName) => !process.env[varName]
   );
 
