@@ -4,7 +4,7 @@
 
 import { CheerioAPI } from 'cheerio';
 import { writeLogInfo } from '@core/Logger';
-import { ITeamData, PlayerData, RunRateData } from '@types';
+import { CommentaryData, ITeamData, PlayerData, RunRateData } from '@types';
 
 /**
  * Extracts team score string from the DOM
@@ -107,4 +107,71 @@ export function getRunRate($: CheerioAPI): RunRateData {
         currentRunRate,
         requiredRunRate,
     };
+}
+
+/**
+ * Extracts the match commentary from the DOM
+ * @param $ - Cheerio instance
+ * @returns Array of commentary objects
+ */
+export function getMatchCommentary($: CheerioAPI): CommentaryData[] {
+    // commentaries are in the format of "over: commentary"
+    // but sometimes the over is not present
+    // if over is present then the selector is "p.cb-col.cb-col-90"
+    // else the selector is "p.cb-col.cb-col-100"
+    
+    const result: CommentaryData[] = [];
+    
+    // Get all commentary elements in DOM order
+    const allCommentaryElements = $('p.cb-col.cb-col-90, p.cb-col.cb-col-100');
+    const allOverElements = $('div.cb-ovr-num');
+    
+    allCommentaryElements.each((index, el) => {
+        const commentary = $(el).text().trim();
+        if (!commentary) return;
+        
+        // Check if this is a 90% width commentary (has associated over)
+        if ($(el).hasClass('cb-col-90')) {
+            // Try to find corresponding over
+            const overElement = allOverElements.eq(index);
+            const overText = overElement.text().trim();
+            
+            result.push({
+                over: overText || undefined,
+                commentary,
+                hasOver: !!overText
+            });
+        } else {
+            // 100% width commentary (no over)
+            result.push({
+                commentary,
+                hasOver: false
+            });
+        }
+    });
+    
+    return result.filter(item => item.commentary.trim().length > 0);
+}
+
+/**
+ * Extracts the key stats from the DOM
+ */
+export function getKeyStats($: CheerioAPI): { [key: string]: string } {
+    const parentSelector = 'div.cb-min-itm-rw';
+    const keySelector = 'span.text-bold';
+    const valueSelector = 'span:not(.text-bold)';
+    const element = $(parentSelector).find(keySelector);
+    console.log('Key Stats:', element.text().trim());
+    const valueElement = $(parentSelector).find(valueSelector);
+    console.log('Value Stats:', valueElement.text().trim());
+
+    // map the key: value pairs
+    const result: { [key: string]: string } = {};
+    element.each((index, el) => {
+        const key = $(el).text().trim();
+        const value = valueElement.eq(index).text().trim();
+        result[key] = value;
+    });
+
+    return result;
 }

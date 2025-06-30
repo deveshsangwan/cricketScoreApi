@@ -55,3 +55,9 @@ export interface RunRateData {
     currentRunRate: number;
     requiredRunRate: number;
 }
+
+export interface CommentaryData {
+    over?: string;
+    commentary: string;
+    hasOver: boolean;
+}
