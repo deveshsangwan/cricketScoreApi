@@ -4,7 +4,7 @@ import * as mongo from '@core/BaseModel';
 import { writeLogError } from '@core/Logger';
 import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from '@errors';
 import { LiveMatchesResponse, MatchStatsResponse } from '@types';
-import { getTeamScoreString, getTeamData, getBatsmanData, getRunRate } from './MatchUtils';
+import { getTeamScoreString, getTeamData, getBatsmanData, getRunRate, getMatchCommentary, getKeyStats } from './MatchUtils';
 import { CheerioAPI } from 'cheerio';
 import _ from 'underscore';
 
@@ -80,6 +80,7 @@ export class MatchStats {
         matchId: string
     ): Promise<MatchStatsResponse> {
         const mongoData = await mongo.findById(matchId, this.tableName);
+        console.log('Mongo Data:', mongoData);
         if (mongoData) {
             // Only add the properties you need
             const returnObj = {
@@ -89,6 +90,8 @@ export class MatchStats {
                 onBatting: mongoData.onBatting,
                 runRate: mongoData.runRate,
                 summary: mongoData.summary,
+                matchCommentary: mongoData.matchCommentary,
+                keyStats: mongoData.keyStats,
                 tournamentName: mongoData.tournamentName,
                 matchName: mongoData.matchName,
                 isLive: mongoData.isLive,
@@ -147,7 +150,6 @@ export class MatchStats {
         try {
             const isLive = this._getIsLiveStatus($);
             const runRate = getRunRate($);
-            console.log('Run Rate:', runRate);
             const currentTeamScoreString = getTeamScoreString($, isLive, true);
             const otherTeamScoreString = getTeamScoreString($, isLive, false);
 
@@ -164,6 +166,10 @@ export class MatchStats {
                 isLive: isLive,
             };
 
+            const matchCommentary = getMatchCommentary($);
+            matchData['matchCommentary'] = matchCommentary;
+            const keyStats = getKeyStats($);
+            matchData['keyStats'] = keyStats;
             return matchData;
         } catch (error) {
             writeLogError(['matchStats | getMatchStatsByMatchId |', error]);

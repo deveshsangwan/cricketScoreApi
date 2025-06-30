@@ -64,6 +64,12 @@ model livematches {
   matchUrl  String @unique
 }
 
+type MatchstatsMatchCommentary {
+  over String?
+  commentary String
+  hasOver Boolean
+}
+
 model matchstats {
   id             String              @id @map("_id")
   createdAt      DateTime            @db.Date
@@ -75,6 +81,7 @@ model matchstats {
   team1          MatchstatsTeam1
   team2          MatchstatsTeam2
   tournamentName String
-
+  matchCommentary MatchstatsMatchCommentary[]
+  keyStats       Json?
   @@index([createdAt], map: "createdAt_1")
 }
