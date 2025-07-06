@@ -10,7 +10,7 @@ A modern Next.js frontend application that connects to the [Cricket Score API](h
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.17-38B2AC?style=for-the-badge&logo=tailwind-css)
 ![Clerk](https://img.shields.io/badge/Clerk-6.23.1-6C47FF?style=for-the-badge&logo=clerk)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/deveshsangwan/cricket-score-frontend/ci.yml?branch=main&style=flat-square)](https://github.com/deveshsangwan/cricket-score-frontend/actions)
+[![Build Status](https://github.com/deveshsangwan/cricket-score-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/deveshsangwan/cricket-score-frontend/actions/workflows/ci.yml)
 [![Code Style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://prettier.io/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Deploy Status](https://img.shields.io/badge/deploy-vercel-000000.svg?style=flat-square&logo=vercel)](https://vercel.com)
