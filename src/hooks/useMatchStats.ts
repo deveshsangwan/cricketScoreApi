@@ -58,6 +58,7 @@ export const useRealTimeMatchStats = (
   refreshInterval: number = 30000 // 30 seconds default
 ): UseMatchStatsReturn => {
   const baseHook = useMatchStats(matchId);
+  const { matchStats, refetch } = baseHook;
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const isScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -91,11 +92,11 @@ export const useRealTimeMatchStats = (
 
   useEffect(() => {
     // Only set up polling for live matches
-    if (baseHook.matchStats?.isLive && refreshInterval > 0) {
+    if (matchStats?.isLive && refreshInterval > 0) {
       const id = setInterval(() => {
         // Only refetch if not currently scrolling
         if (!isScrollingRef.current) {
-          baseHook.refetch();
+          refetch();
         }
       }, refreshInterval);
       
@@ -106,7 +107,7 @@ export const useRealTimeMatchStats = (
         setIntervalId(null);
       };
     }
-  }, [baseHook.matchStats?.isLive, refreshInterval, baseHook.refetch]);
+  }, [matchStats?.isLive, refreshInterval, refetch]);
 
   // Cleanup on unmount
   useEffect(() => {
