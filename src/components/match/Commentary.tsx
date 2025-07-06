@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CommentaryItem {
   commentary: string;
@@ -48,6 +48,12 @@ const CommentaryItem = React.memo<{ item: CommentaryItem; index: number }>(
 CommentaryItem.displayName = 'CommentaryItem';
 
 export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, className = '' }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   if (!commentary || commentary.length === 0) {
     return (
       <div className={`bg-card/50 backdrop-blur-lg border-2 border-border/60 rounded-2xl shadow-2xl relative before:absolute before:inset-0 before:bg-gradient-to-br before:from-card/40 before:to-card/20 before:rounded-2xl before:-z-10 ${className}`}>
@@ -57,7 +63,7 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
             Live Commentary
           </h2>
         </div>
-        <div className="h-[600px] flex items-center justify-center p-6 text-muted-foreground relative">
+        <div className="h-[200px] flex items-center justify-center p-6 text-muted-foreground relative">
           <div className="text-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -68,6 +74,10 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
       </div>
     );
   }
+
+  const previewItems = 3;
+  const showExpandButton = commentary.length > previewItems;
+  const displayedCommentary = isExpanded ? commentary : commentary.slice(0, previewItems);
 
   return (
     <div className={`bg-card/50 backdrop-blur-lg border-2 border-border/60 rounded-2xl shadow-2xl relative before:absolute before:inset-0 before:bg-gradient-to-br before:from-card/40 before:to-card/20 before:rounded-2xl before:-z-10 ${className}`}>
@@ -81,13 +91,57 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
         </h2>
       </div>
       
-      <div className="p-6 h-[600px] overflow-y-auto scrollbar-thin scrollbar-track-muted scrollbar-thumb-muted-foreground hover:scrollbar-thumb-foreground relative">
+      <div className={`p-6 overflow-y-auto scrollbar-thin scrollbar-track-muted scrollbar-thumb-muted-foreground hover:scrollbar-thumb-foreground relative ${
+        isExpanded ? 'h-[600px]' : 'h-auto max-h-[300px]'
+      }`}>
         <div className="space-y-4">
-          {commentary.map((item, index) => (
-            <CommentaryItem key={index} item={item} index={index} />
-          ))}
+          <AnimatePresence mode="wait">
+            {displayedCommentary.map((item, index) => (
+              <CommentaryItem key={`${isExpanded ? 'expanded' : 'preview'}-${index}`} item={item} index={index} />
+            ))}
+          </AnimatePresence>
         </div>
+
+        {!isExpanded && commentary.length > previewItems && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-4 text-center relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent pointer-events-none h-16 -mt-16"></div>
+            <div className="relative pt-4">
+              <p className="text-sm text-muted-foreground mb-3">
+                Showing {previewItems} of {commentary.length} updates
+              </p>
+            </div>
+          </motion.div>
+        )}
       </div>
+
+      {showExpandButton && (
+        <div className="border-t border-border/60">
+          <button 
+            onClick={toggleExpanded}
+            className="w-full p-4 hover:bg-muted/20 transition-colors duration-200 flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            <span>
+              {isExpanded ? 'Show Less' : `Show All ${commentary.length} Updates`}
+            </span>
+            <motion.svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-4 w-4" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </motion.svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 });
