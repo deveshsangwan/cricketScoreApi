@@ -10,12 +10,16 @@ export const useMatchStats = (matchId: string): UseMatchStatsReturn => {
   const [error, setError] = useState<string | null>(null);
   const { isLoaded, isSignedIn } = useAuth();
   const { makeRequest } = useApi();
+  const hasInitiallyLoadedRef = useRef(false);
 
-  const fetchMatchStats = useCallback(async () => {
+  const fetchMatchStats = useCallback(async (isBackgroundRefetch = false) => {
     if (!isLoaded || !isSignedIn || !matchId) return;
 
     try {
-      setIsLoading(true);
+      // Only show loading state for initial fetch, not background refetches
+      if (!isBackgroundRefetch && !hasInitiallyLoadedRef.current) {
+        setIsLoading(true);
+      }
       setError(null);
 
       const response = await makeRequest<ApiResponse<MatchStats>>(
@@ -23,6 +27,7 @@ export const useMatchStats = (matchId: string): UseMatchStatsReturn => {
       );
 
       setMatchStats(response.response);
+      hasInitiallyLoadedRef.current = true;
     } catch (err) {
       const errorMessage = err instanceof Error 
         ? err.message 
@@ -30,17 +35,20 @@ export const useMatchStats = (matchId: string): UseMatchStatsReturn => {
       setError(errorMessage);
       console.error('Error fetching match stats:', err);
     } finally {
-      setIsLoading(false);
+      // Only set loading to false if this was the initial load
+      if (!isBackgroundRefetch || !hasInitiallyLoadedRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [matchId, isLoaded, isSignedIn, makeRequest]);
 
-  const refetch = useCallback(async () => {
-    await fetchMatchStats();
+  const refetch = useCallback(async (isBackgroundRefetch = false) => {
+    await fetchMatchStats(isBackgroundRefetch);
   }, [fetchMatchStats]);
 
   useEffect(() => {
     if (isLoaded && isSignedIn && matchId) {
-      fetchMatchStats();
+      fetchMatchStats(false); // Initial fetch
     }
   }, [matchId, isLoaded, isSignedIn, fetchMatchStats]);
 
@@ -96,7 +104,8 @@ export const useRealTimeMatchStats = (
       const id = setInterval(() => {
         // Only refetch if not currently scrolling
         if (!isScrollingRef.current) {
-          refetch();
+          // Pass true to indicate this is a background refetch
+          refetch(true);
         }
       }, refreshInterval);
       

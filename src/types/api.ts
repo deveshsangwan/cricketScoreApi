@@ -149,5 +149,5 @@ export interface UseMatchStatsReturn {
   matchStats: MatchStats | null;
   isLoading: boolean;
   error: string | null;
-  refetch: () => Promise<void>;
+  refetch: (isBackgroundRefetch?: boolean) => Promise<void>;
 } 
