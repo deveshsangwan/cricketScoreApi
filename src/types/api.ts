@@ -59,6 +59,10 @@ export interface Team {
   wickets: string | number;
   overs?: string | number;
   isBatting: boolean;
+  previousInnings?: {
+    score: string | number;
+    wickets: string | number;
+  };
   extras?: {
     byes?: number;
     legByes?: number;

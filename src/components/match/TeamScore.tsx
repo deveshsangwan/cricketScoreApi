@@ -50,6 +50,14 @@ export const TeamScore = React.memo<TeamScoreProps>(
           {team.score !== undefined ? team.score : '0'}
           {team.wickets !== undefined && `/${team.wickets}`}
         </p>
+        {team.previousInnings && (
+          <div className="mt-2 text-sm text-muted-foreground">
+            <p className="font-medium">
+              1st Innings: {team.previousInnings.score}
+              {team.previousInnings.wickets !== undefined && `/${team.previousInnings.wickets}`}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
