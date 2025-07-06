@@ -106,7 +106,7 @@ export const useRealTimeMatchStats = (
         setIntervalId(null);
       };
     }
-  }, [baseHook, baseHook.matchStats?.isLive, refreshInterval, baseHook.refetch]);
+  }, [baseHook.matchStats?.isLive, refreshInterval, baseHook.refetch]);
 
   // Cleanup on unmount
   useEffect(() => {
