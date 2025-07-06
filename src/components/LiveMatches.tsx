@@ -17,17 +17,17 @@ const MatchCard = React.memo<{ match: Match; onViewDetails: (matchId: string) =>
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
       layout={false}
-      className="p-6 border border-border rounded-xl shadow-lg hover:shadow-2xl transition-all bg-card transform hover:-translate-y-1 hover:border-sky-500/30"
+      className="p-6 border-2 border-border/60 rounded-xl shadow-2xl hover:shadow-3xl transition-all bg-card/40 backdrop-blur-lg transform hover:-translate-y-1 hover:border-primary/50 hover:bg-card/50 before:absolute before:inset-0 before:bg-gradient-to-br before:from-card/40 before:to-card/20 before:rounded-xl before:-z-10 relative overflow-hidden"
     >
-      <h3 className="text-xl font-semibold text-foreground mb-4 h-16 overflow-hidden leading-tight">
+      <h3 className="text-xl font-semibold text-foreground mb-4 h-16 overflow-hidden leading-tight drop-shadow-md">
         {match.matchName}
       </h3>
-      <p className="text-sm text-secondary mb-4">
+      <p className="text-sm text-muted-foreground mb-4">
         <span className="font-medium">Match ID:</span> {match.matchId}
       </p>
       <button 
         onClick={() => onViewDetails(match.matchId)}
-        className="mt-4 w-full text-sm text-white bg-primary hover:bg-sky-600 py-2.5 px-4 rounded-lg transition-all transform hover:scale-[1.02] focus:ring-2 focus:ring-sky-500/50 focus:outline-none"
+        className="mt-4 w-full text-sm text-primary-foreground bg-primary hover:bg-primary/90 py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:ring-2 focus:ring-primary/50 focus:outline-none shadow-xl hover:shadow-primary/30 backdrop-blur-sm border border-primary/20"
       >
         View Match Details
       </button>
@@ -45,7 +45,7 @@ const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error,
     layout={false}
     className="flex flex-col items-center justify-center min-h-[400px] text-center p-8"
   >
-    <div className="w-16 h-16 mx-auto bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+    <div className="w-16 h-16 mx-auto bg-red-500/30 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 border-2 border-red-500/50 shadow-xl">
       <svg 
         xmlns="http://www.w3.org/2000/svg" 
         className="h-8 w-8 text-red-400" 
@@ -61,11 +61,11 @@ const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error,
         />
       </svg>
     </div>
-    <h3 className="text-xl font-bold text-white mb-4">Failed to Load Matches</h3>
-    <p className="text-slate-300 mb-6 max-w-md">{error}</p>
+    <h3 className="text-xl font-bold text-foreground mb-4 drop-shadow-md">Failed to Load Matches</h3>
+    <p className="text-muted-foreground mb-6 max-w-md">{error}</p>
     <button
       onClick={onRetry}
-      className="bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold px-6 py-3 rounded-lg hover:from-sky-600 hover:to-sky-700 transition-all shadow-lg hover:shadow-sky-500/25 focus:ring-2 focus:ring-sky-500/50 focus:outline-none"
+      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-xl hover:shadow-primary/30 focus:ring-2 focus:ring-primary/50 focus:outline-none backdrop-blur-sm border border-primary/20"
     >
       Try Again
     </button>
@@ -80,10 +80,10 @@ const EmptyState: React.FC = () => (
     layout={false}
     className="text-center py-16"
   >
-    <div className="w-16 h-16 mx-auto bg-slate-700/30 rounded-full flex items-center justify-center mb-6">
+    <div className="w-16 h-16 mx-auto bg-muted/40 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 border-2 border-muted/60 shadow-xl">
       <svg 
         xmlns="http://www.w3.org/2000/svg" 
-        className="h-8 w-8 text-slate-500" 
+        className="h-8 w-8 text-muted-foreground" 
         fill="none" 
         viewBox="0 0 24 24" 
         stroke="currentColor"
@@ -96,8 +96,8 @@ const EmptyState: React.FC = () => (
         />
       </svg>
     </div>
-    <h3 className="text-xl font-bold text-white mb-2">No Live Matches</h3>
-    <p className="text-slate-400">
+    <h3 className="text-xl font-bold text-foreground mb-2 drop-shadow-md">No Live Matches</h3>
+    <p className="text-muted-foreground">
       No live matches are available at the moment. Check back later!
     </p>
   </motion.div>
@@ -120,7 +120,7 @@ export default function LiveMatches() {
   if (error) {
       return (
     <section className="container mx-auto px-6 py-12">
-      <h2 className="text-4xl font-bold text-slate-100 mb-8">Live Matches</h2>
+      <h2 className="text-4xl font-bold text-foreground mb-8 drop-shadow-md">Live Matches</h2>
       <ErrorDisplay error={error} onRetry={refetch} />
     </section>
   );
@@ -134,7 +134,7 @@ export default function LiveMatches() {
         transition={{ duration: 0.3 }}
         layout={false}
       >
-        <h2 className="text-4xl font-bold text-slate-100 mb-8">Live Matches</h2>
+        <h2 className="text-4xl font-bold text-foreground mb-8 drop-shadow-md">Live Matches</h2>
         
         {matches.length === 0 ? (
           <EmptyState />

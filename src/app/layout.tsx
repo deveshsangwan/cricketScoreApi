@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { config } from "@/config/env";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -29,23 +30,24 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <head>
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-          <meta name="theme-color" content="#0a192f" />
         </head>
-        <body className={`${inter.className} min-h-screen overflow-x-hidden`}>
-          <ErrorBoundary>
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <main className="flex-grow">
-                {children}
-              </main>
-              <footer className="mt-auto py-6 text-center text-slate-500 text-sm border-t border-slate-800/50">
-                <p>&copy; 2024 {config.app.name}. Built with Next.js and TypeScript.</p>
-              </footer>
-            </div>
-          </ErrorBoundary>
+        <body className={`${inter.className} min-h-screen overflow-x-hidden bg-gradient-theme`}>
+          <ThemeProvider>
+            <ErrorBoundary>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="flex-grow">
+                  {children}
+                </main>
+                <footer className="mt-auto py-6 text-center text-muted-foreground text-sm border-t border-border">
+                  <p>&copy; 2024 {config.app.name}. Built with Next.js and TypeScript.</p>
+                </footer>
+              </div>
+            </ErrorBoundary>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

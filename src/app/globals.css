@@ -2,63 +2,141 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Updated global styles for the CricketScore UI to match the new design.
-  The background is a subtle, deep teal gradient.
-*/
-body {
-  font-family: 'Inter', sans-serif;
-  /* A darker, more direct teal gradient to match the design image */
-  background: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
-  color: #f1f5f9; /* slate-100 is a good default light text color */
-  min-height: 100vh;
-  overflow-x: hidden;
+/* Theme CSS Custom Properties */
+:root {
+  /* Light theme colors */
+  --background: 255 255 255; /* white */
+  --foreground: 15 23 42; /* slate-900 */
+  --card: 248 250 252; /* slate-50 */
+  --card-foreground: 15 23 42; /* slate-900 */
+  --popover: 255 255 255; /* white */
+  --popover-foreground: 15 23 42; /* slate-900 */
+  --primary: 14 165 233; /* sky-500 */
+  --primary-foreground: 255 255 255; /* white */
+  --secondary: 241 245 249; /* slate-100 */
+  --secondary-foreground: 15 23 42; /* slate-900 */
+  --muted: 241 245 249; /* slate-100 */
+  --muted-foreground: 100 116 139; /* slate-500 */
+  --accent: 241 245 249; /* slate-100 */
+  --accent-foreground: 15 23 42; /* slate-900 */
+  --destructive: 239 68 68; /* red-500 */
+  --destructive-foreground: 255 255 255; /* white */
+  --border: 226 232 240; /* slate-200 */
+  --input: 226 232 240; /* slate-200 */
+  --ring: 14 165 233; /* sky-500 */
+  --gradient-from: 240 249 255; /* sky-50 */
+  --gradient-to: 219 234 254; /* blue-100 */
+  --background-gradient: linear-gradient(to bottom right, rgb(240, 249, 255), rgb(219, 234, 254));
+  --background-solid: rgb(255, 255, 255);
 }
 
-/* Optional: Smooth scroll and antialiasing for a better user experience */
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* Ensure html also has the background for full coverage */
-  background: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
-  min-height: 100%;
+[data-theme="dark"] {
+  /* Dark theme colors (current theme) */
+  --background: 10 25 47; /* #0a192f */
+  --foreground: 241 245 249; /* slate-100 */
+  --card: 30 41 59; /* slate-800 */
+  --card-foreground: 241 245 249; /* slate-100 */
+  --popover: 30 41 59; /* slate-800 */
+  --popover-foreground: 241 245 249; /* slate-100 */
+  --primary: 14 165 233; /* sky-500 */
+  --primary-foreground: 255 255 255; /* white */
+  --secondary: 51 65 85; /* slate-700 */
+  --secondary-foreground: 241 245 249; /* slate-100 */
+  --muted: 51 65 85; /* slate-700 */
+  --muted-foreground: 148 163 184; /* slate-400 */
+  --accent: 51 65 85; /* slate-700 */
+  --accent-foreground: 241 245 249; /* slate-100 */
+  --destructive: 239 68 68; /* red-500 */
+  --destructive-foreground: 255 255 255; /* white */
+  --border: 51 65 85; /* slate-700 */
+  --input: 51 65 85; /* slate-700 */
+  --ring: 14 165 233; /* sky-500 */
+  --gradient-from: 10 25 47; /* #0a192f */
+  --gradient-to: 13 59 74; /* #0d3b4a */
+  --background-gradient: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
+  --background-solid: #0a192f;
 }
 
-/* Prevent layout shifts and improve scroll performance */
+/* Base styles */
 * {
+  @apply border-border;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
-/* Ensure smooth scrolling without white flashes */
-#__next {
-  background: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
-  min-height: 100vh;
-}
-
-/* Optimize rendering for better scroll performance */
 body {
+  font-family: 'Inter', sans-serif;
+  background: var(--background-gradient);
+  @apply text-foreground;
+  min-height: 100vh;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   will-change: scroll-position;
 }
 
-/* ...existing code... */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--background-gradient);
+  min-height: 100%;
+}
+
+/* Next.js root element */
+#__next {
+  background: var(--background-gradient);
+  min-height: 100vh;
+}
 
 /* Fix for white overscroll boundaries */
 html, body {
-  background-color: #0a192f; /* Solid fallback color matching your gradient start */
+  background-color: var(--background-solid);
   overflow-x: hidden;
   min-height: 100%;
   height: 100%;
 }
 
-/* Ensure mobile browsers show the background during bounce/overscroll */
+/* Mobile Safari specific styles */
 @supports (-webkit-touch-callout: none) {
   body {
-    /* Mobile Safari specific height for overscroll */
     height: -webkit-fill-available;
   }
   html {
     height: -webkit-fill-available;
+  }
+}
+
+/* Theme-aware utility classes */
+@layer utilities {
+  .text-foreground {
+    @apply text-[rgb(var(--foreground))];
+  }
+  
+  .text-muted-foreground {
+    @apply text-[rgb(var(--muted-foreground))];
+  }
+  
+  .bg-background {
+    @apply bg-[rgb(var(--background))];
+  }
+  
+  .bg-card {
+    @apply bg-[rgb(var(--card))];
+  }
+  
+  .bg-muted {
+    @apply bg-[rgb(var(--muted))];
+  }
+  
+  .bg-primary {
+    @apply bg-[rgb(var(--primary))];
+  }
+  
+  .border-border {
+    @apply border-[rgb(var(--border))];
+  }
+  
+  .bg-gradient-theme {
+    background: var(--background-gradient);
   }
 }
