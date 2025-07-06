@@ -93,7 +93,7 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) 
       
       <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
       <p className="text-slate-300 mb-6">
-        We're sorry, but something unexpected happened. Our team has been notified.
+        We&apos;re sorry, but something unexpected happened. Our team has been notified.
       </p>
       
       {process.env.NODE_ENV === 'development' && error && (

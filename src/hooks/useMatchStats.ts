@@ -64,7 +64,6 @@ export const useRealTimeMatchStats = (
 
   // Track scrolling to pause updates during scroll
   useEffect(() => {
-    let scrollTimeout: NodeJS.Timeout;
 
     const handleScroll = () => {
       isScrollingRef.current = true;
@@ -107,7 +106,7 @@ export const useRealTimeMatchStats = (
         setIntervalId(null);
       };
     }
-  }, [baseHook.matchStats?.isLive, refreshInterval, baseHook.refetch]);
+  }, [baseHook, baseHook.matchStats?.isLive, refreshInterval, baseHook.refetch]);
 
   // Cleanup on unmount
   useEffect(() => {

@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
-    domains: ['your-image-domain.com'],
+    domains: ['flagcdn.com'],
   },
   headers: async () => [
     {

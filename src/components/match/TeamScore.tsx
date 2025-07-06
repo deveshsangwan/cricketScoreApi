@@ -1,6 +1,7 @@
 import React from 'react';
 import { getTeamFlag } from '@/utils/teamFlags';
 import { Team } from '@/types/api';
+import Image from 'next/image';
 
 interface TeamScoreProps {
   team: Team;
@@ -12,10 +13,12 @@ export const TeamScore = React.memo<TeamScoreProps>(
     <div className="flex items-center justify-between gap-4 p-4 rounded-lg bg-card/50 backdrop-blur-lg border-2 border-border/60 transition-all hover:bg-card/60 shadow-2xl hover:shadow-3xl relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-card/40 before:to-card/20 before:rounded-lg before:-z-10">
       <div className="flex items-center gap-4 relative">
         <div className="relative">
-          <img
+          <Image
             src={getTeamFlag(team.name)}
             alt={`${team.name} Flag`}
             className="w-12 h-12 object-cover rounded-full border-2 border-border shadow-xl"
+            width={48}
+            height={48}
           />
           {isBatting && (
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-background animate-pulse shadow-xl"></div>
