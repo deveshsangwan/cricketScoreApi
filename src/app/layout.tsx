@@ -1,11 +1,11 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ClerkWrapper } from "@/components/ClerkWrapper";
 import { config } from "@/config/env";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -29,13 +29,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-        </head>
-        <body className={`${inter.className} min-h-screen overflow-x-hidden bg-gradient-theme`}>
-          <ThemeProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var savedTheme = localStorage.getItem('theme');
+                  var theme = 'light'; // default theme
+                  if (savedTheme) {
+                    theme = savedTheme;
+                  } else {
+                    // Check system preference
+                    var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    theme = systemPrefersDark ? 'dark' : 'light';
+                  }
+                  
+                  document.documentElement.setAttribute('data-theme', theme);
+                } catch (e) {
+                  // Fallback to dark theme if there's any error
+                  document.documentElement.setAttribute('data-theme', 'dark');
+                }
+              })();
+            `,
+          }}
+        />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+      </head>
+      <body className={`${inter.className} min-h-screen overflow-x-hidden bg-gradient-theme`}>
+        <ThemeProvider>
+          <ClerkWrapper>
             <ErrorBoundary>
               <div className="flex flex-col min-h-screen">
                 <Navbar />
@@ -47,9 +71,9 @@ export default function RootLayout({
                 </footer>
               </div>
             </ErrorBoundary>
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+          </ClerkWrapper>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

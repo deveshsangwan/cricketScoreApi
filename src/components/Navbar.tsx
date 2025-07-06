@@ -1,6 +1,6 @@
 // src/components/Navbar.tsx
 import Link from "next/link";
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
@@ -18,11 +18,6 @@ export default function Navbar() {
                 Sign In
               </button>
             </SignInButton>
-            <SignUpButton mode="modal">
-              <button className="px-4 py-2 rounded-lg border-2 border-primary/70 bg-card/40 text-primary font-semibold hover:bg-primary hover:text-primary-foreground transition-all duration-200 backdrop-blur-sm shadow-lg hover:shadow-primary/20">
-                Sign Up
-              </button>
-            </SignUpButton>
           </SignedOut>
           <SignedIn>
             <UserButton afterSignOutUrl="/" />

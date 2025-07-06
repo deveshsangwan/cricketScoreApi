@@ -93,7 +93,7 @@ export const CommentarySkeleton: React.FC = () => (
     </div>
     
     <div className="p-6 h-[600px] space-y-4 relative">
-      {Array.from({ length: 8 }).map((_, index) => (
+      {Array.from({ length: 5 }).map((_, index) => (
         <div key={index} className="p-3 rounded-lg border-l-4 border-l-muted bg-card/30 backdrop-blur-sm border-2 border-border/60">
           {index % 3 === 0 && (
             <div className="mb-2">
@@ -119,7 +119,7 @@ export const CurrentBattingSkeleton: React.FC = () => (
     </div>
     <div className="space-y-2 relative">
       {/* Striker */}
-      <div className="flex justify-between items-center p-3 rounded-lg bg-sky-950/50 backdrop-blur-sm border-2 border-sky-500/30">
+      <div className="flex justify-between items-center p-3 rounded-lg bg-sky-100/80 dark:bg-sky-950/50 backdrop-blur-sm border-2 border-sky-400/60 dark:border-sky-500/50">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-sky-400"></div>
           <Skeleton height="h-5" width="w-24" />
