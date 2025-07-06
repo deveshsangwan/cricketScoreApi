@@ -97,7 +97,7 @@ export default function MatchDetailsPage() {
               {/* Match Summary */}
               {matchStats.summary && (
                 <div className="mt-6 pt-6 border-t border-border text-center">
-                  <p className="text-lg font-semibold text-amber-400 bg-amber-400/10 py-3 px-4 rounded-lg inline-block">
+                  <p className="text-lg font-semibold text-summary bg-summary py-3 px-4 rounded-lg inline-block">
                     {matchStats.summary}
                   </p>
                 </div>

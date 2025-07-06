@@ -28,6 +28,8 @@
   --gradient-to: 219 234 254; /* blue-100 */
   --background-gradient: linear-gradient(to bottom right, rgb(240, 249, 255), rgb(219, 234, 254));
   --background-solid: rgb(255, 255, 255);
+  --summary-text: 180 83 9; /* amber-700 for better contrast in light mode */
+  --summary-bg: 180 83 9; /* amber-700/10 for background */
 }
 
 [data-theme="dark"] {
@@ -55,22 +57,23 @@
   --gradient-to: 13 59 74; /* #0d3b4a */
   --background-gradient: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
   --background-solid: #0a192f;
+  --summary-text: 251 191 36; /* amber-400 for dark mode */
+  --summary-bg: 251 191 36; /* amber-400/10 for background */
 }
 
 /* Base styles */
 * {
-  @apply border-border;
-  backface-visibility: hidden;
+  border-color: rgb(var(--border));
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 body {
   font-family: 'Inter', sans-serif;
   background: var(--background-gradient);
-  @apply text-foreground;
+  color: rgb(var(--foreground));
   min-height: 100vh;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
   will-change: scroll-position;
 }
 
@@ -109,34 +112,42 @@ html, body {
 /* Theme-aware utility classes */
 @layer utilities {
   .text-foreground {
-    @apply text-[rgb(var(--foreground))];
+    color: rgb(var(--foreground));
   }
   
   .text-muted-foreground {
-    @apply text-[rgb(var(--muted-foreground))];
+    color: rgb(var(--muted-foreground));
   }
   
   .bg-background {
-    @apply bg-[rgb(var(--background))];
+    background-color: rgb(var(--background));
   }
   
   .bg-card {
-    @apply bg-[rgb(var(--card))];
+    background-color: rgb(var(--card));
   }
   
   .bg-muted {
-    @apply bg-[rgb(var(--muted))];
+    background-color: rgb(var(--muted));
   }
   
   .bg-primary {
-    @apply bg-[rgb(var(--primary))];
+    background-color: rgb(var(--primary));
   }
   
   .border-border {
-    @apply border-[rgb(var(--border))];
+    border-color: rgb(var(--border));
   }
   
   .bg-gradient-theme {
     background: var(--background-gradient);
+  }
+  
+  .text-summary {
+    color: rgb(var(--summary-text));
+  }
+  
+  .bg-summary {
+    background-color: rgb(var(--summary-bg) / 0.1);
   }
 }
