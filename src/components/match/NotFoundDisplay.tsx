@@ -14,7 +14,7 @@ export const NotFoundDisplay: React.FC = () => (
         </svg>
       </div>
       <h2 className="mt-4 text-2xl font-bold text-foreground drop-shadow-md">Match Not Found</h2>
-      <p className="mt-2 text-muted-foreground">We couldn't find the details for this match.</p>
+      <p className="mt-2 text-muted-foreground">We couldn&apos;t find the details for this match.</p>
       <button
         onClick={() => window.history.back()}
         className="mt-6 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-xl hover:shadow-primary/30 focus:ring-2 focus:ring-primary/50 focus:outline-none backdrop-blur-sm border border-primary/20"
