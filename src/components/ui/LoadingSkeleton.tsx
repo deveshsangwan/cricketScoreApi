@@ -7,11 +7,11 @@ interface SkeletonProps {
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({ 
-  className = '', 
-  height = 'h-4', 
+export const Skeleton: React.FC<SkeletonProps> = ({
+  className = '',
+  height = 'h-4',
   width = 'w-full',
-  rounded = 'md' 
+  rounded = 'md'
 }) => {
   const roundedClass = {
     none: 'rounded-none',
@@ -23,7 +23,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   }[rounded];
 
   return (
-    <div 
+    <div
       className={`bg-muted/40 backdrop-blur-lg animate-pulse ${height} ${width} ${roundedClass} ${className}`}
     />
   );
@@ -43,13 +43,13 @@ export const MatchStatsHeaderSkeleton: React.FC = () => (
   <div className="mb-8 text-center space-y-4">
     {/* Tournament name badge */}
     <Skeleton height="h-6" width="w-32" className="mx-auto" rounded="full" />
-    
+
     {/* Match title */}
     <div className="space-y-2">
       <Skeleton height="h-10" width="w-80" className="mx-auto" />
       <Skeleton height="h-8" width="w-64" className="mx-auto" />
     </div>
-    
+
     {/* Live/Finished status badge */}
     <Skeleton height="h-8" width="w-20" className="mx-auto" rounded="full" />
   </div>
@@ -91,9 +91,9 @@ export const CommentarySkeleton: React.FC = () => (
         </div>
       </div>
     </div>
-    
-    <div className="p-6 h-[600px] space-y-4 relative">
-      {Array.from({ length: 5 }).map((_, index) => (
+
+    <div className="p-6 h-auto max-h-[300px] space-y-4 relative">
+      {Array.from({ length: 2 }).map((_, index) => (
         <div key={index} className="p-3 rounded-lg border-l-4 border-l-muted bg-card/30 backdrop-blur-sm border-2 border-border/60">
           {index % 3 === 0 && (
             <div className="mb-2">
@@ -103,10 +103,18 @@ export const CommentarySkeleton: React.FC = () => (
           <div className="space-y-2">
             <Skeleton height="h-4" width="w-full" />
             <Skeleton height="h-4" width="w-3/4" />
-            {index % 4 === 0 && <Skeleton height="h-4" width="w-1/2" />}
+            {index % 2 === 0 && <Skeleton height="h-4" width="w-1/2" />}
           </div>
         </div>
       ))}
+    </div>
+
+    {/* Expand button skeleton */}
+    <div className="border-t border-border/60">
+      <div className="w-full p-4 flex items-center justify-center gap-2">
+        <Skeleton height="h-4" width="w-24" />
+        <Skeleton height="h-4" width="w-4" rounded="sm" />
+      </div>
     </div>
   </div>
 );
@@ -129,7 +137,7 @@ export const CurrentBattingSkeleton: React.FC = () => (
           <Skeleton height="h-4" width="w-6" />
         </div>
       </div>
-      
+
       {/* Non-striker */}
       <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30 backdrop-blur-sm border-2 border-muted/50">
         <div className="flex items-center gap-2">
@@ -204,7 +212,7 @@ export const MatchInfoSkeleton: React.FC = () => (
           <Skeleton height="h-4" width="w-16" />
         </div>
       </div>
-      
+
       {/* Tournament */}
       <div className="flex items-center gap-3 py-3">
         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
@@ -253,41 +261,41 @@ export const FullPageLoadingSkeleton: React.FC = () => (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-6xl">
       {/* Header */}
       <MatchStatsHeaderSkeleton />
-      
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Left Column: Main Scorecard and Commentary */}
         <div className="lg:col-span-2 space-y-6">
-                {/* Scorecard */}
-      <div className="bg-card/50 backdrop-blur-lg border-2 border-border/60 rounded-2xl p-6 shadow-2xl relative before:absolute before:inset-0 before:bg-gradient-to-br before:from-card/40 before:to-card/20 before:rounded-2xl before:-z-10">
-        <div className="flex items-center gap-2 mb-4 relative">
-          <div className="h-1 w-5 bg-sky-400 rounded-full"></div>
-          <h2 className="text-xl font-bold text-foreground drop-shadow-md">Scorecard</h2>
-        </div>
-                    <div className="space-y-5 relative">
-          {/* Team 1 */}
-          <TeamScoreSkeleton withBattingIndicator={true} />
-          
-          {/* VS Divider */}
-          <div className="my-4 text-center relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border/40"></div>
+          {/* Scorecard */}
+          <div className="bg-card/50 backdrop-blur-lg border-2 border-border/60 rounded-2xl p-6 shadow-2xl relative before:absolute before:inset-0 before:bg-gradient-to-br before:from-card/40 before:to-card/20 before:rounded-2xl before:-z-10">
+            <div className="flex items-center gap-2 mb-4 relative">
+              <div className="h-1 w-5 bg-sky-400 rounded-full"></div>
+              <h2 className="text-xl font-bold text-foreground drop-shadow-md">Scorecard</h2>
             </div>
-            <div className="relative flex justify-center">
-              <span className="px-4 bg-card/30 backdrop-blur-sm text-muted-foreground font-medium uppercase text-xs tracking-wider rounded-full border border-border/40">vs</span>
-            </div>
-          </div>
-              
+            <div className="space-y-5 relative">
+              {/* Team 1 */}
+              <TeamScoreSkeleton withBattingIndicator={true} />
+
+              {/* VS Divider */}
+              <div className="my-4 text-center relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border/40"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="px-4 bg-card/30 backdrop-blur-sm text-muted-foreground font-medium uppercase text-xs tracking-wider rounded-full border border-border/40">vs</span>
+                </div>
+              </div>
+
               {/* Team 2 */}
               <TeamScoreSkeleton />
-              
-                        {/* Match Summary */}
-          <div className="mt-6 pt-6 border-t border-border/40 text-center">
-            <Skeleton height="h-12" width="w-80" className="mx-auto" rounded="lg" />
-          </div>
+
+              {/* Match Summary */}
+              <div className="mt-6 pt-6 border-t border-border/40 text-center">
+                <Skeleton height="h-12" width="w-80" className="mx-auto" rounded="lg" />
+              </div>
             </div>
           </div>
-          
+
           {/* Commentary */}
           <CommentarySkeleton />
         </div>
@@ -296,13 +304,13 @@ export const FullPageLoadingSkeleton: React.FC = () => (
         <div className="space-y-6">
           {/* Current Batting */}
           <CurrentBattingSkeleton />
-          
+
           {/* Run Rates */}
           <RunRatesSkeleton />
-          
+
           {/* Key Stats */}
           <KeyStatsSkeleton />
-          
+
           {/* Match Info */}
           <MatchInfoSkeleton />
         </div>
