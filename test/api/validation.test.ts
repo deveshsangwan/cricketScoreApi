@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import sinon from 'sinon';
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { validateParams, validateBody } from '../../app/dist/api/validation';
+import { validateParams, validateBody } from '../../app/src/api/validation';
 
 // validation.test.ts
 

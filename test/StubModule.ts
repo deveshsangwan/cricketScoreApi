@@ -1,5 +1,5 @@
 import sinon, { SinonStub, SinonSandbox } from 'sinon';
-import * as mongo from '../app/dist/core/BaseModel';
+import * as mongo from '../app/src/core/BaseModel';
 
 class StubModule {
     private sandbox: SinonSandbox;

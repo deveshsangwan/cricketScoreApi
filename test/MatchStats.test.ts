@@ -1,6 +1,6 @@
 import HttpClient from './HttpClient';
-import { MatchStats } from '../app/dist/services/MatchStats';
-import { getTeamData } from '../app/dist/services/MatchStats/MatchUtils';
+import { MatchStats } from '../app/src/services/MatchStats';
+import { getTeamData } from '../app/src/services/MatchStats/MatchUtils';
 import { testData } from './TestData/MatchStats';
 import chai, { assert } from 'chai';
 import sinon from 'sinon';
@@ -9,8 +9,8 @@ const ErrorMessage = 'Test failed due to error:';
 const httpClient = new HttpClient(chai);
 const TIMEOUT = 20000;
 
-function assertResultSubset(result, expectedOutput) {
-    const resultSubset = Object.keys(expectedOutput).reduce((subset, key) => {
+function assertResultSubset(result: any, expectedOutput: any) {
+    const resultSubset = Object.keys(expectedOutput).reduce((subset: any, key) => {
         if (key in result) {
             subset[key] = result[key];
         }
@@ -23,13 +23,13 @@ describe('MatchStats API', function () {
     this.timeout(TIMEOUT);
 
     it('retrieves a specific match by id', async function () {
-        const id = 'nLSAYi2BckuKRVA8'; // replace with a valid match id
+        const id = 'qz0G2tpXBlel5Jki'; // replace with a valid match id
 
         try {
             const response = await httpClient.get(`/matchStats/${id}`, {});
             assert.equal(response?.body?.status, true);
         } catch (err) {
-            assert.fail(`${ErrorMessage} ${err.message}`);
+            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
         }
     });
 
@@ -41,7 +41,7 @@ describe('MatchStats API', function () {
             assert.equal(res.status, 400);
             assert.deepEqual(res.body, expectedOutput);
         } catch (err) {
-            assert.fail(`${ErrorMessage} ${err.message}`);
+            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
         }
     });
 
@@ -53,7 +53,7 @@ describe('MatchStats API', function () {
             assert.equal(response?.status, 500);
             assert.deepEqual(response?.body, expectedOutput);
         } catch (err) {
-            assert.fail(`${ErrorMessage} ${err.message}`);
+            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
         }
     });
 
@@ -62,7 +62,7 @@ describe('MatchStats API', function () {
             const response = await httpClient.get(`/matchStats`, {});
             assert.equal(response?.body?.status, true);
         } catch (err) {
-            assert.fail(`${ErrorMessage} ${err.message}`);
+            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
         }
     });
 });
@@ -76,10 +76,10 @@ describe('MatchStats | getMatchStats function', function () {
 
     it('should throw an error when matchId is undefined or null', async () => {
         try {
-            await matchStatsObj.getMatchStats(undefined);
+            await matchStatsObj.getMatchStats(undefined as any);
             assert.fail('Expected getMatchStats to throw an error');
         } catch (error) {
-            assert.equal(error.message, 'Match Id is required');
+            assert.equal((error as Error).message, 'Match Id is required');
         }
     });
 });
@@ -90,7 +90,7 @@ describe('MatchStats | getTeamData function', function () {
             const result = getTeamData(inputString);
             assertResultSubset(result, expectedOutput);
         } catch (error) {
-            assert.fail(`Failed to get team data with input '${inputString}': ${error.message}`);
+            assert.fail(`Failed to get team data with input '${inputString}': ${(error as Error).message}`);
         }
     }
 
@@ -99,7 +99,7 @@ describe('MatchStats | getTeamData function', function () {
             const result = getTeamData(inputString);
             assert.deepEqual(result, expectedOutput);
         } catch (error) {
-            assert.fail(`Failed to get team data with input '${inputString}': ${error.message}`);
+            assert.fail(`Failed to get team data with input '${inputString}': ${(error as Error).message}`);
         }
     }
 
@@ -135,7 +135,7 @@ describe('MatchStats | getTeamData function', function () {
 });
 
 describe('MatchStats | getTournamentName function', function () {
-    let $;
+    let $: sinon.SinonStub;
     const matchStatsObj: MatchStats = new MatchStats();
 
     beforeEach(() => {
@@ -150,11 +150,11 @@ describe('MatchStats | getTournamentName function', function () {
         const { input, expectedOutput } = testData.getTournamentNameErrorHandling;
         $.returns(input);
         try {
-            await matchStatsObj.getTournamentName($);
+            await (matchStatsObj as any).getTournamentName($);
             assert.fail('Expected getTournamentName to throw an error');
         } catch (error) {
             assert.isTrue($.calledWith('.cb-col.cb-col-100.cb-bg-white'));
-            assert.equal(error.message, expectedOutput);
+            assert.equal((error as Error).message, expectedOutput);
         }
     });
 });
@@ -177,27 +177,60 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
                     `Expected getMatchStats to throw an InvalidMatchIdError for ID: ${invalidId}`
                 );
             } catch (error) {
-                assert.include(error.message, `Invalid match id: ${invalidId}`);
+                assert.include((error as Error).message, `Invalid match id: ${invalidId}`);
             }
         }
     });
 
     it('accepts valid match IDs without throwing errors', async () => {
-        // Mock dependencies to prevent actual API calls
-        const stub = sinon.stub(matchStatsObj['liveMatchesObj'], 'getMatches').resolves({});
+        // Import the LiveMatches class and mongo module to stub their methods
+        const { LiveMatches } = require('../app/src/services/LiveMatches');
+        const mongo = require('../app/src/core/BaseModel');
+        
+        // Stub the getMatches method on LiveMatches prototype
+        const getMatchesStub = sinon.stub(LiveMatches.prototype, 'getMatches').resolves({
+            matchUrl: 'test-url',
+            matchName: 'Test Match',
+            matchId: 'abcDEF1234567890'
+        });
+
+        // Stub mongo.findById to return mock data so it doesn't proceed to web scraping
+        const mongoStub = sinon.stub(mongo, 'findById').resolves({
+            id: 'abcDEF1234567890',
+            matchId: 'abcDEF1234567890', // Required by isMatchStatsResponse
+            team1: { name: 'Team 1', score: '100', wickets: '2', isBatting: true },
+            team2: { name: 'Team 2', score: '80', wickets: '3', isBatting: false },
+            onBatting: {
+                player1: { name: 'Player 1', runs: '45', balls: '30' },
+                player2: { name: 'Player 2', runs: '25', balls: '20' }
+            },
+            runRate: { currentRunRate: 6.5, requiredRunRate: 7.2 },
+            summary: 'Test match in progress',
+            matchCommentary: [{ commentary: 'Test commentary', hasOver: false }], // Cannot be empty array
+            keyStats: { 'Test Stat': 'Test Value' }, // Cannot be empty object
+            tournamentName: 'Test Tournament',
+            matchName: 'Test Match',
+            isLive: true
+        });
+
+        // Create MatchStats instance after stubbing
+        const testMatchStatsObj = new MatchStats();
 
         // Valid 16-character alphanumeric string
         const validId = 'abcDEF1234567890';
 
         try {
-            await matchStatsObj.getMatchStats(validId);
+            const result = await testMatchStatsObj.getMatchStats(validId);
             // If we reach here, no error was thrown
-            assert.isTrue(stub.calledOnce);
-            assert.isTrue(stub.calledWith(validId));
+            assert.isTrue(getMatchesStub.calledOnce);
+            assert.isTrue(getMatchesStub.calledWith(validId));
+            assert.isTrue(mongoStub.calledOnce);
+            assert.equal((result as any).matchId, validId);
         } catch (error) {
-            assert.fail(`Should not throw error for valid ID ${validId}: ${error.message}`);
+            assert.fail(`Should not throw error for valid ID ${validId}: ${(error as Error).message}`);
         } finally {
-            stub.restore();
+            getMatchesStub.restore();
+            mongoStub.restore();
         }
     });
 });
@@ -219,12 +252,12 @@ describe('MatchStats | MatchIdRequriedError handling', function () {
 
         for (const emptyValue of emptyValues) {
             try {
-                await matchStatsObj.getMatchStats(emptyValue);
+                await matchStatsObj.getMatchStats(emptyValue as any);
                 assert.fail(
                     `Expected getMatchStats to throw a MatchIdRequriedError for empty value: ${emptyValue}`
                 );
             } catch (error) {
-                assert.equal(error.message, 'Match Id is required');
+                assert.equal((error as Error).message, 'Match Id is required');
             }
         }
     });
@@ -232,7 +265,7 @@ describe('MatchStats | MatchIdRequriedError handling', function () {
 
 describe('MatchStats | Error logging functionality', function () {
     let matchStatsObj: MatchStats;
-    let cheerioStub;
+    let cheerioStub: sinon.SinonStub;
 
     beforeEach(() => {
         matchStatsObj = new MatchStats();
@@ -250,18 +283,28 @@ describe('MatchStats | Error logging functionality', function () {
     it('throws error in getMatchStatsByMatchId', () => {
         try {
             // Access the private method using type casting to avoid TypeScript errors
-            matchStatsObj.getMatchStatsByMatchId(cheerioStub, 'testMatchId');
+            (matchStatsObj as any).getMatchStatsByMatchId(cheerioStub, 'testMatchId');
             assert.fail('Expected getMatchStatsByMatchId to throw an error');
         } catch (error) {
-            assert.include(error.message, 'Mock error in getMatchStatsByMatchId');
+            assert.include((error as Error).message, 'Mock error in getMatchStatsByMatchId');
         }
     });
 });
 
 describe('MatchStats | NoMatchesFoundError handling', function () {
     let matchStatsObj: MatchStats;
+    let getMatchesStub: sinon.SinonStub;
 
     beforeEach(() => {
+        // Import the LiveMatches class to stub its methods
+        const { LiveMatches } = require('../app/src/services/LiveMatches');
+        
+        // Stub liveMatchesObj.getMatches to return an empty object (no matches)
+        getMatchesStub = sinon
+            .stub(LiveMatches.prototype, 'getMatches')
+            .resolves({});
+
+        // Create MatchStats instance after stubbing
         matchStatsObj = new MatchStats();
     });
 
@@ -270,17 +313,12 @@ describe('MatchStats | NoMatchesFoundError handling', function () {
     });
 
     it('throws NoMatchesFoundError when no live matches are available', async () => {
-        // Stub liveMatchesObj.getMatches to return an empty object (no matches)
-        const getMatchesStub = sinon
-            .stub(matchStatsObj['liveMatchesObj'], 'getMatches')
-            .resolves({});
-
         try {
             // '0' is the special matchId that tells the service to get all matches
             await matchStatsObj.getMatchStats('0');
             assert.fail('Expected getMatchStats to throw a NoMatchesFoundError');
         } catch (error) {
-            assert.include(error.message, 'No matches found');
+            assert.include((error as Error).message, 'No matches found');
             assert.isTrue(getMatchesStub.calledWith('0'));
         }
     });

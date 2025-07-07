@@ -5,6 +5,28 @@
 
 import prisma from './prisma';
 import { writeLogError } from './Logger';
+import type { livematches, matchstats } from '@prisma/client';
+
+// Type-safe model names
+export type ModelName = 'livematches' | 'matchstats';
+
+// Type mapping for models to their corresponding Prisma types
+type ModelTypeMap = {
+  livematches: livematches;
+  matchstats: matchstats;
+};
+
+// Helper to execute operations on models in a type-safe way
+const executeOnModel = <T>(modelName: ModelName, operation: (model: any) => T): T => {
+  switch (modelName) {
+    case 'livematches':
+      return operation(prisma.livematches);
+    case 'matchstats':
+      return operation(prisma.matchstats);
+    default:
+      throw new Error(`Unknown model: ${modelName}`);
+  }
+};
 
 /**
  * Retrieves all records from specified model
@@ -12,9 +34,9 @@ import { writeLogError } from './Logger';
  * @returns Promise resolving to array of records
  * @throws Error if database operation fails
  */
-const findAll = async (modelName: string) => {
+const findAll = async <T extends ModelName>(modelName: T): Promise<ModelTypeMap[T][]> => {
     try {
-        const response = await prisma[modelName].findMany();
+        const response = await executeOnModel(modelName, (model) => model.findMany());
         return response;
     } catch (err) {
         writeLogError([`findAll ${modelName} error: `, err]);
@@ -29,9 +51,11 @@ const findAll = async (modelName: string) => {
  * @returns Promise resolving to matching record or null
  * @throws Error if database operation fails
  */
-const findById = async (matchId: string, modelName: string) => {
+const findById = async <T extends ModelName>(matchId: string, modelName: T): Promise<ModelTypeMap[T] | null> => {
     try {
-        const response = await prisma[modelName].findUnique({ where: { id: matchId } });
+        const response = await executeOnModel(modelName, (model) => 
+            model.findUnique({ where: { id: matchId } })
+        );
         return response;
     } catch (err) {
         writeLogError([`findById ${modelName} error: `, err]);
@@ -39,7 +63,7 @@ const findById = async (matchId: string, modelName: string) => {
     }
 };
 
-const findIdByMatchUrl = async (matchUrl: string) => {
+const findIdByMatchUrl = async (matchUrl: string): Promise<livematches | null> => {
     try {
         return await prisma.livematches.findUnique({ where: { matchUrl: matchUrl } });
     } catch (err) {
@@ -48,18 +72,20 @@ const findIdByMatchUrl = async (matchUrl: string) => {
     }
 };
 
-const insert = async (data: object, modelName: string) => {
+const insert = async <T extends ModelName>(data: object, modelName: T): Promise<ModelTypeMap[T]> => {
     try {
         const { id, ...restData } = data as any;
-        const response = await prisma[modelName].upsert({
-            where: { id: id },
-            update: restData,
-            create: {
-                id,
-                ...restData,
-                createdAt: new Date(),
-            },
-        });
+        const response = await executeOnModel(modelName, (model) =>
+            model.upsert({
+                where: { id: id },
+                update: restData,
+                create: {
+                    id,
+                    ...restData,
+                    createdAt: new Date(),
+                },
+            })
+        );
         return response;
     } catch (err) {
         writeLogError([`insert ${modelName} error: `, err]);
@@ -67,13 +93,15 @@ const insert = async (data: object, modelName: string) => {
     }
 };
 
-const insertMany = async (matches: object[], modelName: string) => {
+const insertMany = async (matches: object[], modelName: ModelName): Promise<{ count: number } | undefined> => {
     try {
         if (!matches.length) {
             return;
         }
 
-        const response = await prisma[modelName].createMany({ data: matches });
+        const response = await executeOnModel(modelName, (model) =>
+            model.createMany({ data: matches })
+        );
         return response;
     } catch (err) {
         writeLogError([`insertMany ${modelName} error: `, err]);

@@ -1,6 +1,6 @@
 import chaiHttp from 'chai-http';
-import server from '../app/dist/app.js';
-import { IApiResponse } from './IApiResponse.js';
+import server from '../app/src/app';
+import { IApiResponse } from './IApiResponse';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -42,10 +42,8 @@ class HttpClient {
                 request = request.query(params);
             }
 
-            return request.end((err, res) => {
-                console.log('res', res.status, res.body);
+            return request.end((err: any, res: any) => {
                 if (err) {
-                    console.error(err);
                     reject(err);
                 } else {
                     resolve(res);

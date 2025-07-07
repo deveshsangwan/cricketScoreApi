@@ -1,11 +1,15 @@
 {
     "require": [
-        "ts-node/register",
+        "ts-node/register/transpile-only",
         "test/setup.js"
     ],
     "spec": [
         "test/*test.ts",
         "test/**/*.test.ts"
     ],
-    "exit": true
+    "exit": true,
+    "ts-node": {
+        "project": "tsconfig.test.json",
+        "transpileOnly": true
+    }
 }

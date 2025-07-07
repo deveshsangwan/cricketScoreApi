@@ -1,13 +1,15 @@
 import { Utils } from '@utils/Utils';
 import { writeLogError } from '@core/Logger';
-import { MatchData } from '@types';
+import type { MatchData } from '@types';
 import { insertDataToLiveMatchesTable } from './LiveMatchesUtility';
 import { CustomError } from '@errors';
 import * as mongo from '@core/BaseModel';
+import type { ModelName } from '@core/BaseModel';
 import randomstring from 'randomstring';
 import _ from 'underscore';
 import { CheerioAPI } from 'cheerio';
 import { Element } from 'domhandler';
+import { isError, isLiveMatchesResponse } from '@/utils/TypesUtils';
 
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 
@@ -16,7 +18,7 @@ const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
  * Fetches and processes live match information from Cricbuzz
  */
 export class LiveMatches {
-    private tableName: string;
+    private tableName: ModelName;
     private utilsObj: Utils;
     private readonly MATCH_ID_LENGTH = 16;
 
@@ -41,38 +43,40 @@ export class LiveMatches {
      * @param matchId - Optional ID of specific match to fetch (defaults to '0' for all matches)
      * @returns Promise resolving to match data
      */
-    public async getMatches(matchId = '0'): Promise<{}> {
+    public async getMatches(matchId = '0'): Promise<MatchData | Record<string, MatchData>> {
         if (matchId !== '0') {
             return this.getMatchById(matchId);
         }
         return this.getAllMatches();
     }
 
-    private async getMatchById(matchId: string): Promise<{}> {
+    private async getMatchById(matchId: string): Promise<MatchData> {
         try {
             const mongoData = await mongo.findById(matchId, this.tableName);
-            if (mongoData) {
-                mongoData['matchId'] = mongoData['id'];
-                delete mongoData['id'];
-                return mongoData;
+            if (mongoData && isLiveMatchesResponse(mongoData)) {
+                return {
+                    matchId: mongoData.id,
+                    matchUrl: mongoData.matchUrl,
+                    matchName: mongoData.matchName,
+                };
             } else {
                 throw new Error(`No match found with id: ${matchId}`);
             }
         } catch (error) {
-            return this.handleError('LiveMatches | getMatchById', error);
+            return this.handleError('LiveMatches | getMatchById', isError(error) ? error : new Error('Unknown error'));
         }
     }
 
-    private async getAllMatches(): Promise<{}> {
+    private async getAllMatches(): Promise<Record<string, MatchData>> {
         try {
             const mongoData = await mongo.findAll(this.tableName);
             return this.scrapeData(mongoData);
         } catch (error) {
-            return this.handleError('LiveMatches | getAllMatches', error);
+            return this.handleError('LiveMatches | getAllMatches', isError(error) ? error : new Error('Unknown error'));
         }
     }
 
-    private async scrapeData(mongoData: any[]): Promise<{}> {
+    private async scrapeData(mongoData: any[]): Promise<Record<string, MatchData>> {
         try {
             const response = await this.utilsObj.fetchData(MATCH_URL);
             let matchesData = this.processData(response, mongoData);
@@ -80,7 +84,7 @@ export class LiveMatches {
             let mergedMatchesData = { ...matchesData[0], ...matchesData[1] };
             return mergedMatchesData;
         } catch (error) {
-            return this.handleError('LiveMatches | scrapeData', error);
+            return this.handleError('LiveMatches | scrapeData', isError(error) ? error : new Error('Unknown error'));
         }
     }
 
@@ -105,7 +109,7 @@ export class LiveMatches {
         };
 
         const handleExistingMatch = (existingMatch: any, matchUrl: string, matchName: string) => {
-            existingMatches[existingMatch.id] = { matchUrl, matchName };
+            existingMatches[existingMatch.id] = { matchUrl, matchName, matchId: existingMatch.id };
         };
 
         const handleNewMatch = (matchUrl: string, matchName: string) => {
@@ -113,7 +117,7 @@ export class LiveMatches {
                 length: this.MATCH_ID_LENGTH,
                 charset: 'alphanumeric',
             });
-            newMatches[matchId] = { matchUrl, matchName };
+            newMatches[matchId] = { matchUrl, matchName, matchId };
         };
 
         $('.cb-col-100 .cb-col .cb-schdl').each((_: number, el: Element) => {

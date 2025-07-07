@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import * as cheerio from 'cheerio';
 import { writeLogError } from '@core/Logger';
 import * as mongo from '@core/BaseModel';
-import { MatchStatsResponse } from '@types';
+import type { MatchStatsResponse } from '@types';
 
 /**
  * Utility class providing common functionality across the application
