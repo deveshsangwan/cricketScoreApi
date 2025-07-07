@@ -10,6 +10,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.insertMany = exports.insert = exports.findIdByMatchUrl = exports.findById = exports.findAll = void 0;
 const prisma_1 = __importDefault(require("./prisma"));
 const Logger_1 = require("./Logger");
+// Helper to execute operations on models in a type-safe way
+const executeOnModel = (modelName, operation) => {
+    switch (modelName) {
+        case 'livematches':
+            return operation(prisma_1.default.livematches);
+        case 'matchstats':
+            return operation(prisma_1.default.matchstats);
+        default:
+            throw new Error(`Unknown model: ${modelName}`);
+    }
+};
 /**
  * Retrieves all records from specified model
  * @param modelName - Name of the Prisma model to query
@@ -18,7 +29,7 @@ const Logger_1 = require("./Logger");
  */
 const findAll = async (modelName) => {
     try {
-        const response = await prisma_1.default[modelName].findMany();
+        const response = await executeOnModel(modelName, (model) => model.findMany());
         return response;
     }
     catch (err) {
@@ -36,7 +47,7 @@ exports.findAll = findAll;
  */
 const findById = async (matchId, modelName) => {
     try {
-        const response = await prisma_1.default[modelName].findUnique({ where: { id: matchId } });
+        const response = await executeOnModel(modelName, (model) => model.findUnique({ where: { id: matchId } }));
         return response;
     }
     catch (err) {
@@ -58,7 +69,7 @@ exports.findIdByMatchUrl = findIdByMatchUrl;
 const insert = async (data, modelName) => {
     try {
         const { id, ...restData } = data;
-        const response = await prisma_1.default[modelName].upsert({
+        const response = await executeOnModel(modelName, (model) => model.upsert({
             where: { id: id },
             update: restData,
             create: {
@@ -66,7 +77,7 @@ const insert = async (data, modelName) => {
                 ...restData,
                 createdAt: new Date(),
             },
-        });
+        }));
         return response;
     }
     catch (err) {
@@ -80,7 +91,7 @@ const insertMany = async (matches, modelName) => {
         if (!matches.length) {
             return;
         }
-        const response = await prisma_1.default[modelName].createMany({ data: matches });
+        const response = await executeOnModel(modelName, (model) => model.createMany({ data: matches }));
         return response;
     }
     catch (err) {

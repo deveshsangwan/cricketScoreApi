@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const LiveMatches_1 = require("@services/LiveMatches");
 const MatchStats_1 = require("@services/MatchStats");
+const TypesUtils_1 = require("@/utils/TypesUtils");
 const live = async (_req, res) => {
     try {
         const liveMatchesObj = new LiveMatches_1.LiveMatches();
@@ -16,7 +17,7 @@ const live = async (_req, res) => {
         return res.status(500).send({
             status: false,
             message: 'Error fetching live matches',
-            error: error.message,
+            error: (0, TypesUtils_1.isError)(error) ? error.message : 'Unknown error',
         });
     }
 };
@@ -35,7 +36,7 @@ const matchStats = async (req, res) => {
         return res.status(500).send({
             status: false,
             message: 'Error fetching match stats',
-            error: error.message,
+            error: (0, TypesUtils_1.isError)(error) ? error.message : 'Unknown error',
         });
     }
 };
@@ -53,7 +54,7 @@ const getMatchStats = async (_req, res) => {
         return res.status(500).send({
             status: false,
             message: 'Error fetching match stats',
-            error: error.message,
+            error: (0, TypesUtils_1.isError)(error) ? error.message : 'Unknown error',
         });
     }
 };

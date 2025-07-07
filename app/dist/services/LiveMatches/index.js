@@ -43,6 +43,7 @@ const LiveMatchesUtility_1 = require("./LiveMatchesUtility");
 const _errors_1 = require("@errors");
 const mongo = __importStar(require("@core/BaseModel"));
 const randomstring_1 = __importDefault(require("randomstring"));
+const TypesUtils_1 = require("@/utils/TypesUtils");
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 /**
  * Class responsible for handling live cricket match data
@@ -80,17 +81,19 @@ class LiveMatches {
     async getMatchById(matchId) {
         try {
             const mongoData = await mongo.findById(matchId, this.tableName);
-            if (mongoData) {
-                mongoData['matchId'] = mongoData['id'];
-                delete mongoData['id'];
-                return mongoData;
+            if (mongoData && (0, TypesUtils_1.isLiveMatchesResponse)(mongoData)) {
+                return {
+                    matchId: mongoData.id,
+                    matchUrl: mongoData.matchUrl,
+                    matchName: mongoData.matchName,
+                };
             }
             else {
                 throw new Error(`No match found with id: ${matchId}`);
             }
         }
         catch (error) {
-            return this.handleError('LiveMatches | getMatchById', error);
+            return this.handleError('LiveMatches | getMatchById', (0, TypesUtils_1.isError)(error) ? error : new Error('Unknown error'));
         }
     }
     async getAllMatches() {
@@ -99,7 +102,7 @@ class LiveMatches {
             return this.scrapeData(mongoData);
         }
         catch (error) {
-            return this.handleError('LiveMatches | getAllMatches', error);
+            return this.handleError('LiveMatches | getAllMatches', (0, TypesUtils_1.isError)(error) ? error : new Error('Unknown error'));
         }
     }
     async scrapeData(mongoData) {
@@ -111,7 +114,7 @@ class LiveMatches {
             return mergedMatchesData;
         }
         catch (error) {
-            return this.handleError('LiveMatches | scrapeData', error);
+            return this.handleError('LiveMatches | scrapeData', (0, TypesUtils_1.isError)(error) ? error : new Error('Unknown error'));
         }
     }
     /**
@@ -130,14 +133,14 @@ class LiveMatches {
             return { matchUrl, matchName };
         };
         const handleExistingMatch = (existingMatch, matchUrl, matchName) => {
-            existingMatches[existingMatch.id] = { matchUrl, matchName };
+            existingMatches[existingMatch.id] = { matchUrl, matchName, matchId: existingMatch.id };
         };
         const handleNewMatch = (matchUrl, matchName) => {
             const matchId = randomstring_1.default.generate({
                 length: this.MATCH_ID_LENGTH,
                 charset: 'alphanumeric',
             });
-            newMatches[matchId] = { matchUrl, matchName };
+            newMatches[matchId] = { matchUrl, matchName, matchId };
         };
         $('.cb-col-100 .cb-col .cb-schdl').each((_, el) => {
             const { matchUrl, matchName } = extractMatchInfo(el);

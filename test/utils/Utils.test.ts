@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { Utils } from '../../app/dist/utils/Utils';
+import { Utils } from '../../app/src/utils/Utils';
 
 describe('Utils', () => {
     let utils: Utils;
@@ -19,7 +19,7 @@ describe('Utils', () => {
                 await utils.fetchData('');
                 expect.fail('Should have thrown an error');
             } catch (error) {
-                expect(error.message).to.equal('URL is required');
+                expect((error as Error).message).to.equal('URL is required');
             }
         });
     });
@@ -27,10 +27,10 @@ describe('Utils', () => {
     describe('insertDataToMatchStatsTable', () => {
         it('should throw an error if scrapedData is not provided', async () => {
             try {
-                await utils.insertDataToMatchStatsTable(null, 'test-id');
+                await utils.insertDataToMatchStatsTable(null as any, 'test-id');
                 expect.fail('Should have thrown an error');
             } catch (error) {
-                expect(error.message).to.equal('Scraped data is required');
+                expect((error as Error).message).to.equal('Scraped data is required');
             }
         });
     });

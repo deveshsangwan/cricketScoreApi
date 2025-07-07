@@ -5,7 +5,7 @@ import {
     findById,
     findIdByMatchUrl,
     /* insert, */ insertMany,
-} from '../../app/dist/core/BaseModel';
+} from '../../app/src/core/BaseModel';
 
 describe('BaseModel Error handling', () => {
     const error = new Error('Test error');
@@ -13,7 +13,7 @@ describe('BaseModel Error handling', () => {
         sinon.restore();
     });
 
-    const testErrorHandling = async (method, modelArgs, expectedArgs) => {
+    const testErrorHandling = async (method: (...args: any[]) => Promise<any>, modelArgs: any[], expectedArgs: any) => {
         const methodStub = sinon.stub().throws(error);
 
         try {

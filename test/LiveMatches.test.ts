@@ -18,7 +18,7 @@ describe('LiveMatches API', function () {
             const response = await httpClient.get('/liveMatches', {});
             assert.equal(response?.body?.status, true);
         } catch (err) {
-            assert.fail(`${ErrorMessage} ${err.message}`);
+            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
         }
     });
 
@@ -30,7 +30,7 @@ describe('LiveMatches API', function () {
             const response = await httpClient.get('/liveMatches', {});
             assert.equal(response?.body?.status, true);
         } catch (err) {
-            assert.fail(`${ErrorMessage} ${err.message}`);
+            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
         }
     });
 });

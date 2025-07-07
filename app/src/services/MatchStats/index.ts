@@ -3,13 +3,15 @@ import { Utils } from '@utils/Utils';
 import * as mongo from '@core/BaseModel';
 import { writeLogError } from '@core/Logger';
 import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from '@errors';
-import { LiveMatchesResponse, MatchStatsResponse } from '@types';
+import type { LiveMatchesResponse, MatchStatsResponse } from '@types';
 import { getTeamScoreString, getTeamData, getBatsmanData, getRunRate, getMatchCommentary, getKeyStats } from './MatchUtils';
 import { CheerioAPI } from 'cheerio';
 import _ from 'underscore';
+import { isError, isLiveMatchesResponse, isMatchStatsResponse } from '@/utils/TypesUtils';
+import type { ModelName } from '@core/BaseModel';
 
 export class MatchStats {
-    private tableName: string;
+    private tableName: ModelName;
     private liveMatchesObj: LiveMatches;
     private utilsObj: Utils;
 
@@ -36,7 +38,7 @@ export class MatchStats {
 
             // If matchId is not '0', get stats for the single match
             // Otherwise, get stats for all matches
-            if (matchId !== '0') {
+            if (isLiveMatchesResponse(liveMatchesResponse)) {
                 return this.getStatsForSingleMatch(liveMatchesResponse, matchId);
             }
 
@@ -48,7 +50,7 @@ export class MatchStats {
     }
 
     private async getStatsForAllMatches(
-        liveMatchesResponse: LiveMatchesResponse
+        liveMatchesResponse: Record<string, LiveMatchesResponse>
     ): Promise<MatchStatsResponse[]> {
         // Fetch all data from the database at once
         const allMongoData = await mongo.findAll(this.tableName);
@@ -80,8 +82,7 @@ export class MatchStats {
         matchId: string
     ): Promise<MatchStatsResponse> {
         const mongoData = await mongo.findById(matchId, this.tableName);
-        console.log('Mongo Data:', mongoData);
-        if (mongoData) {
+        if (mongoData && isMatchStatsResponse(mongoData)) {
             // Only add the properties you need
             const returnObj = {
                 matchId: mongoData.id,
@@ -116,7 +117,7 @@ export class MatchStats {
                 throw new MatchIdRequriedError();
             }
 
-            url = 'https://www.cricbuzz.com' + url;
+            url = 'https://www.cricbuzz.com/' + url;
             const response = await this.utilsObj.fetchData(url);
 
             const tournamentName = await this.getTournamentName(response);
@@ -142,7 +143,7 @@ export class MatchStats {
             const tournamentNames = elements.map((_, el) => $(el).find('a').attr('title')).get();
             return tournamentNames[0];
         } catch (error) {
-            throw new Error(`Error while fetching tournament name: ${error.message}`);
+            throw new Error(`Error while fetching tournament name: ${isError(error) ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -164,12 +165,10 @@ export class MatchStats {
                 runRate: runRate,
                 summary: this._getSummary($),
                 isLive: isLive,
+                matchCommentary: getMatchCommentary($),
+                keyStats: getKeyStats($),
             };
 
-            const matchCommentary = getMatchCommentary($);
-            matchData['matchCommentary'] = matchCommentary;
-            const keyStats = getKeyStats($);
-            matchData['keyStats'] = keyStats;
             return matchData;
         } catch (error) {
             writeLogError(['matchStats | getMatchStatsByMatchId |', error]);

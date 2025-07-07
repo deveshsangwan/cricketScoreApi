@@ -44,6 +44,7 @@ const Logger_1 = require("@core/Logger");
 const _errors_1 = require("@errors");
 const MatchUtils_1 = require("./MatchUtils");
 const underscore_1 = __importDefault(require("underscore"));
+const TypesUtils_1 = require("@/utils/TypesUtils");
 class MatchStats {
     tableName;
     liveMatchesObj;
@@ -65,7 +66,7 @@ class MatchStats {
             const liveMatchesResponse = await this.liveMatchesObj.getMatches(matchId);
             // If matchId is not '0', get stats for the single match
             // Otherwise, get stats for all matches
-            if (matchId !== '0') {
+            if ((0, TypesUtils_1.isLiveMatchesResponse)(liveMatchesResponse)) {
                 return this.getStatsForSingleMatch(liveMatchesResponse, matchId);
             }
             return this.getStatsForAllMatches(liveMatchesResponse);
@@ -96,8 +97,7 @@ class MatchStats {
     }
     async getStatsForSingleMatch(liveMatchesResponse, matchId) {
         const mongoData = await mongo.findById(matchId, this.tableName);
-        console.log('Mongo Data:', mongoData);
-        if (mongoData) {
+        if (mongoData && (0, TypesUtils_1.isMatchStatsResponse)(mongoData)) {
             // Only add the properties you need
             const returnObj = {
                 matchId: mongoData.id,
@@ -128,7 +128,7 @@ class MatchStats {
             if (!matchId) {
                 throw new _errors_1.MatchIdRequriedError();
             }
-            url = 'https://www.cricbuzz.com' + url;
+            url = 'https://www.cricbuzz.com/' + url;
             const response = await this.utilsObj.fetchData(url);
             const tournamentName = await this.getTournamentName(response);
             const finalResponse = this.getMatchStatsByMatchId(response, matchId);
@@ -150,7 +150,7 @@ class MatchStats {
             return tournamentNames[0];
         }
         catch (error) {
-            throw new Error(`Error while fetching tournament name: ${error.message}`);
+            throw new Error(`Error while fetching tournament name: ${(0, TypesUtils_1.isError)(error) ? error.message : 'Unknown error'}`);
         }
     }
     getMatchStatsByMatchId($, matchId) {
@@ -170,11 +170,9 @@ class MatchStats {
                 runRate: runRate,
                 summary: this._getSummary($),
                 isLive: isLive,
+                matchCommentary: (0, MatchUtils_1.getMatchCommentary)($),
+                keyStats: (0, MatchUtils_1.getKeyStats)($),
             };
-            const matchCommentary = (0, MatchUtils_1.getMatchCommentary)($);
-            matchData['matchCommentary'] = matchCommentary;
-            const keyStats = (0, MatchUtils_1.getKeyStats)($);
-            matchData['keyStats'] = keyStats;
             return matchData;
         }
         catch (error) {

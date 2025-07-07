@@ -1,4 +1,5 @@
 import chaiHttp from 'chai-http';
+// @ts-ignore - Importing compiled JS without type declarations
 import server from '../app/dist/app.js';
 import { IApiResponse } from './IApiResponse.js';
 import dotenv from 'dotenv';
@@ -42,10 +43,8 @@ class HttpClient {
                 request = request.query(params);
             }
 
-            return request.end((err, res) => {
-                console.log('res', res.status, res.body);
+            return request.end((err: any, res: any) => {
                 if (err) {
-                    console.error(err);
                     reject(err);
                 } else {
                     resolve(res);

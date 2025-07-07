@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { LiveMatches } from '@services/LiveMatches';
 import { MatchStats } from '@services/MatchStats';
 // Import types
-import { MatchStatsResponse, LiveMatchesResponse } from '@types';
+import type { MatchStatsResponse, LiveMatchesResponse } from '@types';
+import { isError } from '@/utils/TypesUtils';
 
 const live = async (_req: Request, res: Response) => {
     try {
@@ -18,7 +19,7 @@ const live = async (_req: Request, res: Response) => {
         return res.status(500).send({
             status: false,
             message: 'Error fetching live matches',
-            error: error.message,
+            error: isError(error) ? error.message : 'Unknown error',
         });
     }
 };
@@ -40,7 +41,7 @@ const matchStats = async (req: Request, res: Response) => {
         return res.status(500).send({
             status: false,
             message: 'Error fetching match stats',
-            error: error.message,
+            error: isError(error) ? error.message : 'Unknown error',
         });
     }
 };
@@ -59,7 +60,7 @@ const getMatchStats = async (_req: Request, res: Response) => {
         return res.status(500).send({
             status: false,
             message: 'Error fetching match stats',
-            error: error.message,
+            error: isError(error) ? error.message : 'Unknown error',
         });
     }
 };

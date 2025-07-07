@@ -143,9 +143,7 @@ function getKeyStats($) {
     const keySelector = 'span.text-bold';
     const valueSelector = 'span:not(.text-bold)';
     const element = $(parentSelector).find(keySelector);
-    console.log('Key Stats:', element.text().trim());
     const valueElement = $(parentSelector).find(valueSelector);
-    console.log('Value Stats:', valueElement.text().trim());
     // map the key: value pairs
     const result = {};
     element.each((index, el) => {

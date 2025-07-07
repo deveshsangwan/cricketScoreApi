@@ -11,9 +11,9 @@ export interface MatchStatsParams {
 }
 
 export interface LiveMatchesResponse {
-    matchUrl?: string;
-    matchName?: string;
-    matchId?: matchId;
+    matchUrl: string;
+    matchName: string;
+    matchId: matchId;
 }
 
 export interface IPreviousInnings {
@@ -31,7 +31,7 @@ export interface ITeamData {
 }
 
 export interface MatchStatsResponse {
-    matchId: matchId;
+    matchId?: matchId;
     isLive?: boolean;
     team1: ITeamData;
     team2: ITeamData;
@@ -43,6 +43,8 @@ export interface MatchStatsResponse {
     summary: string;
     tournamentName?: string;
     matchName?: string;
+    matchCommentary?: CommentaryData[];
+    keyStats: { [key: string]: string };
 }
 
 export interface PlayerData {

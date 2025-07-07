@@ -34,8 +34,14 @@ export const playerDataSchema = z.object({
 });
 
 export const runRateDataSchema = z.object({
-    currentRunRate: z.string(),
-    requiredRunRate: z.string(),
+    currentRunRate: z.number(),
+    requiredRunRate: z.number(),
+});
+
+export const commentaryDataSchema = z.object({
+    over: z.string().optional(),
+    commentary: z.string(),
+    hasOver: z.boolean(),
 });
 
 export const matchStatsResponseSchema = z.object({
@@ -47,6 +53,7 @@ export const matchStatsResponseSchema = z.object({
         player1: playerDataSchema,
         player2: playerDataSchema,
     }),
+    runRate: runRateDataSchema.optional(),
     summary: z.string(),
     tournamentName: z.string().optional(),
     matchName: z.string().optional(),

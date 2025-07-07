@@ -13,7 +13,7 @@ describe('Generic API', function () {
             assert.equal(res.status, 404);
             assert.deepEqual(res.body, expectedOutput);
         } catch (err) {
-            assert.fail(`${ErrorMessage} ${err.message}`);
+            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
         }
     });
 });
