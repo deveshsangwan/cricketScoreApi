@@ -1,7 +1,6 @@
 import chaiHttp from 'chai-http';
-// @ts-ignore - Importing compiled JS without type declarations
-import server from '../app/dist/app.js';
-import { IApiResponse } from './IApiResponse.js';
+import server from '../app/src/app';
+import { IApiResponse } from './IApiResponse';
 import dotenv from 'dotenv';
 
 dotenv.config();
