@@ -51,7 +51,7 @@
     "typedoc": "^0.27.9"
   },
   "dependencies": {
-    "@clerk/express": "^1.7.2",
+    "@clerk/express": "^1.7.5",
     "@prisma/client": "^6.10.1",
     "@prisma/extension-optimize": "^1.1.8",
     "@prisma/instrumentation": "^6.10.1",
