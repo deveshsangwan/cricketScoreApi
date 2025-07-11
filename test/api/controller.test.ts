@@ -40,8 +40,10 @@ describe('Controller API Integration Tests', function () {
 
         it('should handle LiveMatches service errors gracefully', async function () {
             // Mock LiveMatches to throw an error
-            stubObj.stubModuleMethod('mongo', 'findAll').rejects(new Error('Database connection failed'));
-            
+            stubObj
+                .stubModuleMethod('mongo', 'findAll')
+                .rejects(new Error('Database connection failed'));
+
             try {
                 const response = await httpClient.get('/liveMatches', {});
                 assert.equal(response?.status, 500);
@@ -59,7 +61,7 @@ describe('Controller API Integration Tests', function () {
 
         it('should return match stats for valid match ID', async function () {
             const validMatchId = 'qz0G2tpXBlel5Jki'; // Use a known valid format
-            
+
             try {
                 const response = await httpClient.get(`/matchStats/${validMatchId}`, {});
                 // Note: This might return 400 or 500 depending on actual match existence
@@ -74,7 +76,7 @@ describe('Controller API Integration Tests', function () {
 
         it('should handle invalid match ID format', async function () {
             const invalidMatchId = 'invalid123';
-            
+
             try {
                 const response = await httpClient.get(`/matchStats/${invalidMatchId}`, {});
                 assert.equal(response?.status, 400);
@@ -116,15 +118,15 @@ describe('Controller Unit Tests', function () {
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
-        
+
         // Create response stubs
         responseStub = sandbox.stub();
         statusStub = sandbox.stub().returns({ send: responseStub });
-        
+
         mockRequest = {};
         mockResponse = {
             status: statusStub,
-            send: responseStub
+            send: responseStub,
         };
 
         // Stub service methods
@@ -142,8 +144,8 @@ describe('Controller Unit Tests', function () {
             const mockLiveMatchesResponse = {
                 matches: [
                     { matchId: '123', matchName: 'Test Match 1' },
-                    { matchId: '456', matchName: 'Test Match 2' }
-                ]
+                    { matchId: '456', matchName: 'Test Match 2' },
+                ],
             };
 
             liveMatchesStub.resolves(mockLiveMatchesResponse);
@@ -151,11 +153,13 @@ describe('Controller Unit Tests', function () {
             await controller.live(mockRequest as Request, mockResponse as Response);
 
             assert.isTrue(statusStub.calledWith(200));
-            assert.isTrue(responseStub.calledWith({
-                status: true,
-                message: 'Live Matches',
-                response: mockLiveMatchesResponse,
-            }));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: true,
+                    message: 'Live Matches',
+                    response: mockLiveMatchesResponse,
+                })
+            );
         });
 
         it('should handle LiveMatches service errors', async function () {
@@ -166,11 +170,13 @@ describe('Controller Unit Tests', function () {
             await controller.live(mockRequest as Request, mockResponse as Response);
 
             assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(responseStub.calledWith({
-                status: false,
-                message: 'Error fetching live matches',
-                error: 'Service unavailable',
-            }));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: false,
+                    message: 'Error fetching live matches',
+                    error: 'Service unavailable',
+                })
+            );
         });
 
         it('should handle non-Error exceptions', async function () {
@@ -181,11 +187,13 @@ describe('Controller Unit Tests', function () {
             await controller.live(mockRequest as Request, mockResponse as Response);
 
             assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(responseStub.calledWith({
-                status: false,
-                message: 'Error fetching live matches',
-                error: 'Unknown error',
-            }));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: false,
+                    message: 'Error fetching live matches',
+                    error: 'Unknown error',
+                })
+            );
         });
     });
 
@@ -198,7 +206,7 @@ describe('Controller Unit Tests', function () {
             const mockMatchStatsResponse = {
                 matchId: 'validMatchId123',
                 teams: ['Team A', 'Team B'],
-                scores: ['150/3', '45/2']
+                scores: ['150/3', '45/2'],
             };
 
             matchStatsStub.resolves(mockMatchStatsResponse);
@@ -207,11 +215,13 @@ describe('Controller Unit Tests', function () {
 
             assert.isTrue(matchStatsStub.calledWith('validMatchId123'));
             assert.isTrue(statusStub.calledWith(200));
-            assert.isTrue(responseStub.calledWith({
-                status: true,
-                message: 'Match Stats',
-                response: mockMatchStatsResponse,
-            }));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: true,
+                    message: 'Match Stats',
+                    response: mockMatchStatsResponse,
+                })
+            );
         });
 
         it('should handle MatchStats service errors', async function () {
@@ -223,11 +233,13 @@ describe('Controller Unit Tests', function () {
 
             assert.isTrue(matchStatsStub.calledWith('validMatchId123'));
             assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(responseStub.calledWith({
-                status: false,
-                message: 'Error fetching match stats',
-                error: 'Invalid match ID',
-            }));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: false,
+                    message: 'Error fetching match stats',
+                    error: 'Invalid match ID',
+                })
+            );
         });
 
         it('should handle missing matchId parameter', async function () {
@@ -235,7 +247,14 @@ describe('Controller Unit Tests', function () {
 
             await controller.matchStats(mockRequest as Request, mockResponse as Response);
 
-            assert.isTrue(matchStatsStub.calledWith(undefined));
+            assert.isTrue(statusStub.calledWith(400));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: false,
+                    message: 'Invalid match ID',
+                })
+            );
+            assert.isFalse(matchStatsStub.called);
         });
 
         it('should handle non-Error exceptions', async function () {
@@ -246,11 +265,13 @@ describe('Controller Unit Tests', function () {
             await controller.matchStats(mockRequest as Request, mockResponse as Response);
 
             assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(responseStub.calledWith({
-                status: false,
-                message: 'Error fetching match stats',
-                error: 'Unknown error',
-            }));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: false,
+                    message: 'Error fetching match stats',
+                    error: 'Unknown error',
+                })
+            );
         });
     });
 
@@ -259,7 +280,7 @@ describe('Controller Unit Tests', function () {
             const mockMatchStatsResponse = {
                 matchId: '0',
                 isDefault: true,
-                message: 'Default match stats'
+                message: 'Default match stats',
             };
 
             matchStatsStub.resolves(mockMatchStatsResponse);
@@ -268,11 +289,13 @@ describe('Controller Unit Tests', function () {
 
             assert.isTrue(matchStatsStub.calledWith('0'));
             assert.isTrue(statusStub.calledWith(200));
-            assert.isTrue(responseStub.calledWith({
-                status: true,
-                message: 'Match Stats',
-                response: mockMatchStatsResponse,
-            }));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: true,
+                    message: 'Match Stats',
+                    response: mockMatchStatsResponse,
+                })
+            );
         });
 
         it('should handle MatchStats service errors for default match', async function () {
@@ -284,11 +307,13 @@ describe('Controller Unit Tests', function () {
 
             assert.isTrue(matchStatsStub.calledWith('0'));
             assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(responseStub.calledWith({
-                status: false,
-                message: 'Error fetching match stats',
-                error: 'Default match not found',
-            }));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: false,
+                    message: 'Error fetching match stats',
+                    error: 'Default match not found',
+                })
+            );
         });
 
         it('should handle non-Error exceptions for default match', async function () {
@@ -299,11 +324,13 @@ describe('Controller Unit Tests', function () {
             await controller.getMatchStats(mockRequest as Request, mockResponse as Response);
 
             assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(responseStub.calledWith({
-                status: false,
-                message: 'Error fetching match stats',
-                error: 'Unknown error',
-            }));
+            assert.isTrue(
+                responseStub.calledWith({
+                    status: false,
+                    message: 'Error fetching match stats',
+                    error: 'Unknown error',
+                })
+            );
         });
     });
 
@@ -355,11 +382,11 @@ describe('Controller Edge Cases', function () {
         sandbox = sinon.createSandbox();
         responseStub = sandbox.stub();
         statusStub = sandbox.stub().returns({ send: responseStub });
-        
+
         mockRequest = {};
         mockResponse = {
             status: statusStub,
-            send: responseStub
+            send: responseStub,
         };
     });
 
@@ -370,8 +397,10 @@ describe('Controller Edge Cases', function () {
     it('should handle extremely long matchId in matchStats', async function () {
         const longMatchId = 'a'.repeat(1000);
         mockRequest.params = { matchId: longMatchId };
-        
-        const matchStatsStub = sandbox.stub(MatchStats.prototype, 'getMatchStats').rejects(new Error('Invalid match ID'));
+
+        const matchStatsStub = sandbox
+            .stub(MatchStats.prototype, 'getMatchStats')
+            .rejects(new Error('Invalid match ID'));
         const isErrorStub = sandbox.stub(TypesUtils, 'isError').returns(true);
 
         await controller.matchStats(mockRequest as Request, mockResponse as Response);
@@ -383,8 +412,10 @@ describe('Controller Edge Cases', function () {
     it('should handle special characters in matchId', async function () {
         const specialMatchId = 'match@#$%^&*()_+';
         mockRequest.params = { matchId: specialMatchId };
-        
-        const matchStatsStub = sandbox.stub(MatchStats.prototype, 'getMatchStats').rejects(new Error('Invalid match ID format'));
+
+        const matchStatsStub = sandbox
+            .stub(MatchStats.prototype, 'getMatchStats')
+            .rejects(new Error('Invalid match ID format'));
         const isErrorStub = sandbox.stub(TypesUtils, 'isError').returns(true);
 
         await controller.matchStats(mockRequest as Request, mockResponse as Response);
@@ -394,10 +425,12 @@ describe('Controller Edge Cases', function () {
     });
 
     it('should handle concurrent requests to live matches', async function () {
-        const liveMatchesStub = sandbox.stub(LiveMatches.prototype, 'getMatches').resolves({ matches: [] });
+        const liveMatchesStub = sandbox
+            .stub(LiveMatches.prototype, 'getMatches')
+            .resolves({ matches: [] });
 
         // Simulate concurrent requests
-        const promises = Array.from({ length: 5 }, () => 
+        const promises = Array.from({ length: 5 }, () =>
             controller.live(mockRequest as Request, mockResponse as Response)
         );
 
@@ -407,4 +440,4 @@ describe('Controller Edge Cases', function () {
         assert.equal(statusStub.callCount, 5);
         assert.equal(responseStub.callCount, 5);
     });
-}); 
+});

@@ -3,7 +3,7 @@
  */
 
 import { CheerioAPI } from 'cheerio';
-import { writeLogInfo } from '@core/Logger';
+import { writeLogInfo, writeLogDebug } from '@core/Logger';
 import type { CommentaryData, ITeamData, PlayerData, RunRateData } from '@types';
 
 /**
@@ -30,6 +30,8 @@ export function getTeamScoreString($: any, isLive: boolean, isCurrentTeam: boole
  * Handles single innings and two innings formats
  */
 export function getTeamData(input: string, isBatting: boolean = false): ITeamData {
+    writeLogDebug(['MatchUtils: getTeamData - Processing input', { input, isBatting }]);
+
     const regex =
         /^(?<name>\w+)\s+(?<score1>\d+)(?:\/(?<wickets1>\d+))?(?:\s*&\s*(?<score2>\d+)(?:\/(?<wickets2>\d+))?)?(?:\s*\(\s*(?<overs>[\d.]+)\s*\))?$/;
     const match = input.match(regex);
@@ -42,24 +44,38 @@ export function getTeamData(input: string, isBatting: boolean = false): ITeamDat
     const { name, score1, wickets1 = '10', score2, wickets2 = '10', overs } = match.groups;
     const hasTwoInnings = score2 !== undefined;
 
+    writeLogDebug([
+        'MatchUtils: getTeamData - Parsed team data',
+        {
+            name,
+            score1,
+            wickets1,
+            score2,
+            wickets2,
+            overs,
+            hasTwoInnings,
+        },
+    ]);
+
     const result: ITeamData = {
         isBatting,
-        name,
-        score: hasTwoInnings ? score2 : score1,
+        name: name || '',
+        score: hasTwoInnings ? score2 || '' : score1 || '',
         wickets: hasTwoInnings ? wickets2 : wickets1,
         ...(hasTwoInnings && {
             previousInnings: {
-                score: score1,
-                wickets: wickets1,
+                score: score1 || '',
+                wickets: wickets1 || '',
             },
         }),
     };
 
-    const parsedOvers = parseFloat(overs);
+    const parsedOvers = parseFloat(overs || '0');
     if (!isNaN(parsedOvers) && parsedOvers > 0) {
         result.overs = overs;
     }
 
+    writeLogDebug(['MatchUtils: getTeamData - Result', result]);
     return result;
 }
 
@@ -93,14 +109,15 @@ export function getRunRate($: CheerioAPI): RunRateData {
 
     let currentRunRateElement = elements.eq(0).text().trim();
     let requiredRunRateElement = elements.eq(1).text().trim();
-    let currentRunRate = 0, requiredRunRate = 0;
+    let currentRunRate = 0,
+        requiredRunRate = 0;
 
     if (currentRunRateElement.includes('CRR')) {
-        currentRunRate = Number(currentRunRateElement.split(':')[1].trim());
+        currentRunRate = Number(currentRunRateElement.split(':')[1]?.trim() || '0');
     }
 
     if (requiredRunRateElement.includes('RRR')) {
-        requiredRunRate = Number(requiredRunRateElement.split(':')[1].trim());
+        requiredRunRate = Number(requiredRunRateElement.split(':')[1]?.trim() || '0');
     }
 
     return {
@@ -115,42 +132,61 @@ export function getRunRate($: CheerioAPI): RunRateData {
  * @returns Array of commentary objects
  */
 export function getMatchCommentary($: CheerioAPI): CommentaryData[] {
+    writeLogDebug(['MatchUtils: getMatchCommentary - Starting commentary extraction']);
+
     // commentaries are in the format of "over: commentary"
     // but sometimes the over is not present
     // if over is present then the selector is "p.cb-col.cb-col-90"
     // else the selector is "p.cb-col.cb-col-100"
-    
+
     const result: CommentaryData[] = [];
-    
+
     // Get all commentary elements in DOM order
     const allCommentaryElements = $('p.cb-col.cb-col-90, p.cb-col.cb-col-100');
     const allOverElements = $('div.cb-ovr-num');
-    
+
+    writeLogDebug([
+        'MatchUtils: getMatchCommentary - Found elements',
+        {
+            commentaryElements: allCommentaryElements.length,
+            overElements: allOverElements.length,
+        },
+    ]);
+
     allCommentaryElements.each((index, el) => {
         const commentary = $(el).text().trim();
         if (!commentary) return;
-        
+
         // Check if this is a 90% width commentary (has associated over)
         if ($(el).hasClass('cb-col-90')) {
             // Try to find corresponding over
             const overElement = allOverElements.eq(index);
             const overText = overElement.text().trim();
-            
+
             result.push({
                 over: overText || undefined,
                 commentary,
-                hasOver: !!overText
+                hasOver: !!overText,
             });
         } else {
             // 100% width commentary (no over)
             result.push({
                 commentary,
-                hasOver: false
+                hasOver: false,
             });
         }
     });
-    
-    return result.filter(item => item.commentary.trim().length > 0);
+
+    const filteredResult = result.filter((item) => item.commentary.trim().length > 0);
+    writeLogDebug([
+        'MatchUtils: getMatchCommentary - Extracted commentary',
+        {
+            totalItems: result.length,
+            filteredItems: filteredResult.length,
+        },
+    ]);
+
+    return filteredResult;
 }
 
 /**

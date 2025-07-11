@@ -1,5 +1,10 @@
 import { Utils } from '@utils/Utils';
-import { writeLogError } from '@core/Logger';
+import {
+    writeLogError,
+    writeLogDebug,
+    logServiceOperation,
+    logDatabaseOperation,
+} from '@core/Logger';
 import type { MatchData } from '@types';
 import { insertDataToLiveMatchesTable } from './LiveMatchesUtility';
 import { CustomError } from '@errors';
@@ -44,47 +49,137 @@ export class LiveMatches {
      * @returns Promise resolving to match data
      */
     public async getMatches(matchId = '0'): Promise<MatchData | Record<string, MatchData>> {
-        if (matchId !== '0') {
-            return this.getMatchById(matchId);
+        const startTime = Date.now();
+        writeLogDebug(['LiveMatches: getMatches - Starting', { matchId }]);
+
+        try {
+            if (matchId !== '0') {
+                writeLogDebug(['LiveMatches: getMatches - Fetching single match', { matchId }]);
+                const result = await this.getMatchById(matchId);
+                return result;
+            }
+
+            writeLogDebug(['LiveMatches: getMatches - Fetching all matches']);
+            const result = await this.getAllMatches();
+            return result;
+        } catch (error) {
+            const duration = Date.now() - startTime;
+            logServiceOperation('LiveMatches', 'getMatches', false, duration, {
+                matchId,
+                error: isError(error) ? error.message : 'Unknown error',
+            });
+            throw error;
         }
-        return this.getAllMatches();
     }
 
     private async getMatchById(matchId: string): Promise<MatchData> {
+        const startTime = Date.now();
+        writeLogDebug(['LiveMatches: getMatchById - Starting', { matchId }]);
+
         try {
             const mongoData = await mongo.findById(matchId, this.tableName);
+            const dbDuration = Date.now() - startTime;
+            logDatabaseOperation('findById', this.tableName, !!mongoData, dbDuration);
+
             if (mongoData && isLiveMatchesResponse(mongoData)) {
+                writeLogDebug([
+                    'LiveMatches: getMatchById - Found match in database',
+                    {
+                        matchId,
+                        matchName: mongoData.matchName,
+                    },
+                ]);
+
                 return {
                     matchId: mongoData.id,
                     matchUrl: mongoData.matchUrl,
                     matchName: mongoData.matchName,
                 };
             } else {
+                writeLogError(['LiveMatches: getMatchById - No match found', { matchId }]);
                 throw new Error(`No match found with id: ${matchId}`);
             }
         } catch (error) {
-            return this.handleError('LiveMatches | getMatchById', isError(error) ? error : new Error('Unknown error'));
+            return this.handleError(
+                'LiveMatches | getMatchById',
+                isError(error) ? error : new Error('Unknown error')
+            );
         }
     }
 
     private async getAllMatches(): Promise<Record<string, MatchData>> {
+        const startTime = Date.now();
+        writeLogDebug(['LiveMatches: getAllMatches - Starting']);
+
         try {
             const mongoData = await mongo.findAll(this.tableName);
-            return this.scrapeData(mongoData);
+            const dbDuration = Date.now() - startTime;
+            logDatabaseOperation('findAll', this.tableName, true, dbDuration);
+
+            writeLogDebug([
+                'LiveMatches: getAllMatches - Found existing matches in DB',
+                {
+                    count: mongoData.length,
+                },
+            ]);
+
+            const result = await this.scrapeData(mongoData);
+            return result;
         } catch (error) {
-            return this.handleError('LiveMatches | getAllMatches', isError(error) ? error : new Error('Unknown error'));
+            return this.handleError(
+                'LiveMatches | getAllMatches',
+                isError(error) ? error : new Error('Unknown error')
+            );
         }
     }
 
     private async scrapeData(mongoData: any[]): Promise<Record<string, MatchData>> {
+        const startTime = Date.now();
+        writeLogDebug([
+            'LiveMatches: scrapeData - Starting web scraping',
+            {
+                existingDataCount: mongoData.length,
+            },
+        ]);
+
         try {
             const response = await this.utilsObj.fetchData(MATCH_URL);
+
+            writeLogDebug(['LiveMatches: scrapeData - Processing scraped data']);
             let matchesData = this.processData(response, mongoData);
-            await insertDataToLiveMatchesTable(matchesData[1]);
+
+            const newMatchesCount = Object.keys(matchesData[1]).length;
+            if (newMatchesCount > 0) {
+                writeLogDebug([
+                    'LiveMatches: scrapeData - Inserting new matches',
+                    {
+                        newMatchesCount,
+                    },
+                ]);
+                await insertDataToLiveMatchesTable(matchesData[1]);
+            } else {
+                writeLogDebug(['LiveMatches: scrapeData - No new matches to insert']);
+            }
+
             let mergedMatchesData = { ...matchesData[0], ...matchesData[1] };
+            const totalDuration = Date.now() - startTime;
+
+            writeLogDebug([
+                'LiveMatches: scrapeData - Completed',
+                {
+                    existingMatches: Object.keys(matchesData[0]).length,
+                    newMatches: newMatchesCount,
+                    totalMatches: Object.keys(mergedMatchesData).length,
+                    duration: `${totalDuration}ms`,
+                },
+            ]);
+
             return mergedMatchesData;
         } catch (error) {
-            return this.handleError('LiveMatches | scrapeData', isError(error) ? error : new Error('Unknown error'));
+            return this.handleError(
+                'LiveMatches | scrapeData',
+                isError(error) ? error : new Error('Unknown error')
+            );
         }
     }
 

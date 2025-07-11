@@ -12,20 +12,20 @@ export type ModelName = 'livematches' | 'matchstats';
 
 // Type mapping for models to their corresponding Prisma types
 type ModelTypeMap = {
-  livematches: livematches;
-  matchstats: matchstats;
+    livematches: livematches;
+    matchstats: matchstats;
 };
 
 // Helper to execute operations on models in a type-safe way
 const executeOnModel = <T>(modelName: ModelName, operation: (model: any) => T): T => {
-  switch (modelName) {
-    case 'livematches':
-      return operation(prisma.livematches);
-    case 'matchstats':
-      return operation(prisma.matchstats);
-    default:
-      throw new Error(`Unknown model: ${modelName}`);
-  }
+    switch (modelName) {
+        case 'livematches':
+            return operation(prisma.livematches);
+        case 'matchstats':
+            return operation(prisma.matchstats);
+        default:
+            throw new Error(`Unknown model: ${modelName}`);
+    }
 };
 
 /**
@@ -51,13 +51,17 @@ const findAll = async <T extends ModelName>(modelName: T): Promise<ModelTypeMap[
  * @returns Promise resolving to matching record or null
  * @throws Error if database operation fails
  */
-const findById = async <T extends ModelName>(matchId: string, modelName: T): Promise<ModelTypeMap[T] | null> => {
+const findById = async <T extends ModelName>(
+    matchId: string,
+    modelName: T
+): Promise<ModelTypeMap[T] | null> => {
     try {
-        const response = await executeOnModel(modelName, (model) => 
+        const response = await executeOnModel(modelName, (model) =>
             model.findUnique({ where: { id: matchId } })
         );
         return response;
     } catch (err) {
+        console.log('=====err======', err);
         writeLogError([`findById ${modelName} error: `, err]);
         throw err;
     }
@@ -72,7 +76,10 @@ const findIdByMatchUrl = async (matchUrl: string): Promise<livematches | null> =
     }
 };
 
-const insert = async <T extends ModelName>(data: object, modelName: T): Promise<ModelTypeMap[T]> => {
+const insert = async <T extends ModelName>(
+    data: object,
+    modelName: T
+): Promise<ModelTypeMap[T]> => {
     try {
         const { id, ...restData } = data as any;
         const response = await executeOnModel(modelName, (model) =>
@@ -93,7 +100,10 @@ const insert = async <T extends ModelName>(data: object, modelName: T): Promise<
     }
 };
 
-const insertMany = async (matches: object[], modelName: ModelName): Promise<{ count: number } | undefined> => {
+const insertMany = async (
+    matches: object[],
+    modelName: ModelName
+): Promise<{ count: number } | undefined> => {
     try {
         if (!matches.length) {
             return;

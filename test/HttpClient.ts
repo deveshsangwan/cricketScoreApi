@@ -11,10 +11,12 @@ if (!process.env.TEST_USER_TOKEN) {
 
 class HttpClient {
     private chai: any;
+    private skipAuth: boolean;
 
-    constructor(chai: any) {
+    constructor(chai: any, skipAuth: boolean = false) {
         this.chai = chai;
         this.chai.use(chaiHttp);
+        this.skipAuth = skipAuth;
     }
 
     private async executeRequest(
@@ -26,7 +28,9 @@ class HttpClient {
     ): Promise<IApiResponse> {
         return new Promise((resolve, reject) => {
             let request = this.chai.request(server)[method](endPoint);
-            request.set('Authorization', `Bearer ${process.env.TEST_USER_TOKEN}`);
+            if (!this.skipAuth) {
+                request.set('Authorization', `Bearer ${process.env.TEST_USER_TOKEN}`);
+            }
 
             if (method === 'post') {
                 request = request.send(body);
