@@ -90,7 +90,9 @@ describe('MatchStats | getTeamData function', function () {
             const result = getTeamData(inputString);
             assertResultSubset(result, expectedOutput);
         } catch (error) {
-            assert.fail(`Failed to get team data with input '${inputString}': ${(error as Error).message}`);
+            assert.fail(
+                `Failed to get team data with input '${inputString}': ${(error as Error).message}`
+            );
         }
     }
 
@@ -99,7 +101,9 @@ describe('MatchStats | getTeamData function', function () {
             const result = getTeamData(inputString);
             assert.deepEqual(result, expectedOutput);
         } catch (error) {
-            assert.fail(`Failed to get team data with input '${inputString}': ${(error as Error).message}`);
+            assert.fail(
+                `Failed to get team data with input '${inputString}': ${(error as Error).message}`
+            );
         }
     }
 
@@ -186,12 +190,12 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
         // Import the LiveMatches class and mongo module to stub their methods
         const { LiveMatches } = require('../app/src/services/LiveMatches');
         const mongo = require('../app/src/core/BaseModel');
-        
+
         // Stub the getMatches method on LiveMatches prototype
         const getMatchesStub = sinon.stub(LiveMatches.prototype, 'getMatches').resolves({
             matchUrl: 'test-url',
             matchName: 'Test Match',
-            matchId: 'abcDEF1234567890'
+            matchId: 'abcDEF1234567890',
         });
 
         // Stub mongo.findById to return mock data so it doesn't proceed to web scraping
@@ -202,7 +206,7 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
             team2: { name: 'Team 2', score: '80', wickets: '3', isBatting: false },
             onBatting: {
                 player1: { name: 'Player 1', runs: '45', balls: '30' },
-                player2: { name: 'Player 2', runs: '25', balls: '20' }
+                player2: { name: 'Player 2', runs: '25', balls: '20' },
             },
             runRate: { currentRunRate: 6.5, requiredRunRate: 7.2 },
             summary: 'Test match in progress',
@@ -210,7 +214,7 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
             keyStats: { 'Test Stat': 'Test Value' }, // Cannot be empty object
             tournamentName: 'Test Tournament',
             matchName: 'Test Match',
-            isLive: true
+            isLive: true,
         });
 
         // Create MatchStats instance after stubbing
@@ -227,7 +231,9 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
             assert.isTrue(mongoStub.calledOnce);
             assert.equal((result as any).matchId, validId);
         } catch (error) {
-            assert.fail(`Should not throw error for valid ID ${validId}: ${(error as Error).message}`);
+            assert.fail(
+                `Should not throw error for valid ID ${validId}: ${(error as Error).message}`
+            );
         } finally {
             getMatchesStub.restore();
             mongoStub.restore();
@@ -298,11 +304,9 @@ describe('MatchStats | NoMatchesFoundError handling', function () {
     beforeEach(() => {
         // Import the LiveMatches class to stub its methods
         const { LiveMatches } = require('../app/src/services/LiveMatches');
-        
+
         // Stub liveMatchesObj.getMatches to return an empty object (no matches)
-        getMatchesStub = sinon
-            .stub(LiveMatches.prototype, 'getMatches')
-            .resolves({});
+        getMatchesStub = sinon.stub(LiveMatches.prototype, 'getMatches').resolves({});
 
         // Create MatchStats instance after stubbing
         matchStatsObj = new MatchStats();

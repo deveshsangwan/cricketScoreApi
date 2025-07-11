@@ -54,19 +54,64 @@ class Utils {
      * @throws Error if fetch fails or status is not 200
      */
     async fetchData(url) {
+        const startTime = Date.now();
+        (0, Logger_1.writeLogDebug)(['Utils: fetchData - Starting request', { url }]);
         if (!url) {
+            (0, Logger_1.writeLogError)(['Utils: fetchData - URL is required']);
             throw new Error('URL is required');
         }
         const options = this.prepareRequestOptions(url);
+        (0, Logger_1.writeLogDebug)([
+            'Utils: fetchData - Request options prepared',
+            {
+                url,
+                timeout: options.timeout,
+            },
+        ]);
         try {
             const response = await (0, axios_1.default)(options);
+            const duration = Date.now() - startTime;
             if (response.status === 200) {
+                (0, Logger_1.writeLogDebug)([
+                    'Utils: fetchData - Request successful',
+                    {
+                        url,
+                        statusCode: response.status,
+                        contentLength: response.data?.length,
+                        duration: `${duration}ms`,
+                    },
+                ]);
+                (0, Logger_1.logExternalAPICall)(url, 'GET', response.status, duration);
+                (0, Logger_1.logPerformance)('Utils-fetchData', duration, { url, statusCode: response.status });
                 return cheerio.load(response.data);
             }
-            throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+            const errorMsg = `Failed to fetch data: ${response.status} ${response.statusText}`;
+            (0, Logger_1.writeLogError)([
+                'Utils: fetchData - Request failed',
+                {
+                    url,
+                    statusCode: response.status,
+                    statusText: response.statusText,
+                    duration: `${duration}ms`,
+                },
+            ]);
+            (0, Logger_1.logExternalAPICall)(url, 'GET', response.status, duration, errorMsg);
+            throw new Error(errorMsg);
         }
         catch (error) {
-            (0, Logger_1.writeLogError)(['Utils | fetchData | error', error]);
+            const duration = Date.now() - startTime;
+            const statusCode = error.response?.status;
+            const errorMessage = error.message || 'Unknown error';
+            (0, Logger_1.writeLogError)([
+                'Utils | fetchData | error',
+                {
+                    url,
+                    error: errorMessage,
+                    statusCode,
+                    duration: `${duration}ms`,
+                },
+            ]);
+            (0, Logger_1.logExternalAPICall)(url, 'GET', statusCode, duration, errorMessage);
             throw error;
         }
     }
@@ -95,18 +140,53 @@ class Utils {
      */
     async insertDataToMatchStatsTable(scrapedData, matchId) {
         if (!scrapedData) {
+            (0, Logger_1.writeLogError)(['Utils: insertDataToMatchStatsTable - Scraped data is required']);
             throw new Error('Scraped data is required');
         }
+        const startTime = Date.now();
+        (0, Logger_1.writeLogDebug)([
+            'Utils: insertDataToMatchStatsTable - Starting',
+            {
+                matchId: matchId ?? scrapedData['matchId'],
+                hasData: !!scrapedData,
+            },
+        ]);
         try {
             const dataToInsert = {
                 ...scrapedData,
                 id: matchId ?? scrapedData['matchId'],
             };
             delete dataToInsert['matchId'];
+            (0, Logger_1.writeLogDebug)([
+                'Utils: insertDataToMatchStatsTable - Inserting data',
+                {
+                    id: dataToInsert.id,
+                    hasTeam1: !!dataToInsert.team1,
+                    hasTeam2: !!dataToInsert.team2,
+                },
+            ]);
             await mongo.insert(dataToInsert, 'matchstats');
+            const duration = Date.now() - startTime;
+            (0, Logger_1.writeLogDebug)([
+                'Utils: insertDataToMatchStatsTable - Successfully inserted',
+                {
+                    id: dataToInsert.id,
+                    duration: `${duration}ms`,
+                },
+            ]);
         }
         catch (error) {
-            (0, Logger_1.writeLogError)(['Utils | insertDataToMatchStatsTable | error', error]);
+            const duration = Date.now() - startTime;
+            const errorMessage = error.message || 'Unknown error';
+            (0, Logger_1.writeLogError)([
+                'Utils | insertDataToMatchStatsTable | error',
+                {
+                    matchId: matchId ?? scrapedData['matchId'],
+                    error: errorMessage,
+                    duration: `${duration}ms`,
+                },
+            ]);
+            (0, Logger_1.logDatabaseOperation)('insert', 'matchstats', false, duration, errorMessage);
             throw error;
         }
     }

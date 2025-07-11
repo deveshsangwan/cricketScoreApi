@@ -73,15 +73,42 @@ class LiveMatches {
      * @returns Promise resolving to match data
      */
     async getMatches(matchId = '0') {
-        if (matchId !== '0') {
-            return this.getMatchById(matchId);
+        const startTime = Date.now();
+        (0, Logger_1.writeLogDebug)(['LiveMatches: getMatches - Starting', { matchId }]);
+        try {
+            if (matchId !== '0') {
+                (0, Logger_1.writeLogDebug)(['LiveMatches: getMatches - Fetching single match', { matchId }]);
+                const result = await this.getMatchById(matchId);
+                return result;
+            }
+            (0, Logger_1.writeLogDebug)(['LiveMatches: getMatches - Fetching all matches']);
+            const result = await this.getAllMatches();
+            return result;
         }
-        return this.getAllMatches();
+        catch (error) {
+            const duration = Date.now() - startTime;
+            (0, Logger_1.logServiceOperation)('LiveMatches', 'getMatches', false, duration, {
+                matchId,
+                error: (0, TypesUtils_1.isError)(error) ? error.message : 'Unknown error',
+            });
+            throw error;
+        }
     }
     async getMatchById(matchId) {
+        const startTime = Date.now();
+        (0, Logger_1.writeLogDebug)(['LiveMatches: getMatchById - Starting', { matchId }]);
         try {
             const mongoData = await mongo.findById(matchId, this.tableName);
+            const dbDuration = Date.now() - startTime;
+            (0, Logger_1.logDatabaseOperation)('findById', this.tableName, !!mongoData, dbDuration);
             if (mongoData && (0, TypesUtils_1.isLiveMatchesResponse)(mongoData)) {
+                (0, Logger_1.writeLogDebug)([
+                    'LiveMatches: getMatchById - Found match in database',
+                    {
+                        matchId,
+                        matchName: mongoData.matchName,
+                    },
+                ]);
                 return {
                     matchId: mongoData.id,
                     matchUrl: mongoData.matchUrl,
@@ -89,6 +116,7 @@ class LiveMatches {
                 };
             }
             else {
+                (0, Logger_1.writeLogError)(['LiveMatches: getMatchById - No match found', { matchId }]);
                 throw new Error(`No match found with id: ${matchId}`);
             }
         }
@@ -97,20 +125,61 @@ class LiveMatches {
         }
     }
     async getAllMatches() {
+        const startTime = Date.now();
+        (0, Logger_1.writeLogDebug)(['LiveMatches: getAllMatches - Starting']);
         try {
             const mongoData = await mongo.findAll(this.tableName);
-            return this.scrapeData(mongoData);
+            const dbDuration = Date.now() - startTime;
+            (0, Logger_1.logDatabaseOperation)('findAll', this.tableName, true, dbDuration);
+            (0, Logger_1.writeLogDebug)([
+                'LiveMatches: getAllMatches - Found existing matches in DB',
+                {
+                    count: mongoData.length,
+                },
+            ]);
+            const result = await this.scrapeData(mongoData);
+            return result;
         }
         catch (error) {
             return this.handleError('LiveMatches | getAllMatches', (0, TypesUtils_1.isError)(error) ? error : new Error('Unknown error'));
         }
     }
     async scrapeData(mongoData) {
+        const startTime = Date.now();
+        (0, Logger_1.writeLogDebug)([
+            'LiveMatches: scrapeData - Starting web scraping',
+            {
+                existingDataCount: mongoData.length,
+            },
+        ]);
         try {
             const response = await this.utilsObj.fetchData(MATCH_URL);
+            (0, Logger_1.writeLogDebug)(['LiveMatches: scrapeData - Processing scraped data']);
             let matchesData = this.processData(response, mongoData);
-            await (0, LiveMatchesUtility_1.insertDataToLiveMatchesTable)(matchesData[1]);
+            const newMatchesCount = Object.keys(matchesData[1]).length;
+            if (newMatchesCount > 0) {
+                (0, Logger_1.writeLogDebug)([
+                    'LiveMatches: scrapeData - Inserting new matches',
+                    {
+                        newMatchesCount,
+                    },
+                ]);
+                await (0, LiveMatchesUtility_1.insertDataToLiveMatchesTable)(matchesData[1]);
+            }
+            else {
+                (0, Logger_1.writeLogDebug)(['LiveMatches: scrapeData - No new matches to insert']);
+            }
             let mergedMatchesData = { ...matchesData[0], ...matchesData[1] };
+            const totalDuration = Date.now() - startTime;
+            (0, Logger_1.writeLogDebug)([
+                'LiveMatches: scrapeData - Completed',
+                {
+                    existingMatches: Object.keys(matchesData[0]).length,
+                    newMatches: newMatchesCount,
+                    totalMatches: Object.keys(mergedMatchesData).length,
+                    duration: `${totalDuration}ms`,
+                },
+            ]);
             return mergedMatchesData;
         }
         catch (error) {

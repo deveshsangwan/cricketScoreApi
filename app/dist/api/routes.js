@@ -35,12 +35,18 @@ const apiRequireAuth = () => {
             `API Request: ${req.method} ${req.originalUrl} - User ID: ${auth?.userId || 'Not Authenticated'}`,
         ]);
         if (!auth || !auth.userId) {
+            (0, Logger_1.writeLogInfo)([
+                `Authentication failed for: ${req.method} ${req.originalUrl} - IP: ${req.ip}`,
+            ]);
             return res.status(401).json({
                 status: false,
                 statusMessage: '401 - Unauthorized',
                 errorMessage: 'Authentication Failed',
             });
         }
+        (0, Logger_1.writeLogInfo)([
+            `Authentication successful for: ${req.method} ${req.originalUrl} - User: ${auth.userId}`,
+        ]);
         next();
     };
 };

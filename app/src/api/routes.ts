@@ -36,6 +36,9 @@ const apiRequireAuth = () => {
         ]);
 
         if (!auth || !auth.userId) {
+            writeLogInfo([
+                `Authentication failed for: ${req.method} ${req.originalUrl} - IP: ${req.ip}`,
+            ]);
             return res.status(401).json({
                 status: false,
                 statusMessage: '401 - Unauthorized',
@@ -43,6 +46,9 @@ const apiRequireAuth = () => {
             });
         }
 
+        writeLogInfo([
+            `Authentication successful for: ${req.method} ${req.originalUrl} - User: ${auth.userId}`,
+        ]);
         next();
     };
 };

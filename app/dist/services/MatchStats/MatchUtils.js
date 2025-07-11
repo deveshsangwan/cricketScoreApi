@@ -31,6 +31,7 @@ function getTeamScoreString($, isLive, isCurrentTeam) {
  * Handles single innings and two innings formats
  */
 function getTeamData(input, isBatting = false) {
+    (0, Logger_1.writeLogDebug)(['MatchUtils: getTeamData - Processing input', { input, isBatting }]);
     const regex = /^(?<name>\w+)\s+(?<score1>\d+)(?:\/(?<wickets1>\d+))?(?:\s*&\s*(?<score2>\d+)(?:\/(?<wickets2>\d+))?)?(?:\s*\(\s*(?<overs>[\d.]+)\s*\))?$/;
     const match = input.match(regex);
     if (!match || !match.groups) {
@@ -39,22 +40,35 @@ function getTeamData(input, isBatting = false) {
     }
     const { name, score1, wickets1 = '10', score2, wickets2 = '10', overs } = match.groups;
     const hasTwoInnings = score2 !== undefined;
+    (0, Logger_1.writeLogDebug)([
+        'MatchUtils: getTeamData - Parsed team data',
+        {
+            name,
+            score1,
+            wickets1,
+            score2,
+            wickets2,
+            overs,
+            hasTwoInnings,
+        },
+    ]);
     const result = {
         isBatting,
-        name,
-        score: hasTwoInnings ? score2 : score1,
+        name: name || '',
+        score: hasTwoInnings ? score2 || '' : score1 || '',
         wickets: hasTwoInnings ? wickets2 : wickets1,
         ...(hasTwoInnings && {
             previousInnings: {
-                score: score1,
-                wickets: wickets1,
+                score: score1 || '',
+                wickets: wickets1 || '',
             },
         }),
     };
-    const parsedOvers = parseFloat(overs);
+    const parsedOvers = parseFloat(overs || '0');
     if (!isNaN(parsedOvers) && parsedOvers > 0) {
         result.overs = overs;
     }
+    (0, Logger_1.writeLogDebug)(['MatchUtils: getTeamData - Result', result]);
     return result;
 }
 /**
@@ -86,10 +100,10 @@ function getRunRate($) {
     let requiredRunRateElement = elements.eq(1).text().trim();
     let currentRunRate = 0, requiredRunRate = 0;
     if (currentRunRateElement.includes('CRR')) {
-        currentRunRate = Number(currentRunRateElement.split(':')[1].trim());
+        currentRunRate = Number(currentRunRateElement.split(':')[1]?.trim() || '0');
     }
     if (requiredRunRateElement.includes('RRR')) {
-        requiredRunRate = Number(requiredRunRateElement.split(':')[1].trim());
+        requiredRunRate = Number(requiredRunRateElement.split(':')[1]?.trim() || '0');
     }
     return {
         currentRunRate,
@@ -102,6 +116,7 @@ function getRunRate($) {
  * @returns Array of commentary objects
  */
 function getMatchCommentary($) {
+    (0, Logger_1.writeLogDebug)(['MatchUtils: getMatchCommentary - Starting commentary extraction']);
     // commentaries are in the format of "over: commentary"
     // but sometimes the over is not present
     // if over is present then the selector is "p.cb-col.cb-col-90"
@@ -110,6 +125,13 @@ function getMatchCommentary($) {
     // Get all commentary elements in DOM order
     const allCommentaryElements = $('p.cb-col.cb-col-90, p.cb-col.cb-col-100');
     const allOverElements = $('div.cb-ovr-num');
+    (0, Logger_1.writeLogDebug)([
+        'MatchUtils: getMatchCommentary - Found elements',
+        {
+            commentaryElements: allCommentaryElements.length,
+            overElements: allOverElements.length,
+        },
+    ]);
     allCommentaryElements.each((index, el) => {
         const commentary = $(el).text().trim();
         if (!commentary)
@@ -122,18 +144,26 @@ function getMatchCommentary($) {
             result.push({
                 over: overText || undefined,
                 commentary,
-                hasOver: !!overText
+                hasOver: !!overText,
             });
         }
         else {
             // 100% width commentary (no over)
             result.push({
                 commentary,
-                hasOver: false
+                hasOver: false,
             });
         }
     });
-    return result.filter(item => item.commentary.trim().length > 0);
+    const filteredResult = result.filter((item) => item.commentary.trim().length > 0);
+    (0, Logger_1.writeLogDebug)([
+        'MatchUtils: getMatchCommentary - Extracted commentary',
+        {
+            totalItems: result.length,
+            filteredItems: filteredResult.length,
+        },
+    ]);
+    return filteredResult;
 }
 /**
  * Extracts the key stats from the DOM
