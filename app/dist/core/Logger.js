@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logServiceOperation = exports.logExternalAPICall = exports.logDatabaseOperation = exports.logPerformance = exports.logAPIResponse = exports.logAPIRequest = exports.writeLogWarn = exports.writeLogDebug = exports.writeLogError = exports.writeLogInfo = void 0;
+exports.logServiceOperation = exports.logExternalAPICall = exports.logDatabaseOperation = exports.logPerformance = exports.logAPIResponse = exports.logAPIRequest = exports.writeLogDebug = exports.writeLogError = exports.writeLogInfo = void 0;
 const configuration_1 = __importDefault(require("./configuration"));
 const winston_1 = __importDefault(require("winston"));
 const logger = winston_1.default.createLogger({
@@ -34,17 +34,12 @@ const writeLogError = (arr) => {
 exports.writeLogError = writeLogError;
 // Enhanced debugging functions
 const writeLogDebug = (arr) => {
-    console.log('=====process.env.NODE_ENV======', process.env.NODE_ENV);
     if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test') {
         return;
     }
     logger.debug({ message: String(arr[0]), meta: arr.slice(1) });
 };
 exports.writeLogDebug = writeLogDebug;
-const writeLogWarn = (arr) => {
-    logger.warn({ message: String(arr[0]), meta: arr.slice(1) });
-};
-exports.writeLogWarn = writeLogWarn;
 // Structured logging for API requests
 const logAPIRequest = (method, url, userId, body) => {
     logger.info('API_REQUEST', {
