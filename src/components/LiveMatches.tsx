@@ -103,6 +103,15 @@ const EmptyState: React.FC = () => (
   </motion.div>
 );
 
+/**
+ * LiveMatches Component with Pre-fetching
+ * 
+ * This component automatically pre-fetches the top 3 matches for instant loading:
+ * - When matches are loaded, the top 3 matches' detailed stats are pre-fetched in parallel
+ * - Pre-fetched matches show a "Ready" indicator and green "View Details (Instant)" button
+ * - Cached data is stored for 2 minutes and provides instant loading when users click
+ * - Non-cached matches still work normally but may take longer to load
+ */
 export default function LiveMatches() {
   const router = useRouter();
   const { matches, isLoading, error, refetch } = useMatches();

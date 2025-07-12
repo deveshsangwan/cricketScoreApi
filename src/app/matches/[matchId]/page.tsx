@@ -3,7 +3,7 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useRealTimeMatchStats } from '@/hooks/useMatchStats';
+import { useOptimizedRealTimeMatchStats } from '@/hooks/useOptimizedMatchStats';
 import { FullPageLoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { Commentary } from '@/components/match/Commentary';
 import { 
@@ -20,8 +20,8 @@ export default function MatchDetailsPage() {
   const params = useParams();
   const matchId = params.matchId as string;
 
-  // Use real-time hook with 30-second polling for live matches
-  const { matchStats, isLoading, error, refetch } = useRealTimeMatchStats(matchId, 30000);
+  // Use optimized real-time hook with 30-second polling for live matches and caching
+  const { matchStats, isLoading, error, refetch } = useOptimizedRealTimeMatchStats(matchId, 30000);
 
   // Loading State
   if (isLoading) {
