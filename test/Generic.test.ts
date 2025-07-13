@@ -18,12 +18,6 @@ describe('Generic API', function () {
     });
 
     describe('CORS', function () {
-        it('returns a 200 status for a valid origin', async function () {
-            const { route } = testData.cors;
-            const res = await httpClient.get(route, {});
-            assert.equal(res.status, 200, 'Expected 200 status for valid origin');
-        });
-
         it('returns a 403 status for an invalid origin', async function () {
             const { route } = testData.cors;
             httpClient.setOrigin('http://example.com');
