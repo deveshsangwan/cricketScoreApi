@@ -34,11 +34,7 @@ describe('Routes API Integration Tests', function () {
         it('should return 500 if an error occurs', async () => {
             httpClient = new HttpClient(chai);
             stubObj.stubModuleMethod('mongo', 'findAll').rejects(new Error('Database connection failed'));
-            console.log('errorHandler');
             const response = await httpClient.get('/liveMatches', {});
-            console.log('response', response.body
-
-            );
             assert.equal(response?.status, 500);
             assert.equal(response?.body?.status, false);
             assert.equal(response?.body?.error, 'Database connection failed');

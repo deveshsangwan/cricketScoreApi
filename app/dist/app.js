@@ -11,11 +11,13 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const routes_1 = __importDefault(require("@api/routes"));
 const cors_1 = __importDefault(require("cors"));
 const Logger_1 = require("@core/Logger");
+const configuration_1 = __importDefault(require("@core/configuration"));
 // Load environment variables
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Request timing middleware for performance monitoring
 app.use((_req, res, next) => {
+    console.log('CORS origin:', _req.headers.origin);
     res.locals.startTime = Date.now();
     next();
 });
@@ -25,9 +27,20 @@ app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(express_http_context_1.default.middleware);
 app.use((0, cors_1.default)({
-    origin: '*',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['*'],
+    origin: function (origin, callback) {
+        const allowedOrigins = configuration_1.default.get('cors:allowedOrigins');
+        console.log('CORS origin:', origin);
+        console.log('CORS allowedOrigins:', allowedOrigins);
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: configuration_1.default.get('cors:methods'),
+    allowedHeaders: configuration_1.default.get('cors:allowedHeaders'),
+    credentials: configuration_1.default.get('cors:credentials'),
 }));
 app.use((req, _res, next) => {
     express_http_context_1.default.set('req', req);
@@ -48,6 +61,13 @@ app.use((req, res, next) => {
 });
 // Error handling middleware
 app.use(function (err, _req, res, _next) {
+    // Set appropriate status code based on error type
+    if (err.message === 'Not allowed by CORS') {
+        res.status(403);
+    }
+    else if (!res.statusCode || res.statusCode === 200) {
+        res.status(500);
+    }
     res.json({
         status: false,
         statusMessage: res.statusCode + ' - ' + err.message,

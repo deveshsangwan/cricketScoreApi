@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import routes from '@api/routes';
 import cors from 'cors';
 import { logAPIRequest, logAPIResponse } from '@core/Logger';
+import config from '@core/configuration';
 
 // Load environment variables
 dotenv.config();
@@ -26,9 +27,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(httpContext.middleware);
 app.use(
     cors({
-        origin: '*',
-        methods: ['GET', 'POST'],
-        allowedHeaders: ['*'],
+        origin: function (origin, callback) {
+            const allowedOrigins: string[] = config.get('cors:allowedOrigins');
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        methods: config.get('cors:methods') as string[],
+        allowedHeaders: config.get('cors:allowedHeaders') as string[],
+        credentials: config.get('cors:credentials') as boolean,
     })
 );
 
@@ -60,6 +69,13 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
 
 // Error handling middleware
 app.use(function (err: any, _req: Request, res: Response, _next: NextFunction): void {
+    // Set appropriate status code based on error type
+    if (err.message === 'Not allowed by CORS') {
+        res.status(403);
+    } else if (!res.statusCode || res.statusCode === 200) {
+        res.status(500);
+    }
+    
     res.json({
         status: false,
         statusMessage: res.statusCode + ' - ' + err.message,

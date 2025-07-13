@@ -61,7 +61,6 @@ const findById = async <T extends ModelName>(
         );
         return response;
     } catch (err) {
-        console.log('=====err======', err);
         writeLogError([`findById ${modelName} error: `, err]);
         throw err;
     }
