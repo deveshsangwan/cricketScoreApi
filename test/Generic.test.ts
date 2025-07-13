@@ -16,4 +16,20 @@ describe('Generic API', function () {
             assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
         }
     });
+
+    describe('CORS', function () {
+        it('returns a 403 status for an invalid origin', async function () {
+            const { route } = testData.cors;
+            httpClient.setOrigin('http://example.com');
+            const res = await httpClient.get(route, {});
+            assert.equal(res.status, 403, 'Expected 403 status for invalid origin');
+        });
+
+        it('returns a 403 status for an invalid header', async function () {
+            const { route } = testData.cors;
+            httpClient.setOrigin('http://local.deveshsangwan.com:3000');
+            const res = await httpClient.get(route, { 'Origin': 'http://example.com' });
+            assert.equal(res.status, 403, 'Expected 403 status for invalid header');
+        });
+    });
 });
