@@ -12,18 +12,23 @@ if (!process.env.TEST_USER_TOKEN) {
 class HttpClient {
     private chai: any;
     private skipAuth: boolean;
+    private origin: string;
 
     constructor(chai: any, skipAuth: boolean = false) {
         this.chai = chai;
         this.chai.use(chaiHttp);
         this.skipAuth = skipAuth;
+        this.origin = 'http://local.deveshsangwan.com:3000';
+    }
+
+    public setOrigin(origin: string) {
+        this.origin = origin;
     }
 
     private async executeRequest(
-        method: 'get' | 'post',
+        method: 'get',
         endPoint: string,
         headers: { [key: string]: string },
-        body?: any,
         params?: { [key: string]: string }
     ): Promise<IApiResponse> {
         return new Promise((resolve, reject) => {
@@ -32,9 +37,7 @@ class HttpClient {
                 request.set('Authorization', `Bearer ${process.env.TEST_USER_TOKEN}`);
             }
 
-            if (method === 'post') {
-                request = request.send(body);
-            }
+            request.set('Origin', this.origin);
 
             // Set each header
             for (let key in headers) {
@@ -61,16 +64,7 @@ class HttpClient {
         headers: { [key: string]: string },
         params?: { [key: string]: string }
     ): Promise<IApiResponse> {
-        return this.executeRequest('get', endPoint, headers, undefined, params);
-    }
-
-    public post(
-        endPoint: string,
-        body: any,
-        headers: { [key: string]: string },
-        params?: { [key: string]: string }
-    ): Promise<IApiResponse> {
-        return this.executeRequest('post', endPoint, headers, body, params);
+        return this.executeRequest('get', endPoint, headers, params);
     }
 }
 
