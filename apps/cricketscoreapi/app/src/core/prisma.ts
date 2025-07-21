@@ -1,3 +1,8 @@
+import dotenv from 'dotenv';
+
+// Load environment variables first
+dotenv.config();
+
 import { PrismaClient } from '@prisma/client';
 import { withOptimize } from '@prisma/extension-optimize';
 

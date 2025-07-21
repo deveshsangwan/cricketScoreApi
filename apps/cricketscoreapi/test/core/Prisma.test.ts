@@ -1,5 +1,6 @@
 import { assert } from 'chai';
 import sinon from 'sinon';
+import proxyquire from 'proxyquire';
 
 describe('Prisma Client', () => {
     let originalEnv: NodeJS.ProcessEnv;
@@ -9,8 +10,6 @@ describe('Prisma Client', () => {
     beforeEach(() => {
         // Backup original env
         originalEnv = { ...process.env };
-        // Clear module cache to test initialization
-        delete require.cache[require.resolve('../../app/dist/core/prisma')];
         // Clear global prisma instance
         delete global.prisma;
 
@@ -19,38 +18,36 @@ describe('Prisma Client', () => {
             $extends: sinon.stub().returns({ extended: true }),
         });
         optimizeStub = sinon.stub().returns({});
-
-        // Create module stubs
-        const prismaModule = {
-            PrismaClient: prismaStub,
-        };
-        const optimizeModule = {
-            withOptimize: optimizeStub,
-        };
-
-        // Use module.exports to properly mock the modules
-        require.cache[require.resolve('@prisma/client')] = {
-            exports: prismaModule,
-        } as NodeModule;
-
-        require.cache[require.resolve('@prisma/extension-optimize')] = {
-            exports: optimizeModule,
-        } as NodeModule;
     });
 
     afterEach(() => {
         // Restore original environment
         process.env = originalEnv;
-        // Clear module cache
-        delete require.cache[require.resolve('@prisma/client')];
-        delete require.cache[require.resolve('@prisma/extension-optimize')];
-        delete require.cache[require.resolve('../../app/dist/core/prisma')];
+        // Clear global prisma instance
+        delete global.prisma;
+        // Restore sinon stubs
+        sinon.restore();
     });
 
     it('should throw error when DATABASE_URL is missing', () => {
         delete process.env.DATABASE_URL;
+        
+        // Use proxyquire to mock the dependencies
         assert.throws(
-            () => require('../../app/dist/core/prisma'),
+            () => {
+                proxyquire('../../app/dist/core/prisma', {
+                    '@prisma/client': {
+                        PrismaClient: prismaStub,
+                    },
+                    '@prisma/extension-optimize': {
+                        withOptimize: optimizeStub,
+                    },
+                    'dotenv': {
+                        config: sinon.stub(), // Mock dotenv.config()
+                    }
+                });
+            },
+            Error,
             'DATABASE_URL environment variable is required'
         );
     });
@@ -59,7 +56,17 @@ describe('Prisma Client', () => {
         process.env.DATABASE_URL = 'test-database-url';
         delete process.env.OPTIMIZE_API_KEY;
 
-        require('../../app/dist/core/prisma');
+        proxyquire('../../app/dist/core/prisma', {
+            '@prisma/client': {
+                PrismaClient: prismaStub,
+            },
+            '@prisma/extension-optimize': {
+                withOptimize: optimizeStub,
+            },
+            'dotenv': {
+                config: sinon.stub(),
+            }
+        });
 
         assert.isTrue(prismaStub.calledOnce);
         assert.deepEqual(prismaStub.firstCall.args[0], {
@@ -75,19 +82,46 @@ describe('Prisma Client', () => {
         process.env.DATABASE_URL = 'test-database-url';
         process.env.OPTIMIZE_API_KEY = 'test-optimize-key';
 
-        require('../../app/dist/core/prisma');
+        const mockExtendedClient = { extended: true };
+        const mockBaseClient = {
+            $extends: sinon.stub().returns(mockExtendedClient),
+        };
+        prismaStub.returns(mockBaseClient);
+
+        proxyquire('../../app/dist/core/prisma', {
+            '@prisma/client': {
+                PrismaClient: prismaStub,
+            },
+            '@prisma/extension-optimize': {
+                withOptimize: optimizeStub,
+            },
+            'dotenv': {
+                config: sinon.stub(),
+            }
+        });
 
         assert.isTrue(optimizeStub.calledOnce);
         assert.deepEqual(optimizeStub.firstCall.args[0], {
             apiKey: 'test-optimize-key',
         });
+        assert.isTrue(mockBaseClient.$extends.calledOnce);
     });
 
     it('should save prisma reference to global in development', () => {
         process.env.DATABASE_URL = 'test-database-url';
         process.env.NODE_ENV = 'development';
 
-        require('../../app/dist/core/prisma');
+        proxyquire('../../app/dist/core/prisma', {
+            '@prisma/client': {
+                PrismaClient: prismaStub,
+            },
+            '@prisma/extension-optimize': {
+                withOptimize: optimizeStub,
+            },
+            'dotenv': {
+                config: sinon.stub(),
+            }
+        });
 
         assert.isDefined(global.prisma);
     });
@@ -96,7 +130,17 @@ describe('Prisma Client', () => {
         process.env.DATABASE_URL = 'test-database-url';
         process.env.NODE_ENV = 'production';
 
-        require('../../app/dist/core/prisma');
+        proxyquire('../../app/dist/core/prisma', {
+            '@prisma/client': {
+                PrismaClient: prismaStub,
+            },
+            '@prisma/extension-optimize': {
+                withOptimize: optimizeStub,
+            },
+            'dotenv': {
+                config: sinon.stub(),
+            }
+        });
 
         assert.isUndefined(global.prisma);
     });
