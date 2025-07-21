@@ -1,8 +1,40 @@
-package-lock.json
-node_modules/*
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnpm-store
+
+# build artifacts
+/build
+/dist
+/.next
+
+# misc
+.DS_Store
+*.pem
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel
+
+# coverage
 coverage
 .nyc_output
-.DS_Store
-*.map
-.env
+
+# docs
 docs
+
+# clerk configuration (can include secrets)
+/.clerk/

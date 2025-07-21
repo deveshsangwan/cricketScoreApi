@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme CSS Custom Properties */
+:root {
+  /* Light theme colors */
+  --background: 255 255 255; /* white */
+  --foreground: 15 23 42; /* slate-900 */
+  --card: 248 250 252; /* slate-50 */
+  --card-foreground: 15 23 42; /* slate-900 */
+  --popover: 255 255 255; /* white */
+  --popover-foreground: 15 23 42; /* slate-900 */
+  --primary: 14 165 233; /* sky-500 */
+  --primary-foreground: 255 255 255; /* white */
+  --secondary: 241 245 249; /* slate-100 */
+  --secondary-foreground: 15 23 42; /* slate-900 */
+  --muted: 241 245 249; /* slate-100 */
+  --muted-foreground: 100 116 139; /* slate-500 */
+  --accent: 241 245 249; /* slate-100 */
+  --accent-foreground: 15 23 42; /* slate-900 */
+  --destructive: 239 68 68; /* red-500 */
+  --destructive-foreground: 255 255 255; /* white */
+  --border: 226 232 240; /* slate-200 */
+  --input: 226 232 240; /* slate-200 */
+  --ring: 14 165 233; /* sky-500 */
+  --gradient-from: 240 249 255; /* sky-50 */
+  --gradient-to: 219 234 254; /* blue-100 */
+  --background-gradient: linear-gradient(to bottom right, rgb(240, 249, 255), rgb(219, 234, 254));
+  --background-solid: rgb(255, 255, 255);
+  --summary-text: 180 83 9; /* amber-700 for better contrast in light mode */
+  --summary-bg: 180 83 9; /* amber-700/10 for background */
+}
+
+[data-theme="dark"] {
+  /* Dark theme colors (current theme) */
+  --background: 10 25 47; /* #0a192f */
+  --foreground: 241 245 249; /* slate-100 */
+  --card: 30 41 59; /* slate-800 */
+  --card-foreground: 241 245 249; /* slate-100 */
+  --popover: 30 41 59; /* slate-800 */
+  --popover-foreground: 241 245 249; /* slate-100 */
+  --primary: 14 165 233; /* sky-500 */
+  --primary-foreground: 255 255 255; /* white */
+  --secondary: 51 65 85; /* slate-700 */
+  --secondary-foreground: 241 245 249; /* slate-100 */
+  --muted: 51 65 85; /* slate-700 */
+  --muted-foreground: 148 163 184; /* slate-400 */
+  --accent: 51 65 85; /* slate-700 */
+  --accent-foreground: 241 245 249; /* slate-100 */
+  --destructive: 239 68 68; /* red-500 */
+  --destructive-foreground: 255 255 255; /* white */
+  --border: 51 65 85; /* slate-700 */
+  --input: 51 65 85; /* slate-700 */
+  --ring: 14 165 233; /* sky-500 */
+  --gradient-from: 10 25 47; /* #0a192f */
+  --gradient-to: 13 59 74; /* #0d3b4a */
+  --background-gradient: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
+  --background-solid: #0a192f;
+  --summary-text: 251 191 36; /* amber-400 for dark mode */
+  --summary-bg: 251 191 36; /* amber-400/10 for background */
+}
+
+/* Base styles */
+* {
+  border-color: rgb(var(--border));
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--background-gradient);
+  color: rgb(var(--foreground));
+  min-height: 100vh;
+  overflow-x: hidden;
+  will-change: scroll-position;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--background-gradient);
+  min-height: 100%;
+}
+
+/* Next.js root element */
+#__next {
+  background: var(--background-gradient);
+  min-height: 100vh;
+}
+
+/* Fix for white overscroll boundaries */
+html, body {
+  background-color: var(--background-solid);
+  overflow-x: hidden;
+  min-height: 100%;
+  height: 100%;
+}
+
+/* Mobile Safari specific styles */
+@supports (-webkit-touch-callout: none) {
+  body {
+    height: -webkit-fill-available;
+  }
+  html {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Theme-aware utility classes */
+@layer utilities {
+  .text-foreground {
+    color: rgb(var(--foreground));
+  }
+  
+  .text-muted-foreground {
+    color: rgb(var(--muted-foreground));
+  }
+  
+  .bg-background {
+    background-color: rgb(var(--background));
+  }
+  
+  .bg-card {
+    background-color: rgb(var(--card));
+  }
+  
+  .bg-muted {
+    background-color: rgb(var(--muted));
+  }
+  
+  .bg-primary {
+    background-color: rgb(var(--primary));
+  }
+  
+  .border-border {
+    border-color: rgb(var(--border));
+  }
+  
+  .bg-gradient-theme {
+    background: var(--background-gradient);
+  }
+  
+  .text-summary {
+    color: rgb(var(--summary-text));
+  }
+  
+  .bg-summary {
+    background-color: rgb(var(--summary-bg) / 0.1);
+  }
+}
