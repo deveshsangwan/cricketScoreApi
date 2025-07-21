@@ -17,7 +17,6 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Request timing middleware for performance monitoring
 app.use((_req, res, next) => {
-    console.log('CORS origin:', _req.headers.origin);
     res.locals.startTime = Date.now();
     next();
 });
@@ -29,8 +28,6 @@ app.use(express_http_context_1.default.middleware);
 app.use((0, cors_1.default)({
     origin: function (origin, callback) {
         const allowedOrigins = configuration_1.default.get('cors:allowedOrigins');
-        console.log('CORS origin:', origin);
-        console.log('CORS allowedOrigins:', allowedOrigins);
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         }

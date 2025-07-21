@@ -51,7 +51,6 @@ const findById = async (matchId, modelName) => {
         return response;
     }
     catch (err) {
-        console.log('=====err======', err);
         (0, Logger_1.writeLogError)([`findById ${modelName} error: `, err]);
         throw err;
     }
