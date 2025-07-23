@@ -7,6 +7,8 @@ import routes from '@api/routes';
 import cors from 'cors';
 import { logAPIRequest, logAPIResponse } from '@core/Logger';
 import config from '@core/configuration';
+import * as trpcExpress from '@trpc/server/adapters/express';
+import { appRouter, createContext } from './trpc';
 
 // Load environment variables
 dotenv.config();
@@ -82,6 +84,15 @@ app.use(function (err: any, _req: Request, res: Response, _next: NextFunction): 
         errorMessage: err.message,
     });
 });
+
+// tRPC middleware setup
+app.use(
+    '/trpc',
+    trpcExpress.createExpressMiddleware({
+        router: appRouter,
+        createContext,
+    })
+);
 
 routes(app);
 

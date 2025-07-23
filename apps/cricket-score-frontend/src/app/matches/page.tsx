@@ -2,13 +2,13 @@
 import { Suspense } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
-import LiveMatches from '@/components/LiveMatches';
+import LiveMatchesTrpc from '@/components/LiveMatchesTrpc';
 import { MatchesListSkeleton } from '@/components/ui/LoadingSkeleton';
 
 function MatchesContent() {
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl text-foreground antialiased">
-      <LiveMatches />
+      <LiveMatchesTrpc />
     </div>
   );
 }

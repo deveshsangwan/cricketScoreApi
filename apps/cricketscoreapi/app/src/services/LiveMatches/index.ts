@@ -15,6 +15,7 @@ import _ from 'underscore';
 import { CheerioAPI } from 'cheerio';
 import { Element } from 'domhandler';
 import { isError, isLiveMatchesResponse } from '@/utils/TypesUtils';
+import type { LiveMatchesDbResponse } from '@/types/db';
 
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 
@@ -44,6 +45,19 @@ export class LiveMatches {
     }
 
     /**
+     * Gets all live matches
+     * @returns Promise resolving to all matches data
+     */
+    public async getMatches(): Promise<Record<string, MatchData>>;
+    
+    /**
+     * Gets a specific match by ID
+     * @param matchId - ID of specific match to fetch
+     * @returns Promise resolving to single match data
+     */
+    public async getMatches(matchId: string): Promise<MatchData>;
+
+    /**
      * Gets match data either for a specific match or all matches
      * @param matchId - Optional ID of specific match to fetch (defaults to '0' for all matches)
      * @returns Promise resolving to match data
@@ -55,12 +69,12 @@ export class LiveMatches {
         try {
             if (matchId !== '0') {
                 writeLogDebug(['LiveMatches: getMatches - Fetching single match', { matchId }]);
-                const result = await this.getMatchById(matchId);
+                const result: MatchData = await this.getMatchById(matchId);
                 return result;
             }
 
             writeLogDebug(['LiveMatches: getMatches - Fetching all matches']);
-            const result = await this.getAllMatches();
+            const result: Record<string, MatchData> = await this.getAllMatches();
             return result;
         } catch (error) {
             const duration = Date.now() - startTime;
@@ -123,7 +137,7 @@ export class LiveMatches {
                 },
             ]);
 
-            const result = await this.scrapeData(mongoData);
+            const result = await this.scrapeData(mongoData as LiveMatchesDbResponse[]);
             return result;
         } catch (error) {
             return this.handleError(
@@ -133,7 +147,7 @@ export class LiveMatches {
         }
     }
 
-    private async scrapeData(mongoData: any[]): Promise<Record<string, MatchData>> {
+    private async scrapeData(mongoData: LiveMatchesDbResponse[]): Promise<Record<string, MatchData>> {
         const startTime = Date.now();
         writeLogDebug([
             'LiveMatches: scrapeData - Starting web scraping',
@@ -192,7 +206,7 @@ export class LiveMatches {
      */
     private processData(
         $: CheerioAPI,
-        mongoData: any[]
+        mongoData: LiveMatchesDbResponse[]
     ): [Record<string, MatchData>, Record<string, MatchData>] {
         const existingMatches: Record<string, MatchData> = {};
         const newMatches: Record<string, MatchData> = {};
