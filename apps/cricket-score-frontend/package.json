@@ -21,7 +21,9 @@
     "geist": "^1.4.2",
     "next": "15.3.4",
     "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106"
+    "react-dom": "19.0.0-rc-66855b96-20241106",
+    "@cricket-score/shared-types": "workspace:*",
+    "cricketscoreapi": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.19.2",

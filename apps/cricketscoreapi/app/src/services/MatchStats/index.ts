@@ -8,7 +8,7 @@ import {
     logDatabaseOperation,
 } from '@core/Logger';
 import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from '@errors';
-import type { LiveMatchesResponse, MatchStatsResponse } from '@types';
+import type { LiveMatchesResponse, MatchData, MatchStatsResponse } from '@types';
 import {
     getTeamScoreString,
     getTeamData,
@@ -76,7 +76,7 @@ export class MatchStats {
     }
 
     private async getStatsForAllMatches(
-        liveMatchesResponse: Record<string, LiveMatchesResponse>
+        liveMatchesResponse: LiveMatchesResponse
     ): Promise<MatchStatsResponse[]> {
         const startTime = Date.now();
         const matchCount = Object.keys(liveMatchesResponse).length;
@@ -103,8 +103,8 @@ export class MatchStats {
                 },
             ]);
 
-            let scrapedData = await this.scrapeData(match.matchUrl, matchId);
-            scrapedData = { ...scrapedData, matchName: match.matchName };
+            let scrapedData = await this.scrapeData(String(match.matchUrl), matchId);
+            scrapedData = { ...scrapedData, matchName: String(match.matchName) };
 
             // Check if data already exists in the fetched data
             const mongoData = allMongoData.find((data: { id: string }) => data.id === matchId);
@@ -135,7 +135,7 @@ export class MatchStats {
     }
 
     private async getStatsForSingleMatch(
-        liveMatchesResponse: LiveMatchesResponse,
+        liveMatchesResponse: MatchData,
         matchId: string
     ): Promise<MatchStatsResponse> {
         const startTime = Date.now();
@@ -177,8 +177,8 @@ export class MatchStats {
             ]);
 
             const url = liveMatchesResponse.matchUrl;
-            let scrapedData = await this.scrapeData(url, matchId);
-            scrapedData = { ...scrapedData, matchName: liveMatchesResponse.matchName };
+            let scrapedData = await this.scrapeData(String(url), matchId);
+            scrapedData = { ...scrapedData, matchName: String(liveMatchesResponse.matchName) };
             await this.utilsObj.insertDataToMatchStatsTable(scrapedData);
 
             return scrapedData;

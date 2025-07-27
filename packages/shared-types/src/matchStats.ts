@@ -10,11 +10,7 @@ export interface MatchStatsParams {
     matchId: matchId;
 }
 
-export interface LiveMatchesResponse {
-    matchUrl: string;
-    matchName: string;
-    matchId: matchId;
-}
+
 
 export interface IPreviousInnings {
     score: string;

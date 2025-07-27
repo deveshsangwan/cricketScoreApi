@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useApi } from './useApi';
 import { endpoints } from '@/config/env';
-import { MatchStats, ApiResponse } from '@/types/api';
+import { MatchStats, ApiResponse } from '@cricket-score/shared-types';
 import { useMatchCache } from '@/contexts/MatchCacheContext';
 
 export const useMatchPreFetch = () => {

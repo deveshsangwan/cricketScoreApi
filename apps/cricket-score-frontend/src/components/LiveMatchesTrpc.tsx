@@ -6,13 +6,9 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { MatchesListSkeleton } from '@/components/ui/LoadingSkeleton';
 import { trpc } from '@/lib/trpc';
-import { useQueryClient } from "@tanstack/react-query";
 
-interface Match {
-  matchId: string;
-  matchName: string;
-  matchUrl: string;
-}
+
+import { Match } from '@cricket-score/shared-types';
 
 // Memoized match card component for better performance
 const MatchCard = React.memo<{ match: Match; onViewDetails: (matchId: string) => void }>(
@@ -75,7 +71,6 @@ const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error,
 
 // tRPC-powered component with automatic type inference
 export default function LiveMatchesTrpc() {
-  const queryClient = useQueryClient();
   const router = useRouter();
 
   // Use the generated trpc hook for type safety
@@ -93,12 +88,10 @@ export default function LiveMatchesTrpc() {
     router.push(`/matches/${matchId}`);
   };
 
-  const invalidateMatches = () => {
-    queryClient.invalidateQueries({ queryKey: ['getLiveMatches'] });
-  };
+  
 
   const handleRetry = () => {
-    invalidateMatches();
+    refetch();
   };
 
   // Transform backend data with runtime type checking for safety
@@ -108,11 +101,14 @@ export default function LiveMatchesTrpc() {
       return [];
     }
 
-    return Object.entries(matchesData).map(([matchId, matchData]) => ({
-      matchId: matchData.matchId || matchId,
-      matchName: matchData.matchName,
-      matchUrl: matchData.matchUrl,
-    }));
+    return Object.entries(matchesData).map(([matchId, matchData]) => {
+      const typedMatchData = matchData as Match;
+      return {
+        matchId: typedMatchData.matchId || matchId,
+        matchName: typedMatchData.matchName,
+        matchUrl: typedMatchData.matchUrl,
+      };
+    });
   }, [response]);
 
   if (isLoading) {

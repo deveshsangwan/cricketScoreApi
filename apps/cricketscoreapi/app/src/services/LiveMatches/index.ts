@@ -14,8 +14,8 @@ import randomstring from 'randomstring';
 import _ from 'underscore';
 import { CheerioAPI } from 'cheerio';
 import { Element } from 'domhandler';
-import { isError, isLiveMatchesResponse } from '@/utils/TypesUtils';
-import type { LiveMatchesDbResponse } from '@/types/db';
+import { isError, isLiveMatchesResponse } from '@utils/TypesUtils';
+import type { LiveMatchesDbResponse } from '@cricketscoreapi/types/db';
 
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 
@@ -43,19 +43,6 @@ export class LiveMatches {
         writeLogError([`${location} | error`, error]);
         return Promise.reject(new CustomError(error.message));
     }
-
-    /**
-     * Gets all live matches
-     * @returns Promise resolving to all matches data
-     */
-    public async getMatches(): Promise<Record<string, MatchData>>;
-    
-    /**
-     * Gets a specific match by ID
-     * @param matchId - ID of specific match to fetch
-     * @returns Promise resolving to single match data
-     */
-    public async getMatches(matchId: string): Promise<MatchData>;
 
     /**
      * Gets match data either for a specific match or all matches
@@ -106,8 +93,8 @@ export class LiveMatches {
 
                 return {
                     matchId: mongoData.id,
-                    matchUrl: mongoData.matchUrl,
-                    matchName: mongoData.matchName,
+                    matchUrl: String(mongoData.matchUrl),
+                    matchName: String(mongoData.matchName),
                 };
             } else {
                 writeLogError(['LiveMatches: getMatchById - No match found', { matchId }]);

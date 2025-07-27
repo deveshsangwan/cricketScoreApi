@@ -1,2 +1,1 @@
-export * from './liveMatches';
-export * from './matchStats';
+export * from '@cricket-score/shared-types';

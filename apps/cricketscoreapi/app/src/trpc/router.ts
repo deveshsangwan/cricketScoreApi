@@ -4,7 +4,7 @@ import type { CreateExpressContextOptions } from '@trpc/server/adapters/express'
 import { getAuth } from '@clerk/express';
 // Import the shared service functions from controller
 import { writeLogInfo } from '@core/Logger';
-import { LiveMatches } from '@/services/LiveMatches';
+import { LiveMatches } from '@services/LiveMatches';
 
 // Create context function for tRPC
 export function createContext({ req }: CreateExpressContextOptions) {

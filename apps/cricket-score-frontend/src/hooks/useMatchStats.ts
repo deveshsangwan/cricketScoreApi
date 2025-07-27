@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useApi } from './useApi';
 import { endpoints } from '@/config/env';
-import { MatchStats, UseMatchStatsReturn, ApiResponse } from '@/types/api';
+import { MatchStats, UseMatchStatsReturn, ApiResponse } from '@cricket-score/shared-types';
 
 export const useMatchStats = (matchId: string): UseMatchStatsReturn => {
   const [matchStats, setMatchStats] = useState<MatchStats | null>(null);

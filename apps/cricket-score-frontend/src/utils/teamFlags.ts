@@ -1,4 +1,4 @@
-import { cricketTeamMapping, specialTeamCases } from '@/constants/cricketTeams';
+import { cricketTeamMapping, specialTeamCases } from '@cricket-score/shared-types';
 
 // Helper function for fuzzy matching team names
 export const findFuzzyMatch = (teamName: string): string | null => {
