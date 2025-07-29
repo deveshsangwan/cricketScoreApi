@@ -113,14 +113,25 @@ export class LiveMatches {
         writeLogDebug(['LiveMatches: getAllMatches - Starting']);
 
         try {
-            const mongoData = await mongo.findAll(this.tableName);
+            // Use optimized query to fetch only required fields with a reasonable limit
+            const mongoData = await mongo.findAll(this.tableName, {
+                select: {
+                    id: true,
+                    matchUrl: true,
+                    matchName: true
+                },
+                limit: 25, // Reasonable limit for performance
+                orderBy: { matchName: 'desc' } // Get most recent matches first
+            });
+            
             const dbDuration = Date.now() - startTime;
             logDatabaseOperation('findAll', this.tableName, true, dbDuration);
 
             writeLogDebug([
-                'LiveMatches: getAllMatches - Found existing matches in DB',
+                'LiveMatches: getAllMatches - Found existing matches in DB (optimized)',
                 {
                     count: mongoData.length,
+                    dbDuration: `${dbDuration}ms`,
                 },
             ]);
 
@@ -152,12 +163,15 @@ export class LiveMatches {
             const newMatchesCount = Object.keys(matchesData[1]).length;
             if (newMatchesCount > 0) {
                 writeLogDebug([
-                    'LiveMatches: scrapeData - Inserting new matches',
+                    'LiveMatches: scrapeData - Scheduling async insertion of new matches',
                     {
                         newMatchesCount,
                     },
                 ]);
-                await insertDataToLiveMatchesTable(matchesData[1]);
+                // Non-blocking insertion - run asynchronously
+                insertDataToLiveMatchesTable(matchesData[1]).catch(error => {
+                    writeLogError(['LiveMatches: scrapeData - Async insertion failed', error]);
+                });
             } else {
                 writeLogDebug(['LiveMatches: scrapeData - No new matches to insert']);
             }
@@ -198,13 +212,26 @@ export class LiveMatches {
         const existingMatches: Record<string, MatchData> = {};
         const newMatches: Record<string, MatchData> = {};
 
+        // Create a Map for O(1) lookup performance instead of O(n) array.find()
+        const existingMatchesMap = new Map<string, LiveMatchesDbResponse>();
+        mongoData.forEach(match => {
+            existingMatchesMap.set(match.matchUrl, match);
+        });
+
+        writeLogDebug([
+            'LiveMatches: processData - Created lookup map',
+            {
+                mapSize: existingMatchesMap.size,
+            },
+        ]);
+
         const extractMatchInfo = (el: Element) => {
             const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
             const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
             return { matchUrl, matchName };
         };
 
-        const handleExistingMatch = (existingMatch: any, matchUrl: string, matchName: string) => {
+        const handleExistingMatch = (existingMatch: LiveMatchesDbResponse, matchUrl: string, matchName: string) => {
             existingMatches[existingMatch.id] = { matchUrl, matchName, matchId: existingMatch.id };
         };
 
@@ -220,7 +247,8 @@ export class LiveMatches {
             const { matchUrl, matchName } = extractMatchInfo(el);
 
             if (matchUrl && matchName) {
-                const existingMatch = mongoData.find((item) => item.matchUrl === matchUrl);
+                // Use Map.get() for O(1) lookup instead of array.find() which is O(n)
+                const existingMatch = existingMatchesMap.get(matchUrl);
 
                 if (existingMatch) {
                     handleExistingMatch(existingMatch, matchUrl, matchName);
@@ -233,6 +261,14 @@ export class LiveMatches {
         if (Object.keys(existingMatches).length === 0 && Object.keys(newMatches).length === 0) {
             throw new Error('No matches found');
         }
+
+        writeLogDebug([
+            'LiveMatches: processData - Processed matches',
+            {
+                existingCount: Object.keys(existingMatches).length,
+                newCount: Object.keys(newMatches).length,
+            },
+        ]);
 
         return [existingMatches, newMatches];
     }

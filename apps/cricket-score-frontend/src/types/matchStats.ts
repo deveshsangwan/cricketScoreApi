@@ -1,4 +1,3 @@
-// src/types/matchStats.ts
 // Re-export types from the main API types file for backward compatibility
 export type { 
   MatchStats, 

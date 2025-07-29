@@ -29,14 +29,36 @@ const executeOnModel = <T>(modelName: ModelName, operation: (model: any) => T): 
 };
 
 /**
- * Retrieves all records from specified model
+ * Optimized version of findAll with field selection and optional limiting
  * @param modelName - Name of the Prisma model to query
+ * @param options - Query options (select fields, limit, etc.)
  * @returns Promise resolving to array of records
  * @throws Error if database operation fails
  */
-const findAll = async <T extends ModelName>(modelName: T): Promise<ModelTypeMap[T][]> => {
+const findAll = async <T extends ModelName>(
+    modelName: T,
+    options?: {
+        select?: Record<string, boolean>;
+        limit?: number;
+        orderBy?: Record<string, 'asc' | 'desc'>;
+    }
+): Promise<any[]> => {
     try {
-        const response = await executeOnModel(modelName, (model) => model.findMany());
+        const queryOptions: any = {};
+        
+        if (options?.select) {
+            queryOptions.select = options.select;
+        }
+        
+        if (options?.limit) {
+            queryOptions.take = options.limit;
+        }
+        
+        if (options?.orderBy) {
+            queryOptions.orderBy = options.orderBy;
+        }
+        
+        const response = await executeOnModel(modelName, (model) => model.findMany(queryOptions));
         return response;
     } catch (err) {
         writeLogError([`findAll ${modelName} error: `, err]);
