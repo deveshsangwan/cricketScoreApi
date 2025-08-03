@@ -66,12 +66,6 @@ export const config: AppConfig = {
   isProduction: process.env.NODE_ENV === 'production',
 };
 
-// API endpoints
-export const endpoints = {
-  liveMatches: `${config.api.baseUrl}/liveMatches`,
-  matchStats: (matchId: string) => `${config.api.baseUrl}/matchStats/${matchId}`,
-} as const;
-
 // Validate required environment variables
 export const validateConfig = () => {
   // Only validate if no defaults are provided in the config

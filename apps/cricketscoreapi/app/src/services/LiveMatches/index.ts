@@ -113,22 +113,17 @@ export class LiveMatches {
         writeLogDebug(['LiveMatches: getAllMatches - Starting']);
 
         try {
-            // Use optimized query to fetch only required fields with a reasonable limit
             const mongoData = await mongo.findAll(this.tableName, {
-                select: {
-                    id: true,
-                    matchUrl: true,
-                    matchName: true
+                limit: 100,
+                orderBy: {
+                    createdAt: 'desc',
                 },
-                limit: 25, // Reasonable limit for performance
-                orderBy: { matchName: 'desc' } // Get most recent matches first
             });
-            
             const dbDuration = Date.now() - startTime;
             logDatabaseOperation('findAll', this.tableName, true, dbDuration);
 
             writeLogDebug([
-                'LiveMatches: getAllMatches - Found existing matches in DB (optimized)',
+                'LiveMatches: getAllMatches - Found existing matches in DB',
                 {
                     count: mongoData.length,
                     dbDuration: `${dbDuration}ms`,
@@ -145,7 +140,9 @@ export class LiveMatches {
         }
     }
 
-    private async scrapeData(mongoData: LiveMatchesDbResponse[]): Promise<Record<string, MatchData>> {
+    private async scrapeData(
+        mongoData: LiveMatchesDbResponse[]
+    ): Promise<Record<string, MatchData>> {
         const startTime = Date.now();
         writeLogDebug([
             'LiveMatches: scrapeData - Starting web scraping',
@@ -169,7 +166,7 @@ export class LiveMatches {
                     },
                 ]);
                 // Non-blocking insertion - run asynchronously
-                insertDataToLiveMatchesTable(matchesData[1]).catch(error => {
+                insertDataToLiveMatchesTable(matchesData[1]).catch((error) => {
                     writeLogError(['LiveMatches: scrapeData - Async insertion failed', error]);
                 });
             } else {
@@ -214,7 +211,7 @@ export class LiveMatches {
 
         // Create a Map for O(1) lookup performance instead of O(n) array.find()
         const existingMatchesMap = new Map<string, LiveMatchesDbResponse>();
-        mongoData.forEach(match => {
+        mongoData.forEach((match) => {
             existingMatchesMap.set(match.matchUrl, match);
         });
 
@@ -231,7 +228,11 @@ export class LiveMatches {
             return { matchUrl, matchName };
         };
 
-        const handleExistingMatch = (existingMatch: LiveMatchesDbResponse, matchUrl: string, matchName: string) => {
+        const handleExistingMatch = (
+            existingMatch: LiveMatchesDbResponse,
+            matchUrl: string,
+            matchName: string
+        ) => {
             existingMatches[existingMatch.id] = { matchUrl, matchName, matchId: existingMatch.id };
         };
 

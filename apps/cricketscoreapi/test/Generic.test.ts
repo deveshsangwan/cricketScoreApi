@@ -28,7 +28,7 @@ describe('Generic API', function () {
         it('returns a 403 status for an invalid header', async function () {
             const { route } = testData.cors;
             httpClient.setOrigin('http://local.deveshsangwan.com:3000');
-            const res = await httpClient.get(route, { 'Origin': 'http://example.com' });
+            const res = await httpClient.get(route, { Origin: 'http://example.com' });
             assert.equal(res.status, 403, 'Expected 403 status for invalid header');
         });
     });

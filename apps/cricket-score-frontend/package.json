@@ -26,7 +26,6 @@
     "cricketscoreapi": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^20.19.2",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "eslint-config-next": "15.0.3",

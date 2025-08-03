@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { MatchesListSkeleton } from '@/components/ui/LoadingSkeleton';
 import { trpc } from '@/lib/trpc';
+import { useMatchPreFetch } from '@/hooks/useMatchPreFetch';
 
 
 import { Match } from '@cricket-score/shared-types';
@@ -50,28 +51,58 @@ const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error,
     <div className="w-16 h-16 mx-auto bg-red-500/30 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 border-2 border-red-500/50 shadow-xl">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6 text-red-400"
+        className="h-8 w-8 text-red-400"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
       >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
       </svg>
     </div>
-    <h3 className="text-xl font-bold text-red-400 mb-3">Unable to Load Matches</h3>
+    <h3 className="text-xl font-bold text-foreground mb-4 drop-shadow-md">Failed to Load Matches</h3>
     <p className="text-muted-foreground mb-6 max-w-md">{error}</p>
     <button
       onClick={onRetry}
-      className="px-6 py-3 bg-red-500/80 text-white font-medium rounded-lg hover:bg-red-500 transition-all transform hover:scale-[1.02] focus:ring-2 focus:ring-red-500/50 focus:outline-none shadow-lg"
+      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-xl hover:shadow-primary/30 focus:ring-2 focus:ring-primary/50 focus:outline-none backdrop-blur-sm border border-primary/20"
     >
       Try Again
     </button>
   </motion.div>
 );
 
-// tRPC-powered component with automatic type inference
+
+
+/**
+ * LiveMatches Component with tRPC and Robust Pre-fetching
+ * 
+ * This component replicates the old component functionality with enhanced prefetching:
+ * - Uses tRPC for data fetching with proper error handling
+ * - Automatically pre-fetches the top 3 matches for instant loading
+ * - Pre-fetched matches will load instantly when users click "View Details"
+ * - Cached data is stored for 28 seconds and provides instant loading
+ * - Background prefetching runs in parallel without blocking the UI
+ * - Handles prefetch failures gracefully (some matches may be removed/invalid)
+ * - Shows detailed prefetch status with success/failure counts
+ * - Continues to work even if some matches can't be pre-fetched
+ */
 export default function LiveMatchesTrpc() {
   const router = useRouter();
+  const { preFetchTopMatchesWithStats } = useMatchPreFetch();
+  const preFetchRef = React.useRef(preFetchTopMatchesWithStats);
+  const [isPrefetching, setIsPrefetching] = React.useState(false);
+  const [prefetchStats, setPrefetchStats] = React.useState<{
+    successful: number;
+    total: number;
+    hasErrors: boolean;
+  } | null>(null);
+
+  // Keep the ref updated but don't cause re-renders
+  preFetchRef.current = preFetchTopMatchesWithStats;
 
   // Use the generated trpc hook for type safety
   const {
@@ -84,11 +115,9 @@ export default function LiveMatchesTrpc() {
     refetchInterval: 60000, // 1 minute
   });
 
-  const handleViewDetails = (matchId: string) => {
+  const handleViewDetails = React.useCallback((matchId: string) => {
     router.push(`/matches/${matchId}`);
-  };
-
-  
+  }, [router]);
 
   const handleRetry = () => {
     refetch();
@@ -110,6 +139,40 @@ export default function LiveMatchesTrpc() {
       };
     });
   }, [response]);
+
+  // Pre-fetch top 3 matches for instant loading when matches data changes
+  React.useEffect(() => {
+    if (matches.length > 0) {
+      const topMatchIds = matches.slice(0, 3).map(match => match.matchId);
+      console.log('🚀 Triggering pre-fetch for top 3 matches:', topMatchIds);
+
+      setIsPrefetching(true);
+      setPrefetchStats(null);
+
+      // Use ref to avoid dependency issues and run prefetch in background
+      preFetchRef.current(topMatchIds)
+        .then((stats) => {
+          console.log('✅ Pre-fetching completed with stats:', stats);
+          setPrefetchStats({
+            successful: stats.successful,
+            total: stats.total,
+            hasErrors: stats.failed > 0 || stats.notFound > 0
+          });
+          setIsPrefetching(false);
+        })
+        .catch(error => {
+          console.warn('Pre-fetching failed, but main matches loading succeeded:', error);
+          setPrefetchStats({
+            successful: 0,
+            total: Math.min(3, matches.length),
+            hasErrors: true
+          });
+          setIsPrefetching(false);
+        });
+    } else {
+      setPrefetchStats(null);
+    }
+  }, [matches]);
 
   if (isLoading) {
     return <MatchesListSkeleton />;
@@ -160,8 +223,33 @@ export default function LiveMatchesTrpc() {
             Live Matches
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
-            Powered by tRPC with Auto Type Inference • {matches.length} match{matches.length !== 1 ? 'es' : ''} available
+            Powered by tRPC with Auto Pre-fetching • {matches.length} match{matches.length !== 1 ? 'es' : ''} available
+            {matches.length > 0 && (
+              <span className={`ml-2 ${isPrefetching
+                  ? 'text-yellow-500'
+                  : prefetchStats?.hasErrors
+                    ? 'text-orange-500'
+                    : 'text-green-500'
+                }`}>
+                {isPrefetching ? (
+                  '🔄 Pre-fetching top 3...'
+                ) : prefetchStats ? (
+                  prefetchStats.hasErrors ? (
+                    `⚠️ ${prefetchStats.successful}/${prefetchStats.total} pre-fetched`
+                  ) : (
+                    `⚡ ${prefetchStats.successful}/${prefetchStats.total} pre-fetched`
+                  )
+                ) : (
+                  '⚡ Top 3 pre-fetched'
+                )}
+              </span>
+            )}
           </p>
+          {prefetchStats?.hasErrors && (
+            <p className="text-xs text-orange-400 mt-1">
+              Some matches couldn&apos;t be pre-fetched (likely removed or invalid). Successfully pre-fetched matches will load instantly.
+            </p>
+          )}
         </div>
 
         <button

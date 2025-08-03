@@ -24,18 +24,18 @@ describe('BaseModel', () => {
     describe('findAll', () => {
         it('should retrieve all records from livematches model successfully', async () => {
             const mockData = [
-                { 
-                    id: '1', 
+                {
+                    id: '1',
                     v: 1,
                     matchName: 'Test Match 1',
-                    matchUrl: 'test1'
+                    matchUrl: 'test1',
                 },
-                { 
-                    id: '2', 
+                {
+                    id: '2',
                     v: 2,
                     matchName: 'Test Match 2',
-                    matchUrl: 'test2'
-                }
+                    matchUrl: 'test2',
+                },
             ];
             const findManyStub = sinon.stub().resolves(mockData);
             sinon.stub(prisma, 'livematches').value({ findMany: findManyStub });
@@ -48,37 +48,37 @@ describe('BaseModel', () => {
 
         it('should retrieve all records from matchstats model successfully', async () => {
             const mockData = [
-                { 
-                    id: '1', 
+                {
+                    id: '1',
                     matchName: 'Test Match 1',
                     createdAt: new Date(),
                     isLive: true,
                     summary: 'Test summary',
                     tournamentName: 'Test Tournament',
                     keyStats: {},
-                    onBatting: { 
-                        player1: { balls: '10', name: 'Player1', runs: '20' }, 
-                        player2: { balls: '5', name: 'Player2', runs: '10' } 
+                    onBatting: {
+                        player1: { balls: '10', name: 'Player1', runs: '20' },
+                        player2: { balls: '5', name: 'Player2', runs: '10' },
                     },
                     runRate: { currentRunRate: 6.0, requiredRunRate: 5.5 },
-                    team1: { 
-                        name: 'Team1', 
-                        score: '120/5', 
+                    team1: {
+                        name: 'Team1',
+                        score: '120/5',
                         overs: '20.0',
                         isBatting: true,
                         wickets: '5',
-                        previousInnings: null
+                        previousInnings: null,
                     },
-                    team2: { 
-                        name: 'Team2', 
-                        score: '0/0', 
+                    team2: {
+                        name: 'Team2',
+                        score: '0/0',
                         overs: '0.0',
                         isBatting: false,
                         wickets: '0',
-                        previousInnings: null
+                        previousInnings: null,
                     },
-                    matchCommentary: []
-                }
+                    matchCommentary: [],
+                },
             ];
             const findManyStub = sinon.stub().resolves(mockData);
             sinon.stub(prisma, 'matchstats').value({ findMany: findManyStub });
@@ -120,11 +120,11 @@ describe('BaseModel', () => {
 
     describe('findById', () => {
         it('should find record by ID in livematches model successfully', async () => {
-            const mockData = { 
-                id: 'testId', 
+            const mockData = {
+                id: 'testId',
                 v: 1,
                 matchName: 'Test Match',
-                matchUrl: 'testUrl'
+                matchUrl: 'testUrl',
             };
             const findUniqueStub = sinon.stub().resolves(mockData);
             sinon.stub(prisma, 'livematches').value({ findUnique: findUniqueStub });
@@ -136,36 +136,36 @@ describe('BaseModel', () => {
         });
 
         it('should find record by ID in matchstats model successfully', async () => {
-            const mockData = { 
-                id: 'testId', 
+            const mockData = {
+                id: 'testId',
                 matchName: 'Test Match',
                 createdAt: new Date(),
                 isLive: true,
                 summary: 'Test summary',
                 tournamentName: 'Test Tournament',
                 keyStats: {},
-                onBatting: { 
-                    player1: { balls: '10', name: 'Player1', runs: '20' }, 
-                    player2: { balls: '5', name: 'Player2', runs: '10' } 
+                onBatting: {
+                    player1: { balls: '10', name: 'Player1', runs: '20' },
+                    player2: { balls: '5', name: 'Player2', runs: '10' },
                 },
                 runRate: { currentRunRate: 6.0, requiredRunRate: 5.5 },
-                team1: { 
-                    name: 'Team1', 
-                    score: '120/5', 
+                team1: {
+                    name: 'Team1',
+                    score: '120/5',
                     overs: '20.0',
                     isBatting: true,
                     wickets: '5',
-                    previousInnings: null
+                    previousInnings: null,
                 },
-                team2: { 
-                    name: 'Team2', 
-                    score: '0/0', 
+                team2: {
+                    name: 'Team2',
+                    score: '0/0',
                     overs: '0.0',
                     isBatting: false,
                     wickets: '0',
-                    previousInnings: null
+                    previousInnings: null,
                 },
-                matchCommentary: []
+                matchCommentary: [],
             };
             const findUniqueStub = sinon.stub().resolves(mockData);
             sinon.stub(prisma, 'matchstats').value({ findUnique: findUniqueStub });
@@ -225,11 +225,11 @@ describe('BaseModel', () => {
 
     describe('findIdByMatchUrl', () => {
         it('should find record by match URL successfully', async () => {
-            const mockData = { 
-                id: 'testId', 
+            const mockData = {
+                id: 'testId',
                 v: 1,
                 matchName: 'Test Match',
-                matchUrl: 'testUrl'
+                matchUrl: 'testUrl',
             };
             const findUniqueStub = sinon.stub().resolves(mockData);
             sinon.stub(prisma, 'livematches').value({ findUnique: findUniqueStub });
@@ -266,11 +266,11 @@ describe('BaseModel', () => {
 
     describe('insert', () => {
         it('should insert/update record in livematches model successfully', async () => {
-            const mockData = { 
-                id: 'testId', 
+            const mockData = {
+                id: 'testId',
                 v: 1,
                 matchName: 'Test Match',
-                matchUrl: 'testUrl'
+                matchUrl: 'testUrl',
             };
             const upsertStub = sinon.stub().resolves(mockData);
             sinon.stub(prisma, 'livematches').value({ upsert: upsertStub });
@@ -279,49 +279,51 @@ describe('BaseModel', () => {
             const result = await insert(testData, 'livematches');
 
             assert.deepEqual(result, mockData);
-            assert.isTrue(upsertStub.calledWith({
-                where: { id: 'testId' },
-                update: { matchUrl: 'testUrl', someField: 'value' },
-                create: {
-                    id: 'testId',
-                    matchUrl: 'testUrl',
-                    someField: 'value',
-                    createdAt: sinon.match.date
-                }
-            }));
+            assert.isTrue(
+                upsertStub.calledWith({
+                    where: { id: 'testId' },
+                    update: { matchUrl: 'testUrl', someField: 'value' },
+                    create: {
+                        id: 'testId',
+                        matchUrl: 'testUrl',
+                        someField: 'value',
+                        createdAt: sinon.match.date,
+                    },
+                })
+            );
         });
 
         it('should insert/update record in matchstats model successfully', async () => {
-            const mockData = { 
-                id: 'testId', 
+            const mockData = {
+                id: 'testId',
                 matchName: 'Test Match',
                 createdAt: new Date(),
                 isLive: true,
                 summary: 'Test summary',
                 tournamentName: 'Test Tournament',
                 keyStats: {},
-                onBatting: { 
-                    player1: { balls: '10', name: 'Player1', runs: '20' }, 
-                    player2: { balls: '5', name: 'Player2', runs: '10' } 
+                onBatting: {
+                    player1: { balls: '10', name: 'Player1', runs: '20' },
+                    player2: { balls: '5', name: 'Player2', runs: '10' },
                 },
                 runRate: { currentRunRate: 6.0, requiredRunRate: 5.5 },
-                team1: { 
-                    name: 'Team1', 
-                    score: '120/5', 
+                team1: {
+                    name: 'Team1',
+                    score: '120/5',
                     overs: '20.0',
                     isBatting: true,
                     wickets: '5',
-                    previousInnings: null
+                    previousInnings: null,
                 },
-                team2: { 
-                    name: 'Team2', 
-                    score: '0/0', 
+                team2: {
+                    name: 'Team2',
+                    score: '0/0',
                     overs: '0.0',
                     isBatting: false,
                     wickets: '0',
-                    previousInnings: null
+                    previousInnings: null,
                 },
-                matchCommentary: []
+                matchCommentary: [],
             };
             const upsertStub = sinon.stub().resolves(mockData);
             sinon.stub(prisma, 'matchstats').value({ upsert: upsertStub });
@@ -330,16 +332,18 @@ describe('BaseModel', () => {
             const result = await insert(testData, 'matchstats');
 
             assert.deepEqual(result, mockData);
-            assert.isTrue(upsertStub.calledWith({
-                where: { id: 'testId' },
-                update: { matchName: 'Test Match', someField: 'value' },
-                create: {
-                    id: 'testId',
-                    matchName: 'Test Match',
-                    someField: 'value',
-                    createdAt: sinon.match.date
-                }
-            }));
+            assert.isTrue(
+                upsertStub.calledWith({
+                    where: { id: 'testId' },
+                    update: { matchName: 'Test Match', someField: 'value' },
+                    create: {
+                        id: 'testId',
+                        matchName: 'Test Match',
+                        someField: 'value',
+                        createdAt: sinon.match.date,
+                    },
+                })
+            );
         });
 
         it('should handle errors for livematches model', async () => {
@@ -379,7 +383,7 @@ describe('BaseModel', () => {
 
             const testData = [
                 { id: '1', matchUrl: 'test1' },
-                { id: '2', matchUrl: 'test2' }
+                { id: '2', matchUrl: 'test2' },
             ];
             const result = await insertMany(testData, 'livematches');
 
@@ -394,7 +398,7 @@ describe('BaseModel', () => {
 
             const testData = [
                 { id: '1', matchName: 'Match 1' },
-                { id: '2', matchName: 'Match 2' }
+                { id: '2', matchName: 'Match 2' },
             ];
             const result = await insertMany(testData, 'matchstats');
 
@@ -448,7 +452,7 @@ describe('BaseModel', () => {
             // This tests the default case in executeOnModel switch statement
             // We can't directly test executeOnModel as it's not exported, but we can test it indirectly
             // by calling functions with invalid model names
-            
+
             try {
                 // @ts-ignore - Testing invalid model name
                 await findAll('invalidModel' as any);

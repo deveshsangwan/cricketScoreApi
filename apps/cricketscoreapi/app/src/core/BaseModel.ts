@@ -45,19 +45,19 @@ const findAll = async <T extends ModelName>(
 ): Promise<any[]> => {
     try {
         const queryOptions: any = {};
-        
+
         if (options?.select) {
             queryOptions.select = options.select;
         }
-        
+
         if (options?.limit) {
             queryOptions.take = options.limit;
         }
-        
+
         if (options?.orderBy) {
             queryOptions.orderBy = options.orderBy;
         }
-        
+
         const response = await executeOnModel(modelName, (model) => model.findMany(queryOptions));
         return response;
     } catch (err) {
