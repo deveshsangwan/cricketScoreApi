@@ -19,53 +19,7 @@ function assertResultSubset(result: any, expectedOutput: any) {
     assert.deepEqual(resultSubset, expectedOutput);
 }
 
-describe('MatchStats API', function () {
-    this.timeout(TIMEOUT);
 
-    it('retrieves a specific match by id', async function () {
-        const id = 'qz0G2tpXBlel5Jki'; // replace with a valid match id
-
-        try {
-            const response = await httpClient.get(`/matchStats/${id}`, {});
-            assert.equal(response?.body?.status, true);
-        } catch (err) {
-            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
-        }
-    });
-
-    it('returns a 400 status for an invalid match id', async function () {
-        const { id, expectedOutput } = testData.invalidMatchId;
-
-        try {
-            const res = await httpClient.get(`/matchStats/${id}`, {});
-            assert.equal(res.status, 400);
-            assert.deepEqual(res.body, expectedOutput);
-        } catch (err) {
-            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
-        }
-    });
-
-    it('returns a 500 status for a valid but non-existent match id', async function () {
-        const { id, expectedOutput } = testData.nonExistentMatchId;
-
-        try {
-            const response = await httpClient.get(`/matchStats/${id}`, {});
-            assert.equal(response?.status, 500);
-            assert.deepEqual(response?.body, expectedOutput);
-        } catch (err) {
-            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
-        }
-    });
-
-    it('retrieves stats for all live matches', async function () {
-        try {
-            const response = await httpClient.get(`/matchStats`, {});
-            assert.equal(response?.body?.status, true);
-        } catch (err) {
-            assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
-        }
-    });
-});
 
 describe('MatchStats | getMatchStats function', function () {
     let matchStatsObj: MatchStats;

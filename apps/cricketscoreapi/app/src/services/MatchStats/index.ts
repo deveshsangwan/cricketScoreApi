@@ -19,7 +19,7 @@ import {
 } from './MatchUtils';
 import { CheerioAPI } from 'cheerio';
 import _ from 'underscore';
-import { isError, isLiveMatchesResponse, isMatchStatsResponse } from '@/utils/TypesUtils';
+import { isError, isLiveMatchesResponse, isMatchStatsResponse } from '@utils/TypesUtils';
 import type { ModelName } from '@core/BaseModel';
 
 export class MatchStats {

@@ -58,30 +58,32 @@ type MatchstatsTeam2PreviousInnings {
 }
 
 model livematches {
-  id        String @id @map("_id")
-  v         Int?   @map("__v")
+  id        String   @id @map("_id")
+  v         Int?     @map("__v")
   matchName String
-  matchUrl  String @unique
+  matchUrl  String   @unique
+  createdAt DateTime @default(now()) @db.Date
 }
 
 type MatchstatsMatchCommentary {
-  over String?
+  over       String?
   commentary String
-  hasOver Boolean
+  hasOver    Boolean
 }
 
 model matchstats {
-  id             String              @id @map("_id")
-  createdAt      DateTime            @db.Date
-  isLive         Boolean
-  matchName      String
-  onBatting      MatchstatsOnBatting
-  runRate        MatchstatsRunRate
-  summary        String
-  team1          MatchstatsTeam1
-  team2          MatchstatsTeam2
-  tournamentName String
+  id              String                      @id @map("_id")
+  createdAt       DateTime                    @db.Date
+  isLive          Boolean
+  matchName       String
+  onBatting       MatchstatsOnBatting
+  runRate         MatchstatsRunRate
+  summary         String
+  team1           MatchstatsTeam1
+  team2           MatchstatsTeam2
+  tournamentName  String
   matchCommentary MatchstatsMatchCommentary[]
-  keyStats       Json?
+  keyStats        Json?
+
   @@index([createdAt], map: "createdAt_1")
 }

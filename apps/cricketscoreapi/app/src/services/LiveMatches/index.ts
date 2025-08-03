@@ -113,22 +113,19 @@ export class LiveMatches {
         writeLogDebug(['LiveMatches: getAllMatches - Starting']);
 
         try {
-            // Use optimized query to fetch only required fields with a reasonable limit
-            const mongoData = await mongo.findAll(this.tableName, {
-                select: {
-                    id: true,
-                    matchUrl: true,
-                    matchName: true
-                },
-                limit: 25, // Reasonable limit for performance
-                orderBy: { matchName: 'desc' } // Get most recent matches first
-            });
-            
+            const mongoData = await mongo.findAll(this.tableName,
+                {
+                    limit: 100,
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                }
+            );
             const dbDuration = Date.now() - startTime;
             logDatabaseOperation('findAll', this.tableName, true, dbDuration);
 
             writeLogDebug([
-                'LiveMatches: getAllMatches - Found existing matches in DB (optimized)',
+                'LiveMatches: getAllMatches - Found existing matches in DB',
                 {
                     count: mongoData.length,
                     dbDuration: `${dbDuration}ms`,

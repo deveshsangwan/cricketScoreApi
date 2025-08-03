@@ -1,95 +1,120 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import { useApi } from './useApi';
-import { endpoints } from '@/config/env';
-import { MatchStats, UseMatchStatsReturn, ApiResponse } from '@cricket-score/shared-types';
+import { trpc } from '@/lib/trpc';
+import { MatchStats, UseMatchStatsReturn } from '@cricket-score/shared-types';
 import { useMatchCache } from '@/contexts/MatchCacheContext';
 
 export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => {
   const [matchStats, setMatchStats] = useState<MatchStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { isLoaded, isSignedIn } = useAuth();
-  const { makeRequest } = useApi();
   const { getCachedMatch, setCachedMatch, isFreshCache } = useMatchCache();
   const hasInitiallyLoadedRef = useRef(false);
 
-  const fetchMatchStats = useCallback(async (isBackgroundRefetch = false) => {
-    if (!isLoaded || !isSignedIn || !matchId) return;
+  // Use tRPC for fetching match stats by ID with optimistic caching
+  const {
+    data,
+    isLoading: isTrpcLoading,
+    error: trpcError,
+    refetch: trpcRefetch,
+  } = trpc.getMatchStatsById.useQuery(
+    { matchId },
+    {
+      enabled: !!matchId,
+      staleTime: 30000, // 30 seconds
+      refetchInterval: 60000, // 1 minute
+      retry: 2,
+    }
+  );
 
-    try {
-      // Check cache first for instant loading
-      const cached = getCachedMatch(matchId);
-      
-      if (cached && isFreshCache(matchId)) {
-        // Use cached data immediately for instant loading
+  // Handle cache initialization
+  useEffect(() => {
+    if (!matchId) return;
+
+    const cached = getCachedMatch(matchId);
+    if (cached && !hasInitiallyLoadedRef.current) {
+      if (isFreshCache(matchId)) {
         console.log(`⚡ Using cached data for match ${matchId} - instant load!`);
         setMatchStats(cached.data);
         setError(null);
         hasInitiallyLoadedRef.current = true;
         setIsLoading(false);
-        return;
-      }
-
-      // If we have stale cached data, show it immediately while fetching fresh data
-      if (cached && !hasInitiallyLoadedRef.current) {
+      } else {
         console.log(`🔄 Using stale cached data for match ${matchId} while fetching fresh data`);
         setMatchStats(cached.data);
         setError(null);
         hasInitiallyLoadedRef.current = true;
         setIsLoading(false);
-        // Continue to fetch fresh data in background
       }
+    }
+  }, [matchId, getCachedMatch, isFreshCache]);
 
-      // Only show loading state for initial fetch without cache
-      if (!isBackgroundRefetch && !hasInitiallyLoadedRef.current && !cached) {
-        setIsLoading(true);
-      }
-      
-      setError(null);
+  // Handle tRPC data changes
+  useEffect(() => {
+    if (data?.response) {
+      const freshMatchStats = data.response as MatchStats;
 
-      console.log(`🌐 Fetching fresh data for match ${matchId}`);
-      const response = await makeRequest<ApiResponse<MatchStats>>(
-        endpoints.matchStats(matchId)
-      );
+      console.log(`🌐 Received fresh data for match ${matchId}`);
 
-      const freshMatchStats = response.response;
-      
       // Update cache with fresh data
       setCachedMatch(matchId, freshMatchStats);
-      
+
       // Update state with fresh data
       setMatchStats(freshMatchStats);
+      setError(null);
       hasInitiallyLoadedRef.current = true;
-    } catch (err) {
-      const errorMessage = err instanceof Error 
-        ? err.message 
-        : 'Failed to fetch match statistics';
-      
+    }
+  }, [data, matchId, setCachedMatch]);
+
+  // Handle tRPC loading state
+  useEffect(() => {
+    const cached = getCachedMatch(matchId);
+    // Only show loading if we don't have cached data and this is the initial load
+    setIsLoading(isTrpcLoading && !hasInitiallyLoadedRef.current && !cached);
+  }, [isTrpcLoading, matchId, getCachedMatch]);
+
+  // Handle tRPC errors
+  useEffect(() => {
+    if (trpcError) {
       // Only set error if we don't have any cached data to show
-      if (!getCachedMatch(matchId)) {
-        setError(errorMessage);
+      const cached = getCachedMatch(matchId);
+      if (!cached) {
+        setError(trpcError.message);
       } else {
         // Log error but continue showing cached data
-        console.warn(`Error fetching fresh data for match ${matchId}, using cached data:`, err);
+        console.warn(`Error fetching fresh data for match ${matchId}, using cached data:`, trpcError);
+      }
+      setIsLoading(false);
+    }
+  }, [trpcError, matchId, getCachedMatch]);
+
+  const refetch = useCallback(async (isBackgroundRefetch = false) => {
+    const cached = getCachedMatch(matchId);
+
+    if (!isBackgroundRefetch && !hasInitiallyLoadedRef.current && !cached) {
+      setIsLoading(true);
+    }
+    setError(null);
+
+    try {
+      console.log(`🔄 Refreshing data for match ${matchId}`);
+      await trpcRefetch();
+    } catch (err) {
+      const errorMessage = err instanceof Error
+        ? err.message
+        : 'Failed to fetch match statistics';
+
+      // Only set error if we don't have cached data
+      if (!cached) {
+        setError(errorMessage);
+      } else {
+        console.warn(`Error refreshing data for match ${matchId}, using cached data:`, err);
       }
     } finally {
-      // Only set loading to false if this was the initial load
       if (!isBackgroundRefetch || !hasInitiallyLoadedRef.current) {
         setIsLoading(false);
       }
     }
-  }, [matchId, isLoaded, isSignedIn, makeRequest, getCachedMatch, setCachedMatch, isFreshCache]);
-
-  const refetch = useCallback(async (isBackgroundRefetch = false) => {
-    await fetchMatchStats(isBackgroundRefetch);
-  }, [fetchMatchStats]);
-
-  useEffect(() => {
-    if (isLoaded && isSignedIn && matchId) {
-      fetchMatchStats(false); // Initial fetch
-    }
-  }, [matchId, isLoaded, isSignedIn, fetchMatchStats]);
+  }, [trpcRefetch, matchId, getCachedMatch]);
 
   return {
     matchStats,
@@ -101,7 +126,7 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
 
 // Hook for real-time updates with cache optimization
 export const useOptimizedRealTimeMatchStats = (
-  matchId: string, 
+  matchId: string,
   refreshInterval: number = 30000 // 30 seconds default
 ): UseMatchStatsReturn => {
   const baseHook = useOptimizedMatchStats(matchId);
@@ -114,11 +139,11 @@ export const useOptimizedRealTimeMatchStats = (
   useEffect(() => {
     const handleScroll = () => {
       isScrollingRef.current = true;
-      
+
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
-      
+
       scrollTimeoutRef.current = setTimeout(() => {
         isScrollingRef.current = false;
       }, 150); // Stop considering it scrolling after 150ms of no scroll
@@ -126,7 +151,7 @@ export const useOptimizedRealTimeMatchStats = (
 
     if (typeof window !== 'undefined') {
       window.addEventListener('scroll', handleScroll, { passive: true });
-      
+
       return () => {
         window.removeEventListener('scroll', handleScroll);
         if (scrollTimeoutRef.current) {
@@ -146,9 +171,9 @@ export const useOptimizedRealTimeMatchStats = (
           refetch(true);
         }
       }, refreshInterval);
-      
+
       setIntervalId(id);
-      
+
       return () => {
         clearInterval(id);
         setIntervalId(null);

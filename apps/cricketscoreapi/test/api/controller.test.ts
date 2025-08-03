@@ -1,18 +1,17 @@
 import { Request, Response } from 'express';
 import chai, { assert } from 'chai';
 import sinon, { SinonStub, SinonSandbox } from 'sinon';
-import HttpClient from '../HttpClient';
+import TrpcClient from '../TrpcClient';
 import { StubModule } from '../StubModule';
-import controller from '../../app/src/api/controller';
 import { LiveMatches } from '../../app/src/services/LiveMatches';
 import { MatchStats } from '../../app/src/services/MatchStats';
 import * as TypesUtils from '../../app/src/utils/TypesUtils';
 
 const ErrorMessage = 'Test failed due to error:';
-const httpClient = new HttpClient(chai);
+const trpcClient = new TrpcClient();
 const TIMEOUT = 20000;
 
-describe('Controller API Integration Tests', function () {
+describe('tRPC Procedures Integration Tests', function () {
     let stubObj: StubModule;
 
     beforeEach(() => {
@@ -23,16 +22,17 @@ describe('Controller API Integration Tests', function () {
         stubObj.restoreStubs();
     });
 
-    describe('GET /liveMatches', function () {
+    describe('getLiveMatches procedure', function () {
         this.timeout(TIMEOUT);
 
         it('should return live matches successfully', async function () {
             try {
-                const response = await httpClient.get('/liveMatches', {});
-                assert.equal(response?.status, 200);
-                assert.equal(response?.body?.status, true);
-                assert.equal(response?.body?.message, 'Live Matches');
-                assert.property(response?.body, 'response');
+                const response = await trpcClient.getLiveMatches();
+                assert.equal(response.status, 'success');
+                assert.property(response.data, 'status');
+                assert.equal(response.data.status, true);
+                assert.equal(response.data.message, 'Live Matches');
+                assert.property(response.data, 'response');
             } catch (err) {
                 assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
             }
@@ -45,30 +45,45 @@ describe('Controller API Integration Tests', function () {
                 .rejects(new Error('Database connection failed'));
 
             try {
-                const response = await httpClient.get('/liveMatches', {});
-                assert.equal(response?.status, 500);
-                assert.equal(response?.body?.status, false);
-                assert.equal(response?.body?.message, 'Error fetching live matches');
-                assert.property(response?.body, 'error');
+                const response = await trpcClient.getLiveMatches();
+                assert.equal(response.status, 'error');
+                assert.property(response, 'error');
+                assert.include(response.error.message, 'Database connection failed');
+            } catch (err) {
+                assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
+            }
+        });
+
+        it('should handle authentication errors', async function () {
+            const unauthenticatedClient = new TrpcClient(true); // Skip auth
+            
+            try {
+                const response = await unauthenticatedClient.getLiveMatches();
+                assert.equal(response.status, 'error');
+                assert.property(response, 'error');
+                assert.include(response.error.message, 'Authentication Failed');
             } catch (err) {
                 assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
             }
         });
     });
 
-    describe('GET /matchStats/:matchId', function () {
+    describe('getMatchStatsById procedure', function () {
         this.timeout(TIMEOUT);
 
         it('should return match stats for valid match ID', async function () {
             const validMatchId = 'qz0G2tpXBlel5Jki'; // Use a known valid format
 
             try {
-                const response = await httpClient.get(`/matchStats/${validMatchId}`, {});
-                // Note: This might return 400 or 500 depending on actual match existence
-                // but should not crash the server
-                assert.oneOf(response?.status, [200, 400, 500]);
-                assert.property(response?.body, 'status');
-                assert.property(response?.body, 'message');
+                const response = await trpcClient.getMatchStatsById(validMatchId);
+                // Note: This might return success or error depending on actual match existence
+                assert.oneOf(response.status, ['success', 'error']);
+                if (response.status === 'success') {
+                    assert.property(response.data, 'status');
+                    assert.property(response.data, 'message');
+                } else {
+                    assert.property(response, 'error');
+                }
             } catch (err) {
                 assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
             }
@@ -78,27 +93,42 @@ describe('Controller API Integration Tests', function () {
             const invalidMatchId = 'invalid123';
 
             try {
-                const response = await httpClient.get(`/matchStats/${invalidMatchId}`, {});
-                assert.equal(response?.status, 400);
-                assert.equal(response?.body?.status, false);
-                // The validation middleware returns "Invalid request parameters" for invalid match IDs
-                assert.include(response?.body?.message, 'Invalid request parameters');
+                const response = await trpcClient.getMatchStatsById(invalidMatchId);
+                assert.equal(response.status, 'error');
+                assert.property(response, 'error');
+                // tRPC validation should catch invalid format
+                assert.isTrue(response.error.message.length > 0);
+            } catch (err) {
+                assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
+            }
+        });
+
+        it('should require matchId parameter', async function () {
+            try {
+                // TypeScript will prevent this, but let's test runtime validation
+                const response = await trpcClient.getMatchStatsById('');
+                assert.equal(response.status, 'error');
+                assert.property(response, 'error');
             } catch (err) {
                 assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
             }
         });
     });
 
-    describe('GET /matchStats', function () {
+    describe('getMatchStats procedure', function () {
         this.timeout(TIMEOUT);
 
-        it('should return default match stats (matchId 0)', async function () {
+        it('should return default match stats (all matches)', async function () {
             try {
-                const response = await httpClient.get('/matchStats', {});
-                // This endpoint uses hardcoded matchId '0'
-                assert.oneOf(response?.status, [200, 400, 500]);
-                assert.property(response?.body, 'status');
-                assert.property(response?.body, 'message');
+                const response = await trpcClient.getMatchStats();
+                // This endpoint gets all match stats
+                assert.oneOf(response.status, ['success', 'error']);
+                if (response.status === 'success') {
+                    assert.property(response.data, 'status');
+                    assert.property(response.data, 'message');
+                } else {
+                    assert.property(response, 'error');
+                }
             } catch (err) {
                 assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
             }
@@ -106,28 +136,14 @@ describe('Controller API Integration Tests', function () {
     });
 });
 
-describe('Controller Unit Tests', function () {
+describe('tRPC Procedures Unit Tests', function () {
     let sandbox: SinonSandbox;
-    let mockRequest: Partial<Request>;
-    let mockResponse: Partial<Response>;
-    let responseStub: SinonStub;
-    let statusStub: SinonStub;
     let liveMatchesStub: SinonStub;
     let matchStatsStub: SinonStub;
     let isErrorStub: SinonStub;
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
-
-        // Create response stubs
-        responseStub = sandbox.stub();
-        statusStub = sandbox.stub().returns({ send: responseStub });
-
-        mockRequest = {};
-        mockResponse = {
-            status: statusStub,
-            send: responseStub,
-        };
 
         // Stub service methods
         liveMatchesStub = sandbox.stub(LiveMatches.prototype, 'getMatches');
@@ -139,7 +155,7 @@ describe('Controller Unit Tests', function () {
         sandbox.restore();
     });
 
-    describe('live controller', function () {
+    describe('getLiveMatches procedure', function () {
         it('should return live matches successfully', async function () {
             const mockLiveMatchesResponse = {
                 matches: [
@@ -150,16 +166,13 @@ describe('Controller Unit Tests', function () {
 
             liveMatchesStub.resolves(mockLiveMatchesResponse);
 
-            await controller.live(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getLiveMatches();
 
-            assert.isTrue(statusStub.calledWith(200));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: true,
-                    message: 'Live Matches',
-                    response: mockLiveMatchesResponse,
-                })
-            );
+            assert.equal(response.status, 'success');
+            assert.property(response.data, 'status');
+            assert.equal(response.data.status, true);
+            assert.equal(response.data.message, 'Live Matches');
+            assert.deepEqual(response.data.response, mockLiveMatchesResponse);
         });
 
         it('should handle LiveMatches service errors', async function () {
@@ -167,16 +180,11 @@ describe('Controller Unit Tests', function () {
             liveMatchesStub.rejects(mockError);
             isErrorStub.withArgs(mockError).returns(true);
 
-            await controller.live(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getLiveMatches();
 
-            assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: false,
-                    message: 'Error fetching live matches',
-                    error: 'Service unavailable',
-                })
-            );
+            assert.equal(response.status, 'error');
+            assert.property(response, 'error');
+            assert.include(response.error.message, 'Service unavailable');
         });
 
         it('should handle non-Error exceptions', async function () {
@@ -184,24 +192,15 @@ describe('Controller Unit Tests', function () {
             liveMatchesStub.rejects(mockError);
             isErrorStub.withArgs(mockError).returns(false);
 
-            await controller.live(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getLiveMatches();
 
-            assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: false,
-                    message: 'Error fetching live matches',
-                    error: 'Unknown error',
-                })
-            );
+            assert.equal(response.status, 'error');
+            assert.property(response, 'error');
+            assert.property(response.error, 'message');
         });
     });
 
-    describe('matchStats controller', function () {
-        beforeEach(() => {
-            mockRequest.params = { matchId: 'validMatchId123' };
-        });
-
+    describe('getMatchStatsById procedure', function () {
         it('should return match stats successfully', async function () {
             const mockMatchStatsResponse = {
                 matchId: 'validMatchId123',
@@ -211,17 +210,14 @@ describe('Controller Unit Tests', function () {
 
             matchStatsStub.resolves(mockMatchStatsResponse);
 
-            await controller.matchStats(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getMatchStatsById('validMatchId123');
 
+            assert.equal(response.status, 'success');
             assert.isTrue(matchStatsStub.calledWith('validMatchId123'));
-            assert.isTrue(statusStub.calledWith(200));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: true,
-                    message: 'Match Stats',
-                    response: mockMatchStatsResponse,
-                })
-            );
+            assert.property(response.data, 'status');
+            assert.equal(response.data.status, true);
+            assert.equal(response.data.message, 'Match Stats');
+            assert.deepEqual(response.data.response, mockMatchStatsResponse);
         });
 
         it('should handle MatchStats service errors', async function () {
@@ -229,32 +225,12 @@ describe('Controller Unit Tests', function () {
             matchStatsStub.rejects(mockError);
             isErrorStub.withArgs(mockError).returns(true);
 
-            await controller.matchStats(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getMatchStatsById('validMatchId123');
 
+            assert.equal(response.status, 'error');
             assert.isTrue(matchStatsStub.calledWith('validMatchId123'));
-            assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: false,
-                    message: 'Error fetching match stats',
-                    error: 'Invalid match ID',
-                })
-            );
-        });
-
-        it('should handle missing matchId parameter', async function () {
-            mockRequest.params = {};
-
-            await controller.matchStats(mockRequest as Request, mockResponse as Response);
-
-            assert.isTrue(statusStub.calledWith(400));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: false,
-                    message: 'Invalid match ID',
-                })
-            );
-            assert.isFalse(matchStatsStub.called);
+            assert.property(response, 'error');
+            assert.include(response.error.message, 'Invalid match ID');
         });
 
         it('should handle non-Error exceptions', async function () {
@@ -262,75 +238,59 @@ describe('Controller Unit Tests', function () {
             matchStatsStub.rejects(mockError);
             isErrorStub.withArgs(mockError).returns(false);
 
-            await controller.matchStats(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getMatchStatsById('validMatchId123');
 
-            assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: false,
-                    message: 'Error fetching match stats',
-                    error: 'Unknown error',
-                })
-            );
+            assert.equal(response.status, 'error');
+            assert.property(response, 'error');
+            assert.include(response.error.message, 'Error fetching match stats');
         });
     });
 
-    describe('getMatchStats controller', function () {
-        it('should return match stats for default matchId (0)', async function () {
-            const mockMatchStatsResponse = {
-                matchId: '0',
-                isDefault: true,
-                message: 'Default match stats',
-            };
+    describe('getMatchStats procedure', function () {
+        it('should return match stats for all matches', async function () {
+            const mockMatchStatsResponse = [
+                {
+                    matchId: '0',
+                    isDefault: true,
+                    message: 'All match stats',
+                }
+            ];
 
             matchStatsStub.resolves(mockMatchStatsResponse);
 
-            await controller.getMatchStats(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getMatchStats();
 
+            assert.equal(response.status, 'success');
             assert.isTrue(matchStatsStub.calledWith('0'));
-            assert.isTrue(statusStub.calledWith(200));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: true,
-                    message: 'Match Stats',
-                    response: mockMatchStatsResponse,
-                })
-            );
+            assert.property(response.data, 'status');
+            assert.equal(response.data.status, true);
+            assert.equal(response.data.message, 'Match Stats');
+            assert.deepEqual(response.data.response, mockMatchStatsResponse);
         });
 
-        it('should handle MatchStats service errors for default match', async function () {
-            const mockError = new Error('Default match not found');
+        it('should handle MatchStats service errors for all matches', async function () {
+            const mockError = new Error('No matches found');
             matchStatsStub.rejects(mockError);
             isErrorStub.withArgs(mockError).returns(true);
 
-            await controller.getMatchStats(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getMatchStats();
 
+            assert.equal(response.status, 'error');
             assert.isTrue(matchStatsStub.calledWith('0'));
-            assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: false,
-                    message: 'Error fetching match stats',
-                    error: 'Default match not found',
-                })
-            );
+            assert.property(response, 'error');
+            assert.include(response.error.message, 'No matches found');
         });
 
-        it('should handle non-Error exceptions for default match', async function () {
+        it('should handle non-Error exceptions for all matches', async function () {
             const mockError = null;
             matchStatsStub.rejects(mockError);
             isErrorStub.withArgs(mockError).returns(false);
 
-            await controller.getMatchStats(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getMatchStats();
 
-            assert.isTrue(statusStub.calledWith(500));
-            assert.isTrue(
-                responseStub.calledWith({
-                    status: false,
-                    message: 'Error fetching match stats',
-                    error: 'Unknown error',
-                })
-            );
+            assert.equal(response.status, 'error');
+            assert.property(response, 'error');
+            assert.isTrue(response.error.message.length > 0);
         });
     });
 
@@ -339,16 +299,14 @@ describe('Controller Unit Tests', function () {
             const mockServiceResponse = { data: 'test' };
             liveMatchesStub.resolves(mockServiceResponse);
 
-            await controller.live(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getLiveMatches();
 
-            const responseCall = responseStub.getCall(0);
-            const responseData = responseCall.args[0];
-
-            assert.property(responseData, 'status');
-            assert.property(responseData, 'message');
-            assert.property(responseData, 'response');
-            assert.isBoolean(responseData.status);
-            assert.isString(responseData.message);
+            assert.equal(response.status, 'success');
+            assert.property(response.data, 'status');
+            assert.property(response.data, 'message');
+            assert.property(response.data, 'response');
+            assert.isBoolean(response.data.status);
+            assert.isString(response.data.message);
         });
 
         it('should always return consistent error response structure', async function () {
@@ -356,72 +314,54 @@ describe('Controller Unit Tests', function () {
             liveMatchesStub.rejects(mockError);
             isErrorStub.withArgs(mockError).returns(true);
 
-            await controller.live(mockRequest as Request, mockResponse as Response);
+            const response = await trpcClient.getLiveMatches();
 
-            const responseCall = responseStub.getCall(0);
-            const responseData = responseCall.args[0];
-
-            assert.property(responseData, 'status');
-            assert.property(responseData, 'message');
-            assert.property(responseData, 'error');
-            assert.isFalse(responseData.status);
-            assert.isString(responseData.message);
-            assert.isString(responseData.error);
+            assert.equal(response.status, 'error');
+            assert.property(response, 'error');
+            assert.isTrue(response.error instanceof Error);
         });
     });
 });
 
-describe('Controller Edge Cases', function () {
+describe('tRPC Procedures Edge Cases', function () {
     let sandbox: SinonSandbox;
-    let mockRequest: Partial<Request>;
-    let mockResponse: Partial<Response>;
-    let responseStub: SinonStub;
-    let statusStub: SinonStub;
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
-        responseStub = sandbox.stub();
-        statusStub = sandbox.stub().returns({ send: responseStub });
-
-        mockRequest = {};
-        mockResponse = {
-            status: statusStub,
-            send: responseStub,
-        };
     });
 
     afterEach(() => {
         sandbox.restore();
     });
 
-    it('should handle extremely long matchId in matchStats', async function () {
+    it('should handle extremely long matchId in getMatchStatsById', async function () {
         const longMatchId = 'a'.repeat(1000);
-        mockRequest.params = { matchId: longMatchId };
 
         const matchStatsStub = sandbox
             .stub(MatchStats.prototype, 'getMatchStats')
             .rejects(new Error('Invalid match ID'));
         const isErrorStub = sandbox.stub(TypesUtils, 'isError').returns(true);
 
-        await controller.matchStats(mockRequest as Request, mockResponse as Response);
+        const response = await trpcClient.getMatchStatsById(longMatchId);
 
+        assert.equal(response.status, 'error');
         assert.isTrue(matchStatsStub.calledWith(longMatchId));
-        assert.isTrue(statusStub.calledWith(500));
+        assert.property(response, 'error');
     });
 
     it('should handle special characters in matchId', async function () {
         const specialMatchId = 'match@#$%^&*()_+';
-        mockRequest.params = { matchId: specialMatchId };
 
         const matchStatsStub = sandbox
             .stub(MatchStats.prototype, 'getMatchStats')
             .rejects(new Error('Invalid match ID format'));
         const isErrorStub = sandbox.stub(TypesUtils, 'isError').returns(true);
 
-        await controller.matchStats(mockRequest as Request, mockResponse as Response);
+        const response = await trpcClient.getMatchStatsById(specialMatchId);
 
+        assert.equal(response.status, 'error');
         assert.isTrue(matchStatsStub.calledWith(specialMatchId));
-        assert.isTrue(statusStub.calledWith(500));
+        assert.property(response, 'error');
     });
 
     it('should handle concurrent requests to live matches', async function () {
@@ -431,13 +371,14 @@ describe('Controller Edge Cases', function () {
 
         // Simulate concurrent requests
         const promises = Array.from({ length: 5 }, () =>
-            controller.live(mockRequest as Request, mockResponse as Response)
+            trpcClient.getLiveMatches()
         );
 
-        await Promise.all(promises);
+        const results = await Promise.all(promises);
 
         assert.equal(liveMatchesStub.callCount, 5);
-        assert.equal(statusStub.callCount, 5);
-        assert.equal(responseStub.callCount, 5);
+        results.forEach(result => {
+            assert.equal(result.status, 'success');
+        });
     });
 });

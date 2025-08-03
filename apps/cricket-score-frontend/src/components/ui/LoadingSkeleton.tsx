@@ -24,7 +24,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <div
-      className={`bg-muted/40 backdrop-blur-lg animate-pulse ${height} ${width} ${roundedClass} ${className}`}
+      className={`bg-slate-200 dark:bg-muted/40 backdrop-blur-lg animate-pulse ${height} ${width} ${roundedClass} ${className}`}
     />
   );
 };

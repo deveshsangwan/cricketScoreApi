@@ -1,10 +1,13 @@
-// import { z } from 'zod';
+import { z } from 'zod';
 import { initTRPC, TRPCError } from '@trpc/server';
 import type { CreateExpressContextOptions } from '@trpc/server/adapters/express';
 import { getAuth } from '@clerk/express';
 // Import the shared service functions from controller
 import { writeLogInfo } from '@core/Logger';
 import { LiveMatches } from '@services/LiveMatches';
+import { MatchStats } from '@services/MatchStats';
+import type { MatchStatsResponse } from '@types';
+// import { isError } from '@utils/TypesUtils';
 
 // Create context function for tRPC
 export function createContext({ req }: CreateExpressContextOptions) {
@@ -55,9 +58,9 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
 });
 
 // Input validation schema for getMatchStatsById
-// const getMatchStatsByIdInput = z.object({
-//   matchId: z.string().min(1, 'Match ID is required'),
-// });
+const getMatchStatsByIdInput = z.object({
+  matchId: z.string().min(1, 'Match ID is required'),
+});
 
 export const appRouter = router({
   // Get live matches - using shared service
@@ -80,32 +83,44 @@ export const appRouter = router({
     }),
 
   // Get match stats (all matches) - using shared service
-  // getMatchStats: protectedProcedure
-  //   .query(async () => {
-  //     try {
-  //       return await allMatchStatsService();
-  //     } catch (error) {
-  //       throw new TRPCError({
-  //         code: 'INTERNAL_SERVER_ERROR',
-  //         message: error instanceof Error ? error.message : 'Error fetching match stats',
-  //       });
-  //     }
-  //   }),
+  getMatchStats: protectedProcedure
+    .query(async () => {
+      try {
+        const matchStatsObj = new MatchStats();
+        const matchStatsResponse = (await matchStatsObj.getMatchStats('0')) as MatchStatsResponse;
+        return {
+          status: true,
+          message: 'Match Stats',
+          response: matchStatsResponse,
+        };
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : 'Error fetching match stats',
+        });
+      }
+    }),
 
   // Get match stats by ID - using shared service
-  // getMatchStatsById: protectedProcedure
-  //   .input(getMatchStatsByIdInput)
-  //   .query(async ({ input }: { input: z.infer<typeof getMatchStatsByIdInput> }) => {
-  //     try {
-  //       const { matchId } = input;
-  //       return await matchStatsByIdService(matchId);
-  //     } catch (error) {
-  //       throw new TRPCError({
-  //         code: 'INTERNAL_SERVER_ERROR',
-  //         message: error instanceof Error ? error.message : 'Error fetching match stats',
-  //       });
-  //     }
-  //   }),
+  getMatchStatsById: protectedProcedure
+    .input(getMatchStatsByIdInput)
+    .query(async ({ input }: { input: z.infer<typeof getMatchStatsByIdInput> }) => {
+      try {
+        const { matchId } = input;
+        const matchStatsObj = new MatchStats();
+        const matchStatsResponse = (await matchStatsObj.getMatchStats(matchId)) as MatchStatsResponse;
+        return {
+          status: true,
+          message: 'Match Stats',
+          response: matchStatsResponse,
+        };
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : 'Error fetching match stats',
+        });
+      }
+    }),
 });
 
 // Export the router type - this is important for the frontend

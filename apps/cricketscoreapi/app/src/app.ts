@@ -3,7 +3,6 @@ import bodyParser from 'body-parser';
 import httpContext from 'express-http-context';
 import { clerkMiddleware } from '@clerk/express';
 import dotenv from 'dotenv';
-import routes from '@api/routes';
 import cors from 'cors';
 import { logAPIRequest, logAPIResponse } from '@core/Logger';
 import config from '@core/configuration';
@@ -93,8 +92,6 @@ app.use(
         createContext,
     })
 );
-
-routes(app);
 
 app.use(function (_req: Request, res: Response): void {
     res.status(404).json({
