@@ -3,7 +3,12 @@ reviews:
   profile: "assertive"
   high_level_summary: true
   review_status: true
+  collapse_walkthrough: false
   auto_review:
     enabled: true
+    drafts: false
+  tools:
+    eslint:
+      enabled: true
 chat:
   auto_reply: true
