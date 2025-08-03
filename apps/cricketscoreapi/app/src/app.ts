@@ -76,7 +76,7 @@ app.use(function (err: any, _req: Request, res: Response, _next: NextFunction): 
     } else if (!res.statusCode || res.statusCode === 200) {
         res.status(500);
     }
-    
+
     res.json({
         status: false,
         statusMessage: res.statusCode + ' - ' + err.message,

@@ -20,7 +20,7 @@ describe('Logger and TypesUtils Extended Tests', function () {
         it('should handle file system errors when writing logs', function () {
             // Mock fs.existsSync to return false for logs directory
             sandbox.stub(fs, 'existsSync').returns(false);
-            
+
             // Mock fs.mkdirSync to throw an error
             const mkdirError = new Error('Permission denied');
             sandbox.stub(fs, 'mkdirSync').throws(mkdirError);
@@ -38,7 +38,7 @@ describe('Logger and TypesUtils Extended Tests', function () {
         it('should handle file write errors', function () {
             // Mock fs.existsSync to return true
             sandbox.stub(fs, 'existsSync').returns(true);
-            
+
             // Mock fs.appendFileSync to throw an error
             const writeError = new Error('Disk full');
             sandbox.stub(fs, 'appendFileSync').throws(writeError);
@@ -99,7 +99,7 @@ describe('Logger and TypesUtils Extended Tests', function () {
             ];
 
             try {
-                specialMessages.forEach(message => {
+                specialMessages.forEach((message) => {
                     writeLogInfo([message]);
                     writeLogError([message]);
                     writeLogDebug([message]);
@@ -125,9 +125,12 @@ describe('Logger and TypesUtils Extended Tests', function () {
                 { matches: null },
             ];
 
-            invalidResponses.forEach(response => {
+            invalidResponses.forEach((response) => {
                 const result = isLiveMatchesResponse(response);
-                assert.isFalse(result, `Should return false for invalid response: ${JSON.stringify(response)}`);
+                assert.isFalse(
+                    result,
+                    `Should return false for invalid response: ${JSON.stringify(response)}`
+                );
             });
         });
 
@@ -144,26 +147,29 @@ describe('Logger and TypesUtils Extended Tests', function () {
                 { matchId: 'valid', team1: 'not an object' },
                 { matchId: 'valid', team1: {}, team2: 'invalid' },
                 { matchId: 'valid', team1: {}, team2: {}, runRate: 'invalid' },
-                { 
-                    matchId: 'valid', 
-                    team1: { name: 'Team1' }, 
-                    team2: { name: 'Team2' }, 
-                    runRate: {}, 
-                    matchCommentary: 'not an array' 
+                {
+                    matchId: 'valid',
+                    team1: { name: 'Team1' },
+                    team2: { name: 'Team2' },
+                    runRate: {},
+                    matchCommentary: 'not an array',
                 },
-                { 
-                    matchId: 'valid', 
-                    team1: { name: 'Team1' }, 
-                    team2: { name: 'Team2' }, 
-                    runRate: {}, 
+                {
+                    matchId: 'valid',
+                    team1: { name: 'Team1' },
+                    team2: { name: 'Team2' },
+                    runRate: {},
                     matchCommentary: [], // Empty array not allowed
-                    keyStats: 'not an object'
+                    keyStats: 'not an object',
                 },
             ];
 
-            invalidResponses.forEach(response => {
+            invalidResponses.forEach((response) => {
                 const result = isMatchStatsResponse(response);
-                assert.isFalse(result, `Should return false for invalid response: ${JSON.stringify(response)}`);
+                assert.isFalse(
+                    result,
+                    `Should return false for invalid response: ${JSON.stringify(response)}`
+                );
             });
         });
 
@@ -178,7 +184,7 @@ describe('Logger and TypesUtils Extended Tests', function () {
                     isBatting: true,
                 },
                 team2: {
-                    name: 'Team 2', 
+                    name: 'Team 2',
                     score: '120',
                     wickets: '5',
                     overs: '18',
@@ -215,12 +221,12 @@ describe('Logger and TypesUtils Extended Tests', function () {
             const minimalValid = {
                 matchId: 'test',
                 team1: { name: 'Team1' },
-                team2: { name: 'Team2' }, 
+                team2: { name: 'Team2' },
                 onBatting: {},
                 runRate: {},
                 summary: 'test',
                 matchCommentary: [{ commentary: 'test', hasOver: false }],
-                keyStats: { 'test': 'value' },
+                keyStats: { test: 'value' },
                 tournamentName: 'test',
                 matchName: 'test',
                 isLive: false,
@@ -268,4 +274,4 @@ describe('Logger and TypesUtils Extended Tests', function () {
             }
         });
     });
-}); 
+});

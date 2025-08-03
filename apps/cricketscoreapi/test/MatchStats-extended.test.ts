@@ -29,7 +29,7 @@ describe('MatchStats Extended Error Handling Tests', function () {
 
             // Mock LiveMatches to return valid match
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves(liveMatchResponse);
-            
+
             // Mock mongo.findById to throw database error
             const dbError = new Error('Database connection failed');
             sandbox.stub(mongo, 'findById').rejects(dbError);
@@ -52,7 +52,7 @@ describe('MatchStats Extended Error Handling Tests', function () {
 
             // Mock LiveMatches to return valid match
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves(liveMatchResponse);
-            
+
             // Mock mongo.findById to return null (no cached data)
             sandbox.stub(mongo, 'findById').resolves(null);
 
@@ -78,7 +78,7 @@ describe('MatchStats Extended Error Handling Tests', function () {
 
             // Mock LiveMatches to return valid match
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves(liveMatchResponse);
-            
+
             // Mock mongo.findById to return null (no cached data)
             sandbox.stub(mongo, 'findById').resolves(null);
 
@@ -100,13 +100,21 @@ describe('MatchStats Extended Error Handling Tests', function () {
     describe('getStatsForAllMatches error scenarios', function () {
         it('should handle database errors when fetching all match stats', async function () {
             const liveMatchesResponse = {
-                match1: { matchId: 'match1', matchUrl: 'http://example.com/1', matchName: 'Match 1' },
-                match2: { matchId: 'match2', matchUrl: 'http://example.com/2', matchName: 'Match 2' },
+                match1: {
+                    matchId: 'match1',
+                    matchUrl: 'http://example.com/1',
+                    matchName: 'Match 1',
+                },
+                match2: {
+                    matchId: 'match2',
+                    matchUrl: 'http://example.com/2',
+                    matchName: 'Match 2',
+                },
             };
 
             // Mock LiveMatches to return multiple matches
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves(liveMatchesResponse);
-            
+
             // Mock mongo.findAll to throw database error
             const dbError = new Error('Database query failed');
             sandbox.stub(mongo, 'findAll').rejects(dbError);
@@ -121,12 +129,16 @@ describe('MatchStats Extended Error Handling Tests', function () {
 
         it('should handle partial data corruption in database', async function () {
             const liveMatchesResponse = {
-                match1: { matchId: 'match1', matchUrl: 'http://example.com/1', matchName: 'Match 1' },
+                match1: {
+                    matchId: 'match1',
+                    matchUrl: 'http://example.com/1',
+                    matchName: 'Match 1',
+                },
             };
 
             // Mock LiveMatches to return matches
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves(liveMatchesResponse);
-            
+
             // Mock mongo.findAll to return corrupted data
             const corruptedData = [
                 { id: 'match1', matchId: null, team1: null, team2: null }, // Corrupted entry
@@ -145,12 +157,16 @@ describe('MatchStats Extended Error Handling Tests', function () {
 
         it('should handle mixed valid and invalid data in database', async function () {
             const liveMatchesResponse = {
-                match1: { matchId: 'match1', matchUrl: 'http://example.com/1', matchName: 'Match 1' },
+                match1: {
+                    matchId: 'match1',
+                    matchUrl: 'http://example.com/1',
+                    matchName: 'Match 1',
+                },
             };
 
             // Mock LiveMatches to return matches
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves(liveMatchesResponse);
-            
+
             // Mock mongo.findAll to return valid data only
             const validData = [
                 {
@@ -162,14 +178,14 @@ describe('MatchStats Extended Error Handling Tests', function () {
                     runRate: { currentRunRate: 6.5 },
                     summary: 'Valid match',
                     matchCommentary: [{ commentary: 'Test', hasOver: false }],
-                    keyStats: { 'Test': 'Value' },
+                    keyStats: { Test: 'Value' },
                     tournamentName: 'Test Tournament',
                     matchName: 'Test Match',
                     isLive: true,
                 },
             ];
             sandbox.stub(mongo, 'findAll').resolves(validData);
-            
+
             // Mock Utils.fetchData to prevent real network calls
             const mockCheerio = require('cheerio');
             const mockHtml = `
@@ -181,7 +197,7 @@ describe('MatchStats Extended Error Handling Tests', function () {
             sandbox.stub(Utils.prototype, 'fetchData').resolves($);
 
             const result = await matchStatsObj.getMatchStats('0');
-            
+
             // Should process valid entries successfully
             assert.isArray(result);
             assert.isAtLeast(result.length, 1);
@@ -204,7 +220,7 @@ describe('MatchStats Extended Error Handling Tests', function () {
         it('should handle network timeouts during live match fetching', async function () {
             const timeoutError = new Error('Network timeout');
             (timeoutError as any).code = 'ECONNABORTED';
-            
+
             // Mock LiveMatches to throw timeout error
             sandbox.stub(LiveMatches.prototype, 'getMatches').rejects(timeoutError);
 
@@ -218,12 +234,16 @@ describe('MatchStats Extended Error Handling Tests', function () {
 
         it('should handle invalid match ID formats in database', async function () {
             const liveMatchesResponse = {
-                match1: { matchId: 'match1', matchUrl: 'http://example.com/1', matchName: 'Match 1' },
+                match1: {
+                    matchId: 'match1',
+                    matchUrl: 'http://example.com/1',
+                    matchName: 'Match 1',
+                },
             };
 
             // Mock LiveMatches to return matches
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves(liveMatchesResponse);
-            
+
             // Mock mongo.findAll to return data with invalid match IDs
             const invalidIdData = [
                 {
@@ -258,7 +278,7 @@ describe('MatchStats Extended Error Handling Tests', function () {
 
             // Mock LiveMatches to return large dataset
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves(largeMatchesResponse);
-            
+
             // Mock mongo.findAll to return empty (force processing)
             sandbox.stub(mongo, 'findAll').resolves([]);
 
@@ -284,7 +304,7 @@ describe('MatchStats Extended Error Handling Tests', function () {
 
             // Mock LiveMatches to return match with long strings
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves(liveMatchesResponse);
-            
+
             // Mock mongo.findAll to return empty
             sandbox.stub(mongo, 'findAll').resolves([]);
 
@@ -298,4 +318,4 @@ describe('MatchStats Extended Error Handling Tests', function () {
             }
         });
     });
-}); 
+});

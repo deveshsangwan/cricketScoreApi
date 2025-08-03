@@ -16,31 +16,33 @@ export interface TrpcTestResponse<T = any> {
 
 class TrpcClient {
     private skipAuth: boolean;
-    
+
     constructor(skipAuth: boolean = false) {
         this.skipAuth = skipAuth;
     }
 
     private createMockContext() {
         // Create a mock context with proper auth structure
-        const mockAuth = this.skipAuth ? undefined : {
-            userId: 'test-user-id',
-            sessionId: 'test-session-id',
-            sessionClaims: {},
-            getToken: () => Promise.resolve(process.env.TEST_USER_TOKEN),
-            debug: () => ({}),
-            protect: () => ({}),
-            redirectToSignIn: () => {},
-        };
+        const mockAuth = this.skipAuth
+            ? undefined
+            : {
+                  userId: 'test-user-id',
+                  sessionId: 'test-session-id',
+                  sessionClaims: {},
+                  getToken: () => Promise.resolve(process.env.TEST_USER_TOKEN),
+                  debug: () => ({}),
+                  protect: () => ({}),
+                  redirectToSignIn: () => {},
+              };
 
         const mockReq = {
             method: 'POST',
             originalUrl: '/trpc',
             ip: '127.0.0.1',
             headers: {
-                'authorization': this.skipAuth ? undefined : `Bearer ${process.env.TEST_USER_TOKEN}`,
-                'origin': 'http://local.deveshsangwan.com:3000'
-            }
+                authorization: this.skipAuth ? undefined : `Bearer ${process.env.TEST_USER_TOKEN}`,
+                origin: 'http://local.deveshsangwan.com:3000',
+            },
         };
 
         return {
@@ -56,12 +58,12 @@ class TrpcClient {
             const data = await caller.getLiveMatches();
             return {
                 data,
-                status: 'success'
+                status: 'success',
             };
         } catch (error) {
             return {
                 error,
-                status: 'error'
+                status: 'error',
             };
         }
     }
@@ -73,12 +75,12 @@ class TrpcClient {
             const data = await caller.getMatchStats();
             return {
                 data,
-                status: 'success'
+                status: 'success',
             };
         } catch (error) {
             return {
                 error,
-                status: 'error'
+                status: 'error',
             };
         }
     }
@@ -90,15 +92,15 @@ class TrpcClient {
             const data = await caller.getMatchStatsById({ matchId });
             return {
                 data,
-                status: 'success'
+                status: 'success',
             };
         } catch (error) {
             return {
                 error,
-                status: 'error'
+                status: 'error',
             };
         }
     }
 }
 
-export default TrpcClient; 
+export default TrpcClient;

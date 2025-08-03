@@ -19,8 +19,6 @@ function assertResultSubset(result: any, expectedOutput: any) {
     assert.deepEqual(resultSubset, expectedOutput);
 }
 
-
-
 describe('MatchStats | getMatchStats function', function () {
     let matchStatsObj: MatchStats;
 

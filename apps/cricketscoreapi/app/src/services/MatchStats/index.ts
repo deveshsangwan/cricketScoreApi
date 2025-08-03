@@ -182,10 +182,13 @@ export class MatchStats {
             const url = liveMatchesResponse.matchUrl;
             let scrapedData = await this.scrapeData(String(url), matchId);
             scrapedData = { ...scrapedData, matchName: String(liveMatchesResponse.matchName) };
-            
+
             // Non-blocking insertion - fire and forget
             this.utilsObj.insertDataToMatchStatsTable(scrapedData).catch((error) => {
-                writeLogError(['MatchStats: Background insertion failed for single match', { matchId, error }]);
+                writeLogError([
+                    'MatchStats: Background insertion failed for single match',
+                    { matchId, error },
+                ]);
             });
 
             return scrapedData;

@@ -56,7 +56,7 @@ describe('tRPC Procedures Integration Tests', function () {
 
         it('should handle authentication errors', async function () {
             const unauthenticatedClient = new TrpcClient(true); // Skip auth
-            
+
             try {
                 const response = await unauthenticatedClient.getLiveMatches();
                 assert.equal(response.status, 'error');
@@ -253,7 +253,7 @@ describe('tRPC Procedures Unit Tests', function () {
                     matchId: '0',
                     isDefault: true,
                     message: 'All match stats',
-                }
+                },
             ];
 
             matchStatsStub.resolves(mockMatchStatsResponse);
@@ -370,14 +370,12 @@ describe('tRPC Procedures Edge Cases', function () {
             .resolves({ matches: [] });
 
         // Simulate concurrent requests
-        const promises = Array.from({ length: 5 }, () =>
-            trpcClient.getLiveMatches()
-        );
+        const promises = Array.from({ length: 5 }, () => trpcClient.getLiveMatches());
 
         const results = await Promise.all(promises);
 
         assert.equal(liveMatchesStub.callCount, 5);
-        results.forEach(result => {
+        results.forEach((result) => {
             assert.equal(result.status, 'success');
         });
     });

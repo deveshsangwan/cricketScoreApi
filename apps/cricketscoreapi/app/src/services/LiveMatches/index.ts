@@ -113,14 +113,12 @@ export class LiveMatches {
         writeLogDebug(['LiveMatches: getAllMatches - Starting']);
 
         try {
-            const mongoData = await mongo.findAll(this.tableName,
-                {
-                    limit: 100,
-                    orderBy: {
-                        createdAt: 'desc'
-                    }
-                }
-            );
+            const mongoData = await mongo.findAll(this.tableName, {
+                limit: 100,
+                orderBy: {
+                    createdAt: 'desc',
+                },
+            });
             const dbDuration = Date.now() - startTime;
             logDatabaseOperation('findAll', this.tableName, true, dbDuration);
 
@@ -142,7 +140,9 @@ export class LiveMatches {
         }
     }
 
-    private async scrapeData(mongoData: LiveMatchesDbResponse[]): Promise<Record<string, MatchData>> {
+    private async scrapeData(
+        mongoData: LiveMatchesDbResponse[]
+    ): Promise<Record<string, MatchData>> {
         const startTime = Date.now();
         writeLogDebug([
             'LiveMatches: scrapeData - Starting web scraping',
@@ -166,7 +166,7 @@ export class LiveMatches {
                     },
                 ]);
                 // Non-blocking insertion - run asynchronously
-                insertDataToLiveMatchesTable(matchesData[1]).catch(error => {
+                insertDataToLiveMatchesTable(matchesData[1]).catch((error) => {
                     writeLogError(['LiveMatches: scrapeData - Async insertion failed', error]);
                 });
             } else {
@@ -211,7 +211,7 @@ export class LiveMatches {
 
         // Create a Map for O(1) lookup performance instead of O(n) array.find()
         const existingMatchesMap = new Map<string, LiveMatchesDbResponse>();
-        mongoData.forEach(match => {
+        mongoData.forEach((match) => {
             existingMatchesMap.set(match.matchUrl, match);
         });
 
@@ -228,7 +228,11 @@ export class LiveMatches {
             return { matchUrl, matchName };
         };
 
-        const handleExistingMatch = (existingMatch: LiveMatchesDbResponse, matchUrl: string, matchName: string) => {
+        const handleExistingMatch = (
+            existingMatch: LiveMatchesDbResponse,
+            matchUrl: string,
+            matchName: string
+        ) => {
             existingMatches[existingMatch.id] = { matchUrl, matchName, matchId: existingMatch.id };
         };
 

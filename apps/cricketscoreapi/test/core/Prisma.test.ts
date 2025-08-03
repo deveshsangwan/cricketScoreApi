@@ -31,7 +31,7 @@ describe('Prisma Client', () => {
 
     it('should throw error when DATABASE_URL is missing', () => {
         delete process.env.DATABASE_URL;
-        
+
         // Use proxyquire to mock the dependencies
         assert.throws(
             () => {
@@ -42,9 +42,9 @@ describe('Prisma Client', () => {
                     '@prisma/extension-optimize': {
                         withOptimize: optimizeStub,
                     },
-                    'dotenv': {
+                    dotenv: {
                         config: sinon.stub(), // Mock dotenv.config()
-                    }
+                    },
                 });
             },
             Error,
@@ -63,9 +63,9 @@ describe('Prisma Client', () => {
             '@prisma/extension-optimize': {
                 withOptimize: optimizeStub,
             },
-            'dotenv': {
+            dotenv: {
                 config: sinon.stub(),
-            }
+            },
         });
 
         assert.isTrue(prismaStub.calledOnce);
@@ -95,9 +95,9 @@ describe('Prisma Client', () => {
             '@prisma/extension-optimize': {
                 withOptimize: optimizeStub,
             },
-            'dotenv': {
+            dotenv: {
                 config: sinon.stub(),
-            }
+            },
         });
 
         assert.isTrue(optimizeStub.calledOnce);
@@ -118,9 +118,9 @@ describe('Prisma Client', () => {
             '@prisma/extension-optimize': {
                 withOptimize: optimizeStub,
             },
-            'dotenv': {
+            dotenv: {
                 config: sinon.stub(),
-            }
+            },
         });
 
         assert.isDefined(global.prisma);
@@ -137,9 +137,9 @@ describe('Prisma Client', () => {
             '@prisma/extension-optimize': {
                 withOptimize: optimizeStub,
             },
-            'dotenv': {
+            dotenv: {
                 config: sinon.stub(),
-            }
+            },
         });
 
         assert.isUndefined(global.prisma);
