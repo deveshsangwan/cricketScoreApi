@@ -6,3 +6,4 @@ coverage
 *.map
 .env
 docs
+dist/

@@ -1,4 +1,3 @@
-// src/types/matchStats.ts
 // Re-export types from the main API types file for backward compatibility
 export type { 
   MatchStats, 
@@ -7,7 +6,7 @@ export type {
   DetailedPlayer, 
   RunRate, 
   CurrentBatting 
-} from './api';
+} from '@cricket-score/shared-types';
 
 // Legacy types - keeping for backward compatibility
 // These can be removed once all components are updated

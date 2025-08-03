@@ -3,7 +3,7 @@ import * as sinon from 'sinon';
 import { Utils } from '../../app/src/utils/Utils';
 import * as Logger from '../../app/src/core/Logger';
 import * as mongo from '../../app/src/core/BaseModel';
-import type { MatchStatsResponse } from '../../app/src/types/matchStats';
+import type { MatchStatsResponse } from '../../../../packages/shared-types';
 
 describe('Utils', () => {
     let utils: Utils;

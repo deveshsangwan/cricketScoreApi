@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useMatches } from '@/hooks/useMatches';
 import { MatchesListSkeleton } from '@/components/ui/LoadingSkeleton';
-import { Match } from '@/types/api';
+import { Match } from '@cricket-score/shared-types';
 
 // Memoized match card component for better performance
 const MatchCard = React.memo<{ match: Match; onViewDetails: (matchId: string) => void }>(

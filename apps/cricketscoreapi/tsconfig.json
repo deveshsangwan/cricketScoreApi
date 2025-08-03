@@ -3,7 +3,7 @@
     "target": "es2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "outDir": "app/dist",
+    "outDir": "dist",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
@@ -26,8 +26,10 @@
       "@schema/*": ["app/src/schema/*"],
       "@services/*": ["app/src/services/*"],
       "@types": ["app/src/types/index"],
-      "@utils/*": ["app/src/utils/*"]
-    }
+      "@utils/*": ["app/src/utils/*"],
+      "@cricketscoreapi/*": ["app/src/*"]
+    },
+    "composite": true,
   },
   "include": [
     "app/src/**/*.ts",
@@ -37,5 +39,5 @@
   "exclude": [
     "node_modules",
     ".vscode"
-  ],
+  ]
 }

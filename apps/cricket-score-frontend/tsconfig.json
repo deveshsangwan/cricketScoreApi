@@ -23,7 +23,16 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@cricketscoreapi/trpc/router": ["../cricketscoreapi/app/src/trpc/router"],
+      "@api/*": ["../cricketscoreapi/app/src/api/*"],
+      "@core/*": ["../cricketscoreapi/app/src/core/*"],
+      "@errors": ["../cricketscoreapi/app/src/errors/index"],
+      "@schema/*": ["../cricketscoreapi/app/src/schema/*"],
+      "@services/*": ["../cricketscoreapi/app/src/services/*"],
+      "@types": ["../cricketscoreapi/app/src/types/index"],
+      "@utils/*": ["../cricketscoreapi/app/src/utils/*"],
+      "@cricketscoreapi/*": ["../cricketscoreapi/app/src/*"]
     }
   },
   "include": [
@@ -34,5 +43,10 @@
   ],
   "exclude": [
     "node_modules"
+  ],
+  "references": [
+    {
+      "path": "../cricketscoreapi"
+    }
   ]
 }

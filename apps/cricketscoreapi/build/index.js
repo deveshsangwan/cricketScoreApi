@@ -2,21 +2,21 @@
 require('tsconfig-paths').register({
     baseUrl: process.cwd(),
     paths: {
-        "@/*": ["app/dist/*"],
-        "@api/*": ["app/dist/api/*"],
-        "@core/*": ["app/dist/core/*"],
-        "@errors": ["app/dist/errors/index"],
-        "@schema/*": ["app/dist/schema/*"],
-        "@services/*": ["app/dist/services/*"],
-        "@types": ["app/dist/types/index"],
-        "@utils/*": ["app/dist/utils/*"]
+        "@/*": ["dist/app/src/*"],
+        "@api/*": ["dist/app/src/api/*"],
+        "@core/*": ["dist/app/src/core/*"],
+        "@errors": ["dist/app/src/errors/index"],
+        "@schema/*": ["dist/app/src/schema/*"],
+        "@services/*": ["dist/app/src/services/*"],
+        "@types": ["dist/app/src/types/index"],
+        "@utils/*": ["dist/app/src/utils/*"]
     }
 });
 
 global.__basedir = process.cwd() + '/';
 const port = process.env.NODE_PORT || 3001;
-const app = require(__basedir + 'app/dist/app.js').default;
-const { writeLogInfo } = require(__basedir + 'app/dist/core/Logger');
+const app = require(__basedir + 'dist/app/src/app.js').default;
+const { writeLogInfo } = require(__basedir + 'dist/app/src/core/Logger');
 //const config = require(__basedir + 'app/core/configuration');
 //const port = process.env.NODE_PORT || config.get('server:index:port');
 

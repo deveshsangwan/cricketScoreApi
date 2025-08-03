@@ -8,7 +8,7 @@ import {
     logDatabaseOperation,
 } from '@core/Logger';
 import { InvalidMatchIdError, MatchIdRequriedError, NoMatchesFoundError } from '@errors';
-import type { LiveMatchesResponse, MatchStatsResponse } from '@types';
+import type { LiveMatchesResponse, MatchData, MatchStatsResponse } from '@types';
 import {
     getTeamScoreString,
     getTeamData,
@@ -76,7 +76,7 @@ export class MatchStats {
     }
 
     private async getStatsForAllMatches(
-        liveMatchesResponse: Record<string, LiveMatchesResponse>
+        liveMatchesResponse: LiveMatchesResponse
     ): Promise<MatchStatsResponse[]> {
         const startTime = Date.now();
         const matchCount = Object.keys(liveMatchesResponse).length;
@@ -103,17 +103,20 @@ export class MatchStats {
                 },
             ]);
 
-            let scrapedData = await this.scrapeData(match.matchUrl, matchId);
-            scrapedData = { ...scrapedData, matchName: match.matchName };
+            let scrapedData = await this.scrapeData(String(match.matchUrl), matchId);
+            scrapedData = { ...scrapedData, matchName: String(match.matchName) };
 
             // Check if data already exists in the fetched data
             const mongoData = allMongoData.find((data: { id: string }) => data.id === matchId);
             if (!mongoData) {
                 writeLogDebug([
-                    'MatchStats: getStatsForAllMatches - Inserting new data',
+                    'MatchStats: getStatsForAllMatches - Inserting new data asynchronously',
                     { matchId },
                 ]);
-                await this.utilsObj.insertDataToMatchStatsTable(scrapedData, matchId);
+                // Non-blocking insertion - fire and forget
+                this.utilsObj.insertDataToMatchStatsTable(scrapedData, matchId).catch((error) => {
+                    writeLogError(['MatchStats: Background insertion failed', { matchId, error }]);
+                });
             } else {
                 writeLogDebug([
                     'MatchStats: getStatsForAllMatches - Data already exists',
@@ -135,7 +138,7 @@ export class MatchStats {
     }
 
     private async getStatsForSingleMatch(
-        liveMatchesResponse: LiveMatchesResponse,
+        liveMatchesResponse: MatchData,
         matchId: string
     ): Promise<MatchStatsResponse> {
         const startTime = Date.now();
@@ -177,9 +180,13 @@ export class MatchStats {
             ]);
 
             const url = liveMatchesResponse.matchUrl;
-            let scrapedData = await this.scrapeData(url, matchId);
-            scrapedData = { ...scrapedData, matchName: liveMatchesResponse.matchName };
-            await this.utilsObj.insertDataToMatchStatsTable(scrapedData);
+            let scrapedData = await this.scrapeData(String(url), matchId);
+            scrapedData = { ...scrapedData, matchName: String(liveMatchesResponse.matchName) };
+            
+            // Non-blocking insertion - fire and forget
+            this.utilsObj.insertDataToMatchStatsTable(scrapedData).catch((error) => {
+                writeLogError(['MatchStats: Background insertion failed for single match', { matchId, error }]);
+            });
 
             return scrapedData;
         }
@@ -206,7 +213,7 @@ export class MatchStats {
                 'MatchStats: scrapeData - Data fetched, getting tournament name',
                 { matchId },
             ]);
-            const tournamentName = await this.getTournamentName(response);
+            const tournamentName = this.getTournamentName(response);
 
             writeLogDebug([
                 'MatchStats: scrapeData - Processing match statistics',
@@ -215,7 +222,7 @@ export class MatchStats {
                     tournamentName,
                 },
             ]);
-            const finalResponse = this.getMatchStatsByMatchId(response, matchId);
+            const finalResponse = this.prepareMatchStats(response, matchId);
             finalResponse['tournamentName'] = tournamentName;
 
             return Promise.resolve(finalResponse);
@@ -231,7 +238,7 @@ export class MatchStats {
         }
     }
 
-    private async getTournamentName($: CheerioAPI): Promise<string> {
+    private getTournamentName($: CheerioAPI): string {
         try {
             const elements = $('.cb-col.cb-col-100.cb-bg-white');
             if (elements.length === 0) {
@@ -248,7 +255,7 @@ export class MatchStats {
         }
     }
 
-    private getMatchStatsByMatchId($: CheerioAPI, matchId: string): MatchStatsResponse {
+    private prepareMatchStats($: CheerioAPI, matchId: string): MatchStatsResponse {
         try {
             const isLive = this._getIsLiveStatus($);
             const runRate = getRunRate($);

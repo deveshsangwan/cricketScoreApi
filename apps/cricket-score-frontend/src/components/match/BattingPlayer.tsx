@@ -1,5 +1,5 @@
 import React from 'react';
-import { DetailedPlayer } from '@/types/api';
+import { DetailedPlayer } from '@cricket-score/shared-types';
 
 interface BattingPlayerProps {
   player: DetailedPlayer;

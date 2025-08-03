@@ -7,6 +7,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ClerkWrapper } from "@/components/ClerkWrapper";
 import { MatchCacheProvider } from "@/contexts/MatchCacheContext";
+import { TrpcProvider } from "@/components/providers/TrpcProvider";
 import { config } from "@/config/env";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -62,17 +63,19 @@ export default function RootLayout({
         <ThemeProvider>
           <ClerkWrapper>
             <MatchCacheProvider>
-              <ErrorBoundary>
-                <div className="flex flex-col min-h-screen">
-                  <Navbar />
-                  <main className="flex-grow">
-                    {children}
-                  </main>
-                  <footer className="mt-auto py-6 text-center text-muted-foreground text-sm border-t border-border">
-                    <p>&copy; 2024 {config.app.name}. Built with Next.js and TypeScript.</p>
-                  </footer>
-                </div>
-              </ErrorBoundary>
+              <TrpcProvider>
+                <ErrorBoundary>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-grow">
+                      {children}
+                    </main>
+                    <footer className="mt-auto py-6 text-center text-muted-foreground text-sm border-t border-border">
+                      <p>&copy; 2024 {config.app.name}. Built with Next.js and TypeScript.</p>
+                    </footer>
+                  </div>
+                </ErrorBoundary>
+              </TrpcProvider>
             </MatchCacheProvider>
           </ClerkWrapper>
         </ThemeProvider>

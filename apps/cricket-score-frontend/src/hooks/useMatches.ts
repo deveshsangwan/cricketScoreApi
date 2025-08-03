@@ -3,7 +3,7 @@ import { useAuth } from '@clerk/nextjs';
 import { useApi } from './useApi';
 import { useMatchPreFetch } from './useMatchPreFetch';
 import { endpoints } from '@/config/env';
-import { Match, LiveMatchesResponse, UseMatchesReturn, ApiResponse } from '@/types/api';
+import { Match, LiveMatchesResponse, UseMatchesReturn, ApiResponse } from '@cricket-score/shared-types';
 
 export const useMatches = (): UseMatchesReturn => {
   const [matches, setMatches] = useState<Match[]>([]);

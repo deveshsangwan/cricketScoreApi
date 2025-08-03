@@ -35,7 +35,7 @@ describe('Prisma Client', () => {
         // Use proxyquire to mock the dependencies
         assert.throws(
             () => {
-                proxyquire('../../app/dist/core/prisma', {
+                proxyquire('../../dist/app/src/core/prisma', {
                     '@prisma/client': {
                         PrismaClient: prismaStub,
                     },
@@ -56,7 +56,7 @@ describe('Prisma Client', () => {
         process.env.DATABASE_URL = 'test-database-url';
         delete process.env.OPTIMIZE_API_KEY;
 
-        proxyquire('../../app/dist/core/prisma', {
+        proxyquire('../../dist/app/src/core/prisma', {
             '@prisma/client': {
                 PrismaClient: prismaStub,
             },
@@ -88,7 +88,7 @@ describe('Prisma Client', () => {
         };
         prismaStub.returns(mockBaseClient);
 
-        proxyquire('../../app/dist/core/prisma', {
+        proxyquire('../../dist/app/src/core/prisma', {
             '@prisma/client': {
                 PrismaClient: prismaStub,
             },
@@ -111,7 +111,7 @@ describe('Prisma Client', () => {
         process.env.DATABASE_URL = 'test-database-url';
         process.env.NODE_ENV = 'development';
 
-        proxyquire('../../app/dist/core/prisma', {
+        proxyquire('../../dist/app/src/core/prisma', {
             '@prisma/client': {
                 PrismaClient: prismaStub,
             },
@@ -130,7 +130,7 @@ describe('Prisma Client', () => {
         process.env.DATABASE_URL = 'test-database-url';
         process.env.NODE_ENV = 'production';
 
-        proxyquire('../../app/dist/core/prisma', {
+        proxyquire('../../dist/app/src/core/prisma', {
             '@prisma/client': {
                 PrismaClient: prismaStub,
             },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { getTeamFlag } from '@/utils/teamFlags';
-import { Team } from '@/types/api';
+import { Team } from '@cricket-score/shared-types';
 import Image from 'next/image';
 
 interface TeamScoreProps {

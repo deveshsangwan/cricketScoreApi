@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { LiveMatches } from '@services/LiveMatches';
 import { MatchStats } from '@services/MatchStats';
 // Import types
-import type { MatchStatsResponse, LiveMatchesResponse } from '@types';
+import type { MatchStatsResponse } from '@types';
 import { isError, isString } from '@/utils/TypesUtils';
 import { writeLogDebug, writeLogError, logServiceOperation } from '@core/Logger';
 
@@ -14,7 +14,7 @@ const live = async (_req: Request, res: Response) => {
         const liveMatchesObj = new LiveMatches();
         writeLogDebug(['Controller: live - Created LiveMatches instance']);
 
-        const liveMatchesResponse = (await liveMatchesObj.getMatches()) as LiveMatchesResponse;
+        const liveMatchesResponse = (await liveMatchesObj.getMatches());
         const duration = Date.now() - startTime;
 
         writeLogDebug([

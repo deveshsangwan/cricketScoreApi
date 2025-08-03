@@ -1,5 +1,3 @@
-// src/types/api.ts
-
 // Base API response wrapper
 export interface ApiResponse<T> {
   response: T;

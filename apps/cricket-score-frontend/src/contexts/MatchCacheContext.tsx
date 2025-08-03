@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useCallback, useRef, useMemo } from 'react';
-import type { MatchStats } from '@/types/api';
+import type { MatchStats } from '@cricket-score/shared-types';
 
 interface CachedMatchData {
   data: MatchStats;

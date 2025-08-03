@@ -289,7 +289,7 @@ describe('MatchStats | Error logging functionality', function () {
     it('throws error in getMatchStatsByMatchId', () => {
         try {
             // Access the private method using type casting to avoid TypeScript errors
-            (matchStatsObj as any).getMatchStatsByMatchId(cheerioStub, 'testMatchId');
+            (matchStatsObj as any).prepareMatchStats(cheerioStub, 'testMatchId');
             assert.fail('Expected getMatchStatsByMatchId to throw an error');
         } catch (error) {
             assert.include((error as Error).message, 'Mock error in getMatchStatsByMatchId');
