@@ -1,0 +1,9 @@
+language: en-US
+reviews:
+  profile: "assertive"
+  high_level_summary: true
+  review_status: true
+  auto_review:
+    enabled: true
+chat:
+  auto_reply: true
