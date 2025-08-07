@@ -45,7 +45,7 @@ export default {
         ring: "rgb(var(--ring) / <alpha-value>)",
       },
       backgroundImage: {
-        'gradient-theme': 'linear-gradient(to bottom right, rgb(var(--gradient-from)), rgb(var(--gradient-to)))',
+        'gradient-theme': 'var(--background-gradient)',
       },
     },
   },

@@ -54,13 +54,13 @@ export default function MatchDetailsPage() {
             {matchStats.tournamentName}
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold heading-gradient">
             {matchStats.matchName}
           </h1>
 
           <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mt-4 ${matchStats.isLive
               ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-              : 'bg-muted text-muted-foreground border border-border'
+              : 'bg-muted/30 text-muted-foreground border border-border/60'
             }`}>
             <span className={`w-2.5 h-2.5 rounded-full ${matchStats.isLive
                 ? 'bg-red-500 animate-pulse shadow-lg shadow-red-500/50'
@@ -82,7 +82,7 @@ export default function MatchDetailsPage() {
 
               <div className="my-4 text-center relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border"></div>
+                  <div className="w-full soft-divider"></div>
                 </div>
                 <div className="relative flex justify-center">
                   <span className="px-4 bg-card text-muted-foreground font-medium uppercase text-xs tracking-wider">vs</span>
@@ -96,7 +96,7 @@ export default function MatchDetailsPage() {
 
               {/* Match Summary */}
               {matchStats.summary && (
-                <div className="mt-6 pt-6 border-t border-border text-center">
+                <div className="mt-6 pt-6 soft-divider text-center">
                   <p className="text-lg font-semibold text-summary bg-summary py-3 px-4 rounded-lg inline-block">
                     {matchStats.summary}
                   </p>

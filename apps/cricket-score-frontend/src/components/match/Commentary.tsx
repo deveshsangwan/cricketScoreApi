@@ -22,13 +22,13 @@ const CommentaryItem = React.memo<{ item: CommentaryItem; index: number }>(
       transition={{ duration: 0.2, delay: index * 0.02 }}
       className={`p-3 rounded-lg border-l-4 backdrop-blur-lg ${
         item.hasOver && item.over
-          ? 'border-l-sky-500 bg-sky-100/60 dark:bg-sky-950/40 border-2 border-sky-300/60 dark:border-sky-900/60'
-          : 'border-l-muted bg-card/40 border-2 border-border/60'
+          ? 'border-l-sky-500 bg-sky-500/10 border border-sky-400/40'
+          : 'border-l-muted bg-card/40 border border-border/60'
       }`}
     >
       {item.hasOver && item.over && (
         <div className="flex items-center gap-2 mb-2">
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-sky-200/80 dark:bg-sky-500/30 text-sky-700 dark:text-sky-300 border-2 border-sky-400/50 dark:border-sky-500/50 backdrop-blur-sm">
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-sky-500/10 text-sky-300 border border-sky-400/40 backdrop-blur-sm">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -56,10 +56,10 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
 
   if (!commentary || commentary.length === 0) {
     return (
-      <div className={`bg-card/50 backdrop-blur-lg border-2 border-border/60 rounded-2xl shadow-2xl relative before:absolute before:inset-0 before:bg-gradient-to-br before:from-card/40 before:to-card/20 before:rounded-2xl before:-z-10 ${className}`}>
+      <div className={`glass-card ${className}`}>
         <div className="p-6 border-b border-border/60 relative">
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2 drop-shadow-md">
-            <div className="h-1 w-5 bg-sky-400 rounded-full"></div>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <div className="h-1 w-5 bg-gradient-to-r from-sky-400 to-purple-500 rounded-full"></div>
             Live Commentary
           </h2>
         </div>
@@ -80,12 +80,12 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
   const displayedCommentary = isExpanded ? commentary : commentary.slice(0, previewItems);
 
   return (
-    <div className={`bg-card/50 backdrop-blur-lg border-2 border-border/60 rounded-2xl shadow-2xl relative before:absolute before:inset-0 before:bg-gradient-to-br before:from-card/40 before:to-card/20 before:rounded-2xl before:-z-10 ${className}`}>
+    <div className={`glass-card ${className}`}>
       <div className="p-6 border-b border-border/60 relative">
-        <h2 className="text-xl font-bold text-foreground flex items-center gap-2 drop-shadow-md">
-          <div className="h-1 w-5 bg-sky-400 rounded-full"></div>
+        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+          <div className="h-1 w-5 bg-gradient-to-r from-sky-400 to-purple-500 rounded-full"></div>
           Live Commentary
-          <span className="ml-auto text-xs font-medium text-muted-foreground bg-muted/40 backdrop-blur-sm px-2 py-1 rounded-full border-2 border-muted/60">
+          <span className="ml-auto text-xs font-medium text-muted-foreground bg-muted/40 backdrop-blur-sm px-2 py-1 rounded-full border border-muted/60">
             {commentary.length} updates
           </span>
         </h2>

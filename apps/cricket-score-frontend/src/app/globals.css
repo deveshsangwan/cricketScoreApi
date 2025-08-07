@@ -4,61 +4,91 @@
 
 /* Theme CSS Custom Properties */
 :root {
-  /* Light theme colors */
+  /* Light theme colors — clean, airy with subtle colorful glow */
   --background: 255 255 255; /* white */
   --foreground: 15 23 42; /* slate-900 */
-  --card: 248 250 252; /* slate-50 */
+  --card: 255 255 255; /* white cards for glass surfaces */
   --card-foreground: 15 23 42; /* slate-900 */
   --popover: 255 255 255; /* white */
   --popover-foreground: 15 23 42; /* slate-900 */
   --primary: 14 165 233; /* sky-500 */
   --primary-foreground: 255 255 255; /* white */
-  --secondary: 241 245 249; /* slate-100 */
+  --secondary: 248 250 252; /* slate-50 */
   --secondary-foreground: 15 23 42; /* slate-900 */
-  --muted: 241 245 249; /* slate-100 */
+  --muted: 248 250 252; /* slate-50 */
   --muted-foreground: 100 116 139; /* slate-500 */
-  --accent: 241 245 249; /* slate-100 */
+  --accent: 248 250 252; /* slate-50 */
   --accent-foreground: 15 23 42; /* slate-900 */
   --destructive: 239 68 68; /* red-500 */
   --destructive-foreground: 255 255 255; /* white */
   --border: 226 232 240; /* slate-200 */
   --input: 226 232 240; /* slate-200 */
   --ring: 14 165 233; /* sky-500 */
-  --gradient-from: 240 249 255; /* sky-50 */
-  --gradient-to: 219 234 254; /* blue-100 */
-  --background-gradient: linear-gradient(to bottom right, rgb(240, 249, 255), rgb(219, 234, 254));
-  --background-solid: rgb(255, 255, 255);
-  --summary-text: 180 83 9; /* amber-700 for better contrast in light mode */
-  --summary-bg: 180 83 9; /* amber-700/10 for background */
+  --gradient-from: 255 255 255; /* white */
+  --gradient-to: 248 250 252; /* slate-50 */
+  /* Layered colorful glow on white */
+  --background-gradient:
+    radial-gradient(1200px 800px at 10% 10%, rgba(56, 189, 248, 0.22), transparent 40%),
+    radial-gradient(1000px 700px at 90% 20%, rgba(168, 85, 247, 0.16), transparent 40%),
+    radial-gradient(900px 700px at 50% 100%, rgba(16, 185, 129, 0.12), transparent 40%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --background-solid: #ffffff;
+  --summary-text: 180 83 9; /* amber-700 */
+  --summary-bg: 180 83 9; /* amber-700/10 */
+
+  /* Heading gradient colors for light mode */
+  --heading-from: 2 132 199;  /* sky-600 */
+  --heading-to: 37 99 235;    /* blue-600 */
+
+  /* Glass overlay colors (RGB space) and alpha for light mode */
+  --glass-from: 14 165 233;   /* sky-500 */
+  --glass-to: 168 85 247;     /* purple-500 */
+  --glass-alpha-from: 0.10;
+  --glass-alpha-to: 0.08;
 }
 
 [data-theme="dark"] {
-  /* Dark theme colors (current theme) */
-  --background: 10 25 47; /* #0a192f */
-  --foreground: 241 245 249; /* slate-100 */
-  --card: 30 41 59; /* slate-800 */
-  --card-foreground: 241 245 249; /* slate-100 */
-  --popover: 30 41 59; /* slate-800 */
-  --popover-foreground: 241 245 249; /* slate-100 */
+  /* Dark theme colors — true black with subtle contrast */
+  --background: 0 0 0; /* black */
+  --foreground: 250 250 250; /* zinc-50 */
+  --card: 17 17 17; /* #111 */
+  --card-foreground: 250 250 250; /* zinc-50 */
+  --popover: 10 10 10; /* #0a0a0a */
+  --popover-foreground: 250 250 250; /* zinc-50 */
   --primary: 14 165 233; /* sky-500 */
   --primary-foreground: 255 255 255; /* white */
-  --secondary: 51 65 85; /* slate-700 */
-  --secondary-foreground: 241 245 249; /* slate-100 */
-  --muted: 51 65 85; /* slate-700 */
-  --muted-foreground: 148 163 184; /* slate-400 */
-  --accent: 51 65 85; /* slate-700 */
-  --accent-foreground: 241 245 249; /* slate-100 */
+  --secondary: 24 24 27; /* zinc-900 */
+  --secondary-foreground: 212 212 216; /* zinc-300 */
+  --muted: 24 24 27; /* zinc-900 */
+  --muted-foreground: 163 163 163; /* zinc-400 */
+  --accent: 24 24 27; /* zinc-900 */
+  --accent-foreground: 250 250 250; /* zinc-50 */
   --destructive: 239 68 68; /* red-500 */
   --destructive-foreground: 255 255 255; /* white */
-  --border: 51 65 85; /* slate-700 */
-  --input: 51 65 85; /* slate-700 */
-  --ring: 14 165 233; /* sky-500 */
-  --gradient-from: 10 25 47; /* #0a192f */
-  --gradient-to: 13 59 74; /* #0d3b4a */
-  --background-gradient: linear-gradient(160deg, #0a192f 0%, #0d3b4a 100%);
-  --background-solid: #0a192f;
-  --summary-text: 251 191 36; /* amber-400 for dark mode */
-  --summary-bg: 251 191 36; /* amber-400/10 for background */
+  --border: 38 38 38; /* zinc-800 */
+  --input: 38 38 38; /* zinc-800 */
+  --ring: 56 189 248; /* sky-400 */
+  --gradient-from: 0 0 0; /* black */
+  --gradient-to: 17 17 17; /* #111 */
+  /* Layered colorful glow on black */
+  --background-gradient:
+    radial-gradient(1200px 800px at 10% 10%, rgba(56, 189, 248, 0.10), transparent 40%),
+    radial-gradient(1000px 700px at 90% 20%, rgba(168, 85, 247, 0.10), transparent 40%),
+    radial-gradient(900px 700px at 50% 100%, rgba(16, 185, 129, 0.08), transparent 40%),
+    linear-gradient(180deg, #000 0%, #0b0b0f 100%);
+  --background-solid: #000000;
+  --summary-text: 251 191 36; /* amber-400 */
+  --summary-bg: 251 191 36; /* amber-400/10 */
+
+  /* Heading gradient colors for dark mode */
+  --heading-from: 250 250 250; /* zinc-50 */
+  --heading-to: 163 163 163;   /* zinc-400 */
+
+  /* Glass overlay colors and alpha for dark mode */
+  --glass-from: 56 189 248;   /* sky-400 */
+  --glass-to: 168 85 247;     /* purple-500 */
+  --glass-alpha-from: 0.08;
+  --glass-alpha-to: 0.06;
 }
 
 /* Base styles */
@@ -149,5 +179,41 @@ html, body {
   
   .bg-summary {
     background-color: rgb(var(--summary-bg) / 0.1);
+  }
+}
+
+/* Reusable component styles */
+@layer components {
+  .glass-card {
+    @apply bg-card/30 backdrop-blur-xl border border-border/60 rounded-2xl shadow-2xl ring-1 ring-inset ring-black/5 dark:ring-white/5 relative overflow-hidden;
+  }
+
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      to bottom right,
+      rgb(var(--glass-from) / var(--glass-alpha-from)),
+      rgb(var(--glass-to) / var(--glass-alpha-to))
+    );
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .soft-divider {
+    @apply border-t border-border/60;
+  }
+
+  .heading-gradient {
+    background-image: linear-gradient(to right, rgb(var(--heading-from)), rgb(var(--heading-to)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .badge-soft {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground border border-border/60 backdrop-blur-sm;
   }
 }
