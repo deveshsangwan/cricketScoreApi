@@ -14,7 +14,7 @@ export default function Navbar() {
           <ThemeToggle />
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="btn btn-primary px-4 py-2">
+              <button type="button" className="btn btn-primary px-4 py-2">
                 Sign In
               </button>
             </SignInButton>
