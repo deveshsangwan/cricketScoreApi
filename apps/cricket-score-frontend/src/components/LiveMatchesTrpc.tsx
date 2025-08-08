@@ -20,9 +20,9 @@ const MatchCard = React.memo<{ match: Match; onViewDetails: (matchId: string) =>
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
       layout={false}
-      className="p-6 border-2 border-border/60 rounded-xl shadow-2xl hover:shadow-3xl transition-all bg-card/40 backdrop-blur-lg transform hover:-translate-y-1 hover:border-primary/50 hover:bg-card/50 before:absolute before:inset-0 before:bg-gradient-to-br before:from-card/40 before:to-card/20 before:rounded-xl before:-z-10 relative overflow-hidden"
+      className="p-6 rounded-xl glass-card hover:bg-card/40 transition-all transform hover:-translate-y-1"
     >
-      <h3 className="text-xl font-semibold text-foreground mb-4 h-16 overflow-hidden leading-tight drop-shadow-md">
+      <h3 className="text-xl font-semibold text-foreground mb-4 h-16 overflow-hidden leading-tight">
         {match.matchName}
       </h3>
       <p className="text-sm text-muted-foreground mb-4">
@@ -30,7 +30,7 @@ const MatchCard = React.memo<{ match: Match; onViewDetails: (matchId: string) =>
       </p>
       <button
         onClick={() => onViewDetails(match.matchId)}
-        className="mt-4 w-full text-sm text-primary-foreground bg-primary hover:bg-primary/90 py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:ring-2 focus:ring-primary/50 focus:outline-none shadow-xl hover:shadow-primary/30 backdrop-blur-sm border border-primary/20"
+        className="btn btn-primary mt-4 w-full text-sm py-2.5 px-4 transform hover:scale-[1.02]"
       >
         View Match Details
       </button>
@@ -68,7 +68,7 @@ const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error,
     <p className="text-muted-foreground mb-6 max-w-md">{error}</p>
     <button
       onClick={onRetry}
-      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-xl hover:shadow-primary/30 focus:ring-2 focus:ring-primary/50 focus:outline-none backdrop-blur-sm border border-primary/20"
+      className="btn btn-primary px-6 py-3"
     >
       Try Again
     </button>
@@ -190,7 +190,7 @@ export default function LiveMatchesTrpc() {
         layout={false}
         className="flex flex-col items-center justify-center min-h-[400px] text-center p-8"
       >
-        <div className="w-16 h-16 mx-auto bg-muted/50 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 border-2 border-border shadow-xl">
+        <div className="w-16 h-16 mx-auto bg-muted/50 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 border border-border">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-muted-foreground"
@@ -219,7 +219,7 @@ export default function LiveMatchesTrpc() {
     >
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-extrabold heading-gradient">
             Live Matches
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
@@ -240,7 +240,7 @@ export default function LiveMatchesTrpc() {
                     `⚡ ${prefetchStats.successful}/${prefetchStats.total} pre-fetched`
                   )
                 ) : (
-                  '⚡ Top 3 pre-fetched'
+                  '⚡ Prefetch ready'
                 )}
               </span>
             )}

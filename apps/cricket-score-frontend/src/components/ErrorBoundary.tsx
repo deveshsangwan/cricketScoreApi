@@ -68,13 +68,13 @@ interface ErrorFallbackProps {
 }
 
 const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 to-slate-900 p-4">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-theme p-4">
     <motion.div 
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="w-full max-w-md text-center bg-slate-800/60 backdrop-blur-sm border border-red-500/30 rounded-2xl p-8 shadow-2xl"
+      className="w-full max-w-md text-center glass-card border border-red-500/40 p-8"
     >
-      <div className="w-16 h-16 mx-auto bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+      <div className="w-16 h-16 mx-auto bg-red-500/20 rounded-full flex items-center justify-center mb-6 border border-red-500/40">
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
           className="h-8 w-8 text-red-400" 
@@ -91,17 +91,17 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) 
         </svg>
       </div>
       
-      <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
-      <p className="text-slate-300 mb-6">
+      <h2 className="text-2xl font-bold text-foreground mb-4">Something went wrong</h2>
+      <p className="text-muted-foreground mb-6">
         We&apos;re sorry, but something unexpected happened. Our team has been notified.
       </p>
       
       {process.env.NODE_ENV === 'development' && error && (
-        <details className="mb-6 text-left bg-slate-900/50 rounded-lg p-4">
-          <summary className="cursor-pointer text-slate-400 font-medium mb-2">
+        <details className="mb-6 text-left bg-muted/40 rounded-lg p-4 border border-border/60">
+          <summary className="cursor-pointer text-muted-foreground font-medium mb-2">
             Error Details (Development)
           </summary>
-          <pre className="text-xs text-red-300 whitespace-pre-wrap overflow-auto max-h-32">
+          <pre className="text-xs text-red-400 whitespace-pre-wrap overflow-auto max-h-32">
             {error.message}
             {error.stack && '\n\nStack trace:\n' + error.stack}
           </pre>
@@ -111,13 +111,13 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) 
       <div className="flex gap-3 justify-center">
         <button 
           onClick={onReset}
-          className="bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:from-sky-600 hover:to-sky-700 transition-all shadow-lg hover:shadow-sky-500/25 focus:ring-2 focus:ring-sky-500/50 focus:outline-none"
+          className="bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:from-sky-600 hover:to-blue-700 transition-all shadow-lg focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none border border-white/10"
         >
           Try Again
         </button>
         <button 
           onClick={() => window.location.href = '/'}
-          className="bg-slate-700 text-slate-300 font-semibold px-5 py-2.5 rounded-lg hover:bg-slate-600 transition-all focus:ring-2 focus:ring-slate-500/50 focus:outline-none"
+          className="bg-muted/40 text-muted-foreground font-semibold px-5 py-2.5 rounded-lg hover:bg-muted/60 transition-all focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none border border-muted/60"
         >
           Go Home
         </button>

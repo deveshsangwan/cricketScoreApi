@@ -59,7 +59,7 @@ export default function RootLayout({
         />
 
       </head>
-      <body className={`${inter.className} min-h-screen overflow-x-hidden bg-gradient-theme`}>
+      <body className={`${inter.className} min-h-screen overflow-x-hidden bg-gradient-theme`}> 
         <ThemeProvider>
           <ClerkWrapper>
             <MatchCacheProvider>
