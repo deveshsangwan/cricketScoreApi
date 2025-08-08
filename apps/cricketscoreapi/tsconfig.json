@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist",
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["app/src/*"],
+      "@api/*": ["app/src/api/*"],
+      "@core/*": ["app/src/core/*"],
+      "@errors": ["app/src/errors/index"],
+      "@schema/*": ["app/src/schema/*"],
+      "@services/*": ["app/src/services/*"],
+      "@types": ["app/src/types/index"],
+      "@utils/*": ["app/src/utils/*"],
+      "@cricketscoreapi/*": ["app/src/*"]
+    },
+    "composite": true,
+  },
+  "include": [
+    "app/src/**/*.ts",
+    "app/src/core/**/*.ts",
+    "app/types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".vscode"
+  ]
+}
