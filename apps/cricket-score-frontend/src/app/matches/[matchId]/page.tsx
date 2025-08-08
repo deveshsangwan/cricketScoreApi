@@ -58,10 +58,7 @@ export default function MatchDetailsPage() {
             {matchStats.matchName}
           </h1>
 
-          <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mt-4 ${matchStats.isLive
-              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-              : 'bg-muted/30 text-muted-foreground border border-border/60'
-            }`}>
+          <div className={`chip mt-4 ${matchStats.isLive ? 'chip-live' : 'chip-default'}`}>
             <span className={`w-2.5 h-2.5 rounded-full ${matchStats.isLive
                 ? 'bg-red-500 animate-pulse shadow-lg shadow-red-500/50'
                 : 'bg-muted-foreground'
@@ -85,7 +82,7 @@ export default function MatchDetailsPage() {
                   <div className="w-full soft-divider"></div>
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="px-4 bg-card text-muted-foreground font-medium uppercase text-xs tracking-wider">vs</span>
+                  <span className="px-4 bg-card/70 text-muted-foreground font-medium uppercase text-xs tracking-wider rounded-full border border-border/40">vs</span>
                 </div>
               </div>
 

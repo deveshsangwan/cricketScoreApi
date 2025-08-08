@@ -23,13 +23,13 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error, onRetry }) =>
       <div className="mt-6 flex gap-3 justify-center relative">
         <button
           onClick={onRetry}
-          className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-lg focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none border border-white/10"
+          className="btn btn-primary px-5 py-2.5"
         >
           Try Again
         </button>
         <button
           onClick={() => window.history.back()}
-          className="bg-muted/40 text-muted-foreground font-semibold px-5 py-2.5 rounded-lg hover:bg-muted/60 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none border border-muted/60"
+          className="btn btn-ghost px-5 py-2.5"
         >
           Go Back
         </button>

@@ -28,9 +28,9 @@
   --gradient-to: 248 250 252; /* slate-50 */
   /* Layered colorful glow on white */
   --background-gradient:
-    radial-gradient(1200px 800px at 10% 10%, rgba(56, 189, 248, 0.22), transparent 40%),
-    radial-gradient(1000px 700px at 90% 20%, rgba(168, 85, 247, 0.16), transparent 40%),
-    radial-gradient(900px 700px at 50% 100%, rgba(16, 185, 129, 0.12), transparent 40%),
+    radial-gradient(1200px 800px at 10% 10%, rgba(56, 189, 248, 0.12), transparent 40%),
+    radial-gradient(1000px 700px at 90% 20%, rgba(168, 85, 247, 0.10), transparent 40%),
+    radial-gradient(900px 700px at 50% 100%, rgba(16, 185, 129, 0.08), transparent 40%),
     linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   --background-solid: #ffffff;
   --summary-text: 180 83 9; /* amber-700 */
@@ -43,8 +43,8 @@
   /* Glass overlay colors (RGB space) and alpha for light mode */
   --glass-from: 14 165 233;   /* sky-500 */
   --glass-to: 168 85 247;     /* purple-500 */
-  --glass-alpha-from: 0.10;
-  --glass-alpha-to: 0.08;
+  --glass-alpha-from: 0.06;
+  --glass-alpha-to: 0.04;
 }
 
 [data-theme="dark"] {
@@ -185,7 +185,7 @@ html, body {
 /* Reusable component styles */
 @layer components {
   .glass-card {
-    @apply bg-card/30 backdrop-blur-xl border border-border/60 rounded-2xl shadow-2xl ring-1 ring-inset ring-black/5 dark:ring-white/5 relative overflow-hidden;
+    @apply bg-card/40 backdrop-blur-xl border border-border/50 rounded-2xl shadow-xl ring-1 ring-inset ring-black/5 dark:ring-white/5 relative overflow-hidden;
   }
 
   .glass-card::before {
@@ -215,5 +215,38 @@ html, body {
 
   .badge-soft {
     @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground border border-border/60 backdrop-blur-sm;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-sky-500/40 focus:outline-none;
+  }
+  .btn-primary {
+    @apply text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-lg hover:shadow-sky-500/25 border border-white/10;
+  }
+  .btn-secondary {
+    @apply text-sky-500 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 shadow-sm;
+  }
+  .btn-ghost {
+    @apply text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/30 border border-border/60;
+  }
+
+  /* Chips / Status pills */
+  .chip {
+    @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium border;
+  }
+  .chip-live {
+    @apply bg-red-500/20 text-red-400 border-red-500/30;
+  }
+  .chip-default {
+    @apply bg-muted/30 text-muted-foreground border-border/60;
+  }
+
+  /* Alerts */
+  .alert {
+    @apply glass-card p-4 rounded-lg border-l-4;
+  }
+  .alert-info {
+    @apply border-l-sky-500;
   }
 }

@@ -17,7 +17,7 @@ export const NotFoundDisplay: React.FC = () => (
       <p className="mt-2 text-muted-foreground">We couldn&apos;t find the details for this match.</p>
       <button
         onClick={() => window.history.back()}
-        className="mt-6 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-lg focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none border border-white/10"
+        className="btn btn-primary mt-6 px-5 py-2.5"
       >
         Go Back
       </button>

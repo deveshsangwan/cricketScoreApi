@@ -28,7 +28,7 @@ export const TeamScore = React.memo<TeamScoreProps>(
           <p className="text-xl font-bold text-foreground">
             {team.name}
             {team.isBatting && (
-              <span className="ml-2 text-xs font-medium text-red-400 border border-red-500/30 uppercase tracking-wider bg-red-500/10 backdrop-blur-sm py-1 px-2 rounded-full">
+              <span className="badge-soft ml-2 uppercase tracking-wider text-red-400 border-red-500/30 bg-red-500/10">
                 Batting
               </span>
             )}

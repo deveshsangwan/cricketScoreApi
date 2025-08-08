@@ -28,7 +28,7 @@ const CommentaryItem = React.memo<{ item: CommentaryItem; index: number }>(
     >
       {item.hasOver && item.over && (
         <div className="flex items-center gap-2 mb-2">
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-sky-500/10 text-sky-300 border border-sky-400/40 backdrop-blur-sm">
+          <span className="badge-soft text-sky-300 border-sky-400/40 bg-sky-500/10">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -123,7 +123,7 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
         <div className="border-t border-border/60">
           <button 
             onClick={toggleExpanded}
-            className="w-full p-4 hover:bg-muted/20 transition-colors duration-200 flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+            className="btn btn-ghost w-full p-4 text-sm"
           >
             <span>
               {isExpanded ? 'Show Less' : `Show All ${commentary.length} Updates`}

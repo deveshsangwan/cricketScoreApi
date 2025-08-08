@@ -30,7 +30,7 @@ const MatchCard = React.memo<{ match: Match; onViewDetails: (matchId: string) =>
       </p>
       <button
         onClick={() => onViewDetails(match.matchId)}
-        className="mt-4 w-full text-sm text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none shadow-lg border border-white/10"
+        className="btn btn-primary mt-4 w-full text-sm py-2.5 px-4 transform hover:scale-[1.02]"
       >
         View Match Details
       </button>
@@ -68,7 +68,7 @@ const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error,
     <p className="text-muted-foreground mb-6 max-w-md">{error}</p>
     <button
       onClick={onRetry}
-      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-xl hover:shadow-primary/30 focus:ring-2 focus:ring-primary/50 focus:outline-none backdrop-blur-sm border border-primary/20"
+      className="btn btn-primary px-6 py-3"
     >
       Try Again
     </button>

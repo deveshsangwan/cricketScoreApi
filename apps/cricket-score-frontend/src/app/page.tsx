@@ -59,7 +59,7 @@ export default function Home() {
           className="max-w-md mx-auto"
         >
           <SignInButton mode="modal">
-            <button className="w-full py-4 px-8 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold text-lg rounded-xl hover:from-sky-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-sky-500/25 focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none">
+            <button className="btn btn-primary w-full py-4 px-8 text-lg hover:scale-[1.02]">
               Get Started
             </button>
           </SignInButton>
