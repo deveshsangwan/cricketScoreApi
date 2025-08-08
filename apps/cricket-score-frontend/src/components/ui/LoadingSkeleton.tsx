@@ -24,6 +24,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <div
+      aria-hidden="true"
       className={`bg-slate-200 dark:bg-zinc-800/60 backdrop-blur-lg animate-pulse ${height} ${width} ${roundedClass} ${className}`}
     />
   );
