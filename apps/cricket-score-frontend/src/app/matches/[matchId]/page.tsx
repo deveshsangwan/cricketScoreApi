@@ -20,8 +20,8 @@ export default function MatchDetailsPage() {
   const params = useParams();
   const matchId = params.matchId as string;
 
-  // Use optimized real-time hook with 30-second polling for live matches and caching
-  const { matchStats, isLoading, error, refetch } = useOptimizedRealTimeMatchStats(matchId, 30000);
+  // Use optimized SSE-based hook (no polling by default)
+  const { matchStats, isLoading, error, refetch } = useOptimizedRealTimeMatchStats(matchId);
 
   // Loading State
   if (isLoading) {
