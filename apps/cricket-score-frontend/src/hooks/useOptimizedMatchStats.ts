@@ -107,10 +107,10 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
         hasInitiallyLoadedRef.current = true;
         setIsLoading(false);
       },
-      onError: (err: any) => {
+      onError: (err: unknown) => {
         const cached = getCachedMatch(matchId);
         if (!cached) {
-          setError(err?.message ?? 'Failed to subscribe for live updates');
+          setError(err instanceof Error ? err.message : 'Failed to subscribe for live updates');
           setIsLoading(false);
         }
       },
