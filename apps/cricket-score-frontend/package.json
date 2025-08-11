@@ -13,19 +13,21 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.23.1",
+    "@cricket-score/shared-types": "workspace:*",
     "@tanstack/react-query": "^5.32.0",
     "@trpc/client": "^11.0.0",
     "@trpc/react-query": "^11.4.3",
     "@trpc/tanstack-react-query": "^11.0.0",
+    "cricketscoreapi": "workspace:*",
+    "event-source-polyfill": "^1.0.31",
     "framer-motion": "^12.19.2",
     "geist": "^1.4.2",
     "next": "15.3.4",
     "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106",
-    "@cricket-score/shared-types": "workspace:*",
-    "cricketscoreapi": "workspace:*"
+    "react-dom": "19.0.0-rc-66855b96-20241106"
   },
   "devDependencies": {
+    "@types/event-source-polyfill": "^1.0.5",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "eslint-config-next": "15.0.3",

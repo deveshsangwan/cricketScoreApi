@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { trpc } from '@/lib/trpc';
 import { MatchStats, UseMatchStatsReturn } from '@cricket-score/shared-types';
 import { useMatchCache } from '@/contexts/MatchCacheContext';
+import { config } from '@/config/env';
 
 export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => {
   const [matchStats, setMatchStats] = useState<MatchStats | null>(null);
@@ -9,8 +10,10 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
   const [error, setError] = useState<string | null>(null);
   const { getCachedMatch, setCachedMatch, isFreshCache } = useMatchCache();
   const hasInitiallyLoadedRef = useRef(false);
+  const realTimeEnabled = config.features.realTime;
+  
 
-  // Use tRPC for fetching match stats by ID with optimistic caching
+  // Use tRPC for initial fetch and fallback
   const {
     data,
     isLoading: isTrpcLoading,
@@ -19,9 +22,10 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
   } = trpc.getMatchStatsById.useQuery(
     { matchId },
     {
-      enabled: !!matchId,
-      staleTime: 30000, // 30 seconds
-      refetchInterval: 60000, // 1 minute
+      // Disable automatic query when real-time is enabled to avoid double-fetch
+      enabled: !!matchId && !realTimeEnabled,
+      // staleTime: 30000, // 30 seconds
+      refetchInterval: false, // we will rely on SSE for updates
       retry: 2,
     }
   );
@@ -65,12 +69,13 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
     }
   }, [data, matchId, setCachedMatch]);
 
-  // Handle tRPC loading state
+  // Handle tRPC loading state when real-time is disabled
   useEffect(() => {
+    if (realTimeEnabled) return;
     const cached = getCachedMatch(matchId);
     // Only show loading if we don't have cached data and this is the initial load
     setIsLoading(isTrpcLoading && !hasInitiallyLoadedRef.current && !cached);
-  }, [isTrpcLoading, matchId, getCachedMatch]);
+  }, [isTrpcLoading, matchId, getCachedMatch, realTimeEnabled]);
 
   // Handle tRPC errors
   useEffect(() => {
@@ -86,6 +91,31 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
       setIsLoading(false);
     }
   }, [trpcError, matchId, getCachedMatch]);
+
+  // Subscribe using tRPC SSE subscriptions for live updates
+  trpc.subscribeMatchStatsById.useSubscription(
+    matchId ? { matchId } : undefined,
+    {
+      enabled: !!matchId && realTimeEnabled,
+      onStarted: () => {},
+      onData: (data) => {
+        const next = data?.response as MatchStats | undefined;
+        if (!next) return;
+        setCachedMatch(matchId, next);
+        setMatchStats(next);
+        setError(null);
+        hasInitiallyLoadedRef.current = true;
+        setIsLoading(false);
+      },
+      onError: (err: any) => {
+        const cached = getCachedMatch(matchId);
+        if (!cached) {
+          setError(err?.message ?? 'Failed to subscribe for live updates');
+          setIsLoading(false);
+        }
+      },
+    }
+  );
 
   const refetch = useCallback(async (isBackgroundRefetch = false) => {
     const cached = getCachedMatch(matchId);
@@ -127,7 +157,7 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
 // Hook for real-time updates with cache optimization
 export const useOptimizedRealTimeMatchStats = (
   matchId: string,
-  refreshInterval: number = 30000 // 30 seconds default
+  refreshInterval: number = 0 // SSE handles updates; keep 0 to disable polling by default
 ): UseMatchStatsReturn => {
   const baseHook = useOptimizedMatchStats(matchId);
   const { matchStats, refetch } = baseHook;
@@ -162,18 +192,14 @@ export const useOptimizedRealTimeMatchStats = (
   }, []);
 
   useEffect(() => {
-    // Only set up polling for live matches
+    // Optional fallback polling if explicitly enabled via refreshInterval
     if (matchStats?.isLive && refreshInterval > 0) {
       const id = setInterval(() => {
-        // Only refetch if not currently scrolling
         if (!isScrollingRef.current) {
-          // Pass true to indicate this is a background refetch
           refetch(true);
         }
       }, refreshInterval);
-
       setIntervalId(id);
-
       return () => {
         clearInterval(id);
         setIntervalId(null);
