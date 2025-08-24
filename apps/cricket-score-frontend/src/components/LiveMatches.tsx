@@ -90,7 +90,7 @@ const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error,
  * - Shows detailed prefetch status with success/failure counts
  * - Continues to work even if some matches can't be pre-fetched
  */
-export default function LiveMatchesTrpc() {
+export default function LiveMatches() {
   const router = useRouter();
   const { preFetchTopMatchesWithStats } = useMatchPreFetch();
   const preFetchRef = React.useRef(preFetchTopMatchesWithStats);
@@ -159,6 +159,7 @@ export default function LiveMatchesTrpc() {
             hasErrors: stats.failed > 0 || stats.notFound > 0
           });
           setIsPrefetching(false);
+          return;
         })
         .catch(error => {
           console.warn('Pre-fetching failed, but main matches loading succeeded:', error);

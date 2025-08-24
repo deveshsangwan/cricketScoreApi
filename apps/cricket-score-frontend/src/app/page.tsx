@@ -3,8 +3,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
-import { SignInButton } from "@clerk/nextjs";
+import { useAuth, SignInButton } from '@clerk/nextjs';
 import { motion } from 'framer-motion';
 import { config } from '@/config/env';
 
