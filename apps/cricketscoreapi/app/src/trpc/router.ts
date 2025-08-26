@@ -62,6 +62,10 @@ const getMatchStatsByIdInput = z.object({
     matchId: z.string().min(1, 'Match ID is required'),
 });
 
+// Module-level counters (top of file after imports)
+const activeSubscriberCount = { value: 0 };
+const activeSubscribersByMatch = new Map<string, number>();
+
 export const appRouter = router({
     // Get live matches - using shared service
     getLiveMatches: protectedProcedure.query(async () => {
@@ -87,7 +91,7 @@ export const appRouter = router({
             const matchStatsObj = new MatchStats();
             const matchStatsResponse = (await matchStatsObj.getMatchStats(
                 '0'
-            )) as MatchStatsResponse;
+            ));
             return {
                 status: true,
                 message: 'Match Stats',
@@ -110,7 +114,7 @@ export const appRouter = router({
                 const matchStatsObj = new MatchStats();
                 const matchStatsResponse = (await matchStatsObj.getMatchStats(
                     matchId
-                )) as MatchStatsResponse;
+                ));
                 return {
                     status: true,
                     message: 'Match Stats',
@@ -121,6 +125,72 @@ export const appRouter = router({
                     code: 'INTERNAL_SERVER_ERROR',
                     message: error instanceof Error ? error.message : 'Error fetching match stats',
                 });
+            }
+        }),
+
+    // Subscribe to match stats by ID (SSE-based subscription)
+    subscribeMatchStatsById: protectedProcedure
+        .input(
+            z.object({
+                matchId: z.string().min(1, 'Match ID is required'),
+                lastEventId: z.string().optional().nullish(),
+            })
+        )
+        .subscription(async function* ({ input, signal }) {
+            const { matchId } = input;
+            const matchStatsObj = new MatchStats();
+
+            // increment on connect
+            let released = false;
+            const release = () => {
+                if (released) return;
+                released = true;
+                activeSubscriberCount.value = Math.max(0, activeSubscriberCount.value - 1);
+                const next = (activeSubscribersByMatch.get(matchId) ?? 1) - 1;
+                if (next <= 0) activeSubscribersByMatch.delete(matchId);
+                else activeSubscribersByMatch.set(matchId, next);
+            };
+
+            activeSubscriberCount.value += 1;
+            activeSubscribersByMatch.set(matchId, (activeSubscribersByMatch.get(matchId) ?? 0) + 1);
+            signal?.addEventListener('abort', release, { once: true });
+            console.log('activeSubscriberCount', activeSubscriberCount.value);
+            console.log('activeSubscribersByMatch', activeSubscribersByMatch);
+
+            // Abortable sleep
+            const abortableSleep = (ms: number, signal?: AbortSignal) =>
+                new Promise<void>((resolve) => {
+                    if (!signal) return setTimeout(resolve, ms);
+                    if (signal.aborted) return resolve();
+                    const t = setTimeout(() => {
+                        signal.removeEventListener('abort', onAbort);
+                        resolve();
+                    }, ms);
+                    function onAbort() {
+                        clearTimeout(t);
+                        resolve();
+                    }
+                    signal.addEventListener('abort', onAbort, { once: true });
+                });
+
+            try {
+                const initial = (await matchStatsObj.getMatchStats(matchId)) as MatchStatsResponse;
+                yield { status: true, message: 'Match Stats', response: initial };
+
+                while (!signal?.aborted) {
+                    await abortableSleep(30000, signal);
+                    if (signal?.aborted) break;
+
+                    const latest = (await matchStatsObj.getMatchStats(matchId)) as MatchStatsResponse;
+                    yield { status: true, message: 'Match Stats', response: latest };
+                }
+            } finally {
+                console.log('release called');
+                // Ensure abort listener is removed to avoid leaks for long-lived subscriptions
+                if (signal) {
+                    signal.removeEventListener('abort', release);
+                }
+                release();
             }
         }),
 });
