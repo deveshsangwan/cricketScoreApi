@@ -111,8 +111,8 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
         const cached = getCachedMatch(matchId);
         if (!cached) {
           setError(err instanceof Error ? err.message : 'Failed to subscribe for live updates');
-          setIsLoading(false);
         }
+        setIsLoading(false);
       },
     }
   );

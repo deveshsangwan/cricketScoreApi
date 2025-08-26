@@ -91,7 +91,7 @@ export const appRouter = router({
             const matchStatsObj = new MatchStats();
             const matchStatsResponse = (await matchStatsObj.getMatchStats(
                 '0'
-            )) as MatchStatsResponse;
+            ));
             return {
                 status: true,
                 message: 'Match Stats',
@@ -114,7 +114,7 @@ export const appRouter = router({
                 const matchStatsObj = new MatchStats();
                 const matchStatsResponse = (await matchStatsObj.getMatchStats(
                     matchId
-                )) as MatchStatsResponse;
+                ));
                 return {
                     status: true,
                     message: 'Match Stats',
@@ -186,6 +186,10 @@ export const appRouter = router({
                 }
             } finally {
                 console.log('release called');
+                // Ensure abort listener is removed to avoid leaks for long-lived subscriptions
+                if (signal) {
+                    signal.removeEventListener('abort', release);
+                }
                 release();
             }
         }),
