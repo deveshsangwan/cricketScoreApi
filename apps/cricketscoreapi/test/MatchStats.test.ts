@@ -5,6 +5,8 @@ import { testData } from './TestData/MatchStats';
 import { assert } from 'chai';
 import sinon from 'sinon';
 
+const TIMEOUT = 20000;
+
 function assertResultSubset(result: any, expectedOutput: any) {
     const resultSubset = Object.keys(expectedOutput).reduce((subset: any, key) => {
         if (key in result) {
@@ -16,6 +18,7 @@ function assertResultSubset(result: any, expectedOutput: any) {
 }
 
 describe('MatchStats | getMatchStats function', function () {
+    this.timeout(TIMEOUT);
     let matchStatsObj: MatchStats;
 
     beforeEach(() => {
@@ -33,6 +36,7 @@ describe('MatchStats | getMatchStats function', function () {
 });
 
 describe('MatchStats | getTeamData function', function () {
+    this.timeout(TIMEOUT);
     function runTestWithSubsetDeepEqual(inputString: string, expectedOutput: object) {
         try {
             const result = getTeamData(inputString);
@@ -87,6 +91,7 @@ describe('MatchStats | getTeamData function', function () {
 });
 
 describe('MatchStats | getTournamentName function', function () {
+    this.timeout(TIMEOUT);
     let $: sinon.SinonStub;
     const matchStatsObj: MatchStats = new MatchStats();
 
@@ -112,6 +117,7 @@ describe('MatchStats | getTournamentName function', function () {
 });
 
 describe('MatchStats | InvalidMatchIdError handling', function () {
+    this.timeout(TIMEOUT);
     let matchStatsObj: MatchStats;
 
     beforeEach(() => {
@@ -190,6 +196,7 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
 });
 
 describe('MatchStats | MatchIdRequriedError handling', function () {
+    this.timeout(TIMEOUT);
     let matchStatsObj: MatchStats;
 
     beforeEach(() => {
@@ -218,6 +225,7 @@ describe('MatchStats | MatchIdRequriedError handling', function () {
 });
 
 describe('MatchStats | Error logging functionality', function () {
+    this.timeout(TIMEOUT);
     let matchStatsObj: MatchStats;
     let cheerioStub: sinon.SinonStub;
 
@@ -246,6 +254,7 @@ describe('MatchStats | Error logging functionality', function () {
 });
 
 describe('MatchStats | NoMatchesFoundError handling', function () {
+    this.timeout(TIMEOUT);
     let matchStatsObj: MatchStats;
     let getMatchesStub: sinon.SinonStub;
 

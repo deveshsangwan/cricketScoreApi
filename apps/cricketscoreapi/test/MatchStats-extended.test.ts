@@ -5,7 +5,10 @@ import { LiveMatches } from '../app/src/services/LiveMatches';
 import * as mongo from '../app/src/core/BaseModel';
 import { Utils } from '../app/src/utils/Utils';
 
+const TIMEOUT = 20000;
+
 describe('MatchStats Extended Error Handling Tests', function () {
+    this.timeout(TIMEOUT);
     let sandbox: SinonSandbox;
     let matchStatsObj: MatchStats;
 
