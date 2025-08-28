@@ -72,6 +72,9 @@ describe('LiveMatches Extended Error Handling Tests', function () {
                 { id: 'match1', matchUrl: 'http://example.com/match1', matchName: 'Test Match 1' },
             ];
 
+            // Ensure DB calls are stubbed to avoid real connections
+            sandbox.stub(mongo, 'findAll').resolves(mongoData as any);
+
             // Mock Utils.fetchData to throw an error
             const scrapingError = new Error('Failed to scrape data');
             sandbox.stub(Utils.prototype, 'fetchData').rejects(scrapingError);

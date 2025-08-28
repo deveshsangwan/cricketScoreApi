@@ -209,6 +209,9 @@ describe('MatchStats Extended Error Handling Tests', function () {
             // Mock LiveMatches to return empty object
             sandbox.stub(LiveMatches.prototype, 'getMatches').resolves({});
 
+            // Stub DB call to avoid real database access
+            sandbox.stub(mongo, 'findAll').resolves([] as any);
+
             try {
                 await matchStatsObj.getMatchStats('0');
                 assert.fail('Expected getMatchStats to handle empty live matches');
