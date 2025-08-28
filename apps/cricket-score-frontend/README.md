@@ -24,7 +24,7 @@ A modern Next.js frontend application that connects to the [Cricket Score API](h
     - [🚀 Technical Features](#-technical-features)
   - [🔗 Backend API](#-backend-api)
     - [🏏 API Features](#-api-features)
-    - [📡 Available Endpoints](#-available-endpoints)
+    - [📡 Available tRPC Procedures](#-available-trpc-procedures)
     - [🔧 Backend Tech Stack](#-backend-tech-stack)
   - [🚀 Getting Started](#-getting-started)
     - [Prerequisites](#prerequisites)
@@ -73,30 +73,32 @@ A modern Next.js frontend application that connects to the [Cricket Score API](h
 
 ## 🔗 Backend API
 
-This frontend application is powered by the **[Cricket Score API](https://github.com/deveshsangwan/cricketScoreApi)** - a robust TypeScript-based backend that provides:
+This frontend application is powered by the backend located in this monorepo at `apps/cricketscoreapi` — a robust TypeScript-based backend that exposes a **tRPC API** over Express:
 
 ### 🏏 API Features
 - **Real-time Data Scraping** - Live cricket match data using Cheerio web scraping
 - **MongoDB Integration** - Efficient data storage with Prisma ORM
 - **Clerk Authentication** - Secure user authentication (matches frontend auth)
-- **RESTful Endpoints** - Clean API design with comprehensive cricket data
+- **tRPC API** - End-to-end typesafe API layer
 - **Docker Support** - Containerized deployment for easy scaling
 - **High Test Coverage** - Quality assured with Mocha and Chai testing
 
-### 📡 Available Endpoints
-- `GET /liveMatches` - Fetch URLs of all current live matches
-- `GET /matchStats` - Get statistics for all matches  
-- `GET /matchStats/:matchId` - Get detailed statistics for a specific match
+### 📡 Available tRPC Procedures
+- `getLiveMatches` (query) — Live matches
+- `getMatchStats` (query) — Stats for all matches
+- `getMatchStatsById` (query) — `{ matchId: string }` (16 alphanumeric)
+- `subscribeMatchStatsById` (subscription) — `{ matchId: string }` (server‑sent events)
 
 ### 🔧 Backend Tech Stack
 - **TypeScript** - Type-safe backend development
 - **Express.js** - Fast web framework
+- **tRPC** - End-to-end typesafe API
 - **Prisma** - Modern database toolkit
 - **MongoDB** - NoSQL database for cricket data
 - **Cheerio** - Server-side HTML parsing for web scraping
 - **Docker** - Containerization for deployment
 
-> **Repository**: [github.com/deveshsangwan/cricketScoreApi](https://github.com/deveshsangwan/cricketScoreApi)  
+> **Backend Location (Monorepo)**: `apps/cricketscoreapi`  
 > **License**: Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
 
 ## 🚀 Getting Started
@@ -111,10 +113,10 @@ Before running this project, make sure you have the following installed:
 
 ### Installation
 
-1. **Clone the repository**
+1. **Clone the monorepo**
    ```bash
-   git clone https://github.com/deveshsangwan/cricket-score-frontend.git
-   cd cricket-score-frontend
+   git clone https://github.com/deveshsangwan/cricketScoreApi.git
+   cd cricketScoreApi
    ```
 
 2. **Install dependencies**
@@ -137,8 +139,8 @@ Create a `.env.local` file in the root directory with the following variables:
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
 CLERK_SECRET_KEY=sk_test_your_secret_key_here
 
-# API Configuration - Cricket Score API Backend
-# Use the deployed API or run locally: http://localhost:3001
+# API Configuration - Cricket Score API Backend (tRPC over Express)
+# Use the deployed API or run locally: http://localhost:3001 (tRPC at /trpc)
 NEXT_PUBLIC_API_BASE_URL=https://cricketapi-r9zv.onrender.com
 
 # App Configuration
@@ -154,23 +156,25 @@ NODE_ENV=development
 > **⚠️ Important**: Never commit your `.env.local` file to version control. The actual values should be kept secure.
 
 #### 🔗 About the Backend API
-This frontend connects to the [Cricket Score API](https://github.com/deveshsangwan/cricketScoreApi) backend. You can:
+This frontend connects to the backend inside this monorepo at `apps/cricketscoreapi`. You can:
 - **Use the deployed API** at `https://cricketapi-r9zv.onrender.com` (default)
-- **Run locally** by cloning the backend repo and setting `NEXT_PUBLIC_API_BASE_URL=http://localhost:3001`
-- **Deploy your own** instance using the backend repository's Docker setup
+- **Run locally** by starting the backend and setting `NEXT_PUBLIC_API_BASE_URL=http://localhost:3001`
+- **Deploy your own** instance using the backend's Docker setup
 
 ### Development
 
-1. **Start the development server**
+1. **Start the backend (optional if using hosted API)**
+   ```bash
+   pnpm backend:dev
+   ```
+
+2. **Start the frontend development server**
    ```bash
    pnpm dev
    ```
 
-2. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000) to see the application.
-
-3. **Start developing!**
-   The app will automatically reload when you make changes to the code.
+3. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000).
 
 ## 📦 Available Scripts
 
