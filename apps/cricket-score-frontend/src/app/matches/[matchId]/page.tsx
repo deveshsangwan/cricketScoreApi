@@ -18,7 +18,11 @@ import {
 
 export default function MatchDetailsPage() {
   const params = useParams();
-  const matchId = params.matchId as string;
+  const matchId = params.matchId;
+
+  if (!matchId || typeof matchId !== 'string') {
+    return <NotFoundDisplay />;
+  }
 
   // Use optimized SSE-based hook (no polling by default)
   const { matchStats, isLoading, error, refetch } = useOptimizedRealTimeMatchStats(matchId);

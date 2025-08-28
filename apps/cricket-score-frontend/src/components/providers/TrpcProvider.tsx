@@ -1,7 +1,7 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { httpBatchLink, httpSubscriptionLink, splitLink } from '@trpc/client';
+import { httpBatchLink, httpSubscriptionLink, loggerLink, retryLink, splitLink } from '@trpc/client';
 import { useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { trpc } from '@/lib/trpc';
@@ -17,20 +17,27 @@ export function TrpcProvider({ children }: TrpcProviderProps) {
   const [trpcClient] = useState(() =>
     trpc.createClient({
       links: [
+        ...(config.isDevelopment ? [loggerLink()] : []),
         splitLink({
           condition: (op) => op.type === 'subscription',
-          true: httpSubscriptionLink({
+          true: [
+            retryLink({
+              retry: (opts) => {
+                const code = opts.error.data?.code;
+                return code === 'UNAUTHORIZED' || code === 'FORBIDDEN';
+              },
+            }),
+            httpSubscriptionLink({
             url: `${config.api.baseUrl}/trpc`,
             // Use EventSource polyfill to allow custom headers on SSE
             EventSource: EventSourcePolyfill,
             eventSourceOptions: async () => {
               const token = await getToken();
               return {
-                withCredentials: true,
                 headers: token ? { Authorization: `Bearer ${token}` } : undefined,
               };
             },
-          }),
+          })],
           false: httpBatchLink({
             url: `${config.api.baseUrl}/trpc`,
             headers: async () => {

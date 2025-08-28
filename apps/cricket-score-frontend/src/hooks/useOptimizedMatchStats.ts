@@ -11,7 +11,7 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
   const { getCachedMatch, setCachedMatch, isFreshCache } = useMatchCache();
   const hasInitiallyLoadedRef = useRef(false);
   const realTimeEnabled = config.features.realTime;
-  
+
 
   // Use tRPC for initial fetch and fallback
   const {
@@ -96,8 +96,6 @@ export const useOptimizedMatchStats = (matchId: string): UseMatchStatsReturn => 
   trpc.subscribeMatchStatsById.useSubscription(
     matchId ? { matchId } : undefined,
     {
-      enabled: !!matchId && realTimeEnabled,
-      onStarted: () => {},
       onData: (data) => {
         const next = data?.response as MatchStats | undefined;
         if (!next) return;
@@ -161,9 +159,9 @@ export const useOptimizedRealTimeMatchStats = (
 ): UseMatchStatsReturn => {
   const baseHook = useOptimizedMatchStats(matchId);
   const { matchStats, refetch } = baseHook;
-  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+  const [intervalId, setIntervalId] = useState<ReturnType<typeof setInterval> | null>(null);
   const isScrollingRef = useRef(false);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track scrolling to pause updates during scroll
   useEffect(() => {

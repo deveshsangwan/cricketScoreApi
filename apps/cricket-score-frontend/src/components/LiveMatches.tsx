@@ -113,6 +113,7 @@ export default function LiveMatches() {
   } = trpc.getLiveMatches.useQuery(undefined, {
     staleTime: 30000, // 30 seconds
     refetchInterval: 60000, // 1 minute
+    retry: 2
   });
 
   const handleViewDetails = React.useCallback((matchId: string) => {

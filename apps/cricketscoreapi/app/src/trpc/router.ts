@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { initTRPC, TRPCError } from '@trpc/server';
 import type { CreateExpressContextOptions } from '@trpc/server/adapters/express';
 import { getAuth } from '@clerk/express';
-// Import the shared service functions from controller
+// Service-layer imports
 import { writeLogInfo } from '@core/Logger';
 import { LiveMatches } from '@services/LiveMatches';
 import { MatchStats } from '@services/MatchStats';
@@ -58,12 +58,17 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
 });
 
 // Input validation schema for getMatchStatsById
+// Enforce exactly 16 alphanumeric characters for match IDs
+const MATCH_ID_REGEX = /^[A-Za-z0-9]{16}$/;
 const getMatchStatsByIdInput = z.object({
-    matchId: z.string().min(1, 'Match ID is required'),
+    matchId: z
+        .string()
+        .trim()
+        .regex(MATCH_ID_REGEX, 'Match ID must be 16 alphanumeric characters'),
 });
 
 // Module-level counters (top of file after imports)
-const activeSubscriberCount = { value: 0 };
+let activeSubscriberCount = 0;
 const activeSubscribersByMatch = new Map<string, number>();
 
 export const appRouter = router({
@@ -112,9 +117,16 @@ export const appRouter = router({
             try {
                 const { matchId } = input;
                 const matchStatsObj = new MatchStats();
-                const matchStatsResponse = (await matchStatsObj.getMatchStats(
+                const result = (await matchStatsObj.getMatchStats(
                     matchId
                 ));
+                if (Array.isArray(result)) {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'Expected a single match stats object for a matchId',
+                    });
+                }
+                const matchStatsResponse = result;
                 return {
                     status: true,
                     message: 'Match Stats',
@@ -132,8 +144,7 @@ export const appRouter = router({
     subscribeMatchStatsById: protectedProcedure
         .input(
             z.object({
-                matchId: z.string().min(1, 'Match ID is required'),
-                lastEventId: z.string().optional().nullish(),
+                matchId: z.string().min(1, 'Match ID is required').regex(MATCH_ID_REGEX, 'Match ID must be 16 alphanumeric characters'),
             })
         )
         .subscription(async function* ({ input, signal }) {
@@ -145,16 +156,16 @@ export const appRouter = router({
             const release = () => {
                 if (released) return;
                 released = true;
-                activeSubscriberCount.value = Math.max(0, activeSubscriberCount.value - 1);
+                activeSubscriberCount = Math.max(0, activeSubscriberCount - 1);
                 const next = (activeSubscribersByMatch.get(matchId) ?? 1) - 1;
                 if (next <= 0) activeSubscribersByMatch.delete(matchId);
                 else activeSubscribersByMatch.set(matchId, next);
             };
 
-            activeSubscriberCount.value += 1;
+            activeSubscriberCount += 1;
             activeSubscribersByMatch.set(matchId, (activeSubscribersByMatch.get(matchId) ?? 0) + 1);
             signal?.addEventListener('abort', release, { once: true });
-            console.log('activeSubscriberCount', activeSubscriberCount.value);
+            console.log('activeSubscriberCount', activeSubscriberCount);
             console.log('activeSubscribersByMatch', activeSubscribersByMatch);
 
             // Abortable sleep
@@ -178,7 +189,9 @@ export const appRouter = router({
                 yield { status: true, message: 'Match Stats', response: initial };
 
                 while (!signal?.aborted) {
-                    await abortableSleep(30000, signal);
+                    const base = 25000;
+                    const jitter = Math.floor(Math.random() * 3000);
+                    await abortableSleep(base + jitter, signal);
                     if (signal?.aborted) break;
 
                     const latest = (await matchStatsObj.getMatchStats(matchId)) as MatchStatsResponse;
