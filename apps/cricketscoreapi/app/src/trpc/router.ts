@@ -7,7 +7,6 @@ import { writeLogInfo } from '@core/Logger';
 import { LiveMatches } from '@services/LiveMatches';
 import { MatchStats } from '@services/MatchStats';
 import type { MatchStatsResponse } from '@types';
-// import { isError } from '@utils/TypesUtils';
 
 // Create context function for tRPC
 export function createContext({ req }: CreateExpressContextOptions) {
@@ -133,6 +132,7 @@ export const appRouter = router({
                     response: matchStatsResponse,
                 };
             } catch (error) {
+                if (error instanceof TRPCError) throw error;
                 throw new TRPCError({
                     code: 'INTERNAL_SERVER_ERROR',
                     message: error instanceof Error ? error.message : 'Error fetching match stats',
