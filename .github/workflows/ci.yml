@@ -37,6 +37,12 @@ jobs:
       - name: "📥 Install dependencies"
         run: pnpm install --frozen-lockfile
 
+      - name: "🔨 Generate Prisma Client"
+        run: pnpm --filter cricketscoreapi exec prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPTIMIZE_API_KEY: ${{ secrets.OPTIMIZE_API_KEY }}
+
       - name: "🧹 Run ESLint"
         run: pnpm run lint
 
