@@ -17,15 +17,11 @@ import {
 
 
 export default function MatchDetailsPage() {
-  const params = useParams();
-  const matchId = params.matchId;
-
-  if (!matchId || typeof matchId !== 'string') {
-    return <NotFoundDisplay />;
-  }
+  const { matchId } = useParams<{ matchId: string }>();
+  const id = typeof matchId === 'string' ? matchId : '';
 
   // Use optimized SSE-based hook (no polling by default)
-  const { matchStats, isLoading, error, refetch } = useOptimizedRealTimeMatchStats(matchId);
+  const { matchStats, isLoading, error, refetch } = useOptimizedRealTimeMatchStats(id);
 
   // Loading State
   if (isLoading) {
@@ -38,7 +34,7 @@ export default function MatchDetailsPage() {
   }
 
   // Not Found State
-  if (!matchStats) {
+  if (!id || !matchStats) {
     return <NotFoundDisplay />;
   }
 
