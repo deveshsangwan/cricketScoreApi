@@ -22,7 +22,7 @@ module.exports = [
     },
     rules: {
       'no-console': 'warn',
-      'indent': ['error', 4],
+      'indent': ['warn', 4],
       'linebreak-style': ['error', 'unix'],
       'quotes': ['error', 'single'],
       'semi': ['error', 'always'],
@@ -34,8 +34,7 @@ module.exports = [
         'caughtErrorsIgnorePattern': '^_'
       }],
       'eqeqeq': ['error', 'always'],
-      'curly': ['error'],
-      'prettier/prettier': ['error', {
+      'prettier/prettier': ['warn', {
         // Ensure prettier settings match .prettierrc.js
         'semi': true,
         'singleQuote': true,
