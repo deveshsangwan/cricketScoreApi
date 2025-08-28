@@ -9,9 +9,10 @@ Welcome to the Cricket Score API! This project is designed to provide real-time 
   - [🚀 Status](#-status)
   - [📊 Code Coverage](#-code-coverage)
   - [🚀 Getting Started](#-getting-started)
+    - [Environment Variables](#environment-variables)
   - [🛠️ Technologies Used](#️-technologies-used)
   - [📝 Usage](#-usage)
-    - [Protected Routes (Require Authentication)](#protected-routes-require-authentication)
+    - [Available Procedures](#available-procedures)
     - [Authentication](#authentication)
   - [🧪 Running Tests](#-running-tests)
   - [📜 License](#-license)
@@ -25,24 +26,48 @@ Welcome to the Cricket Score API! This project is designed to provide real-time 
 Our aim is to maintain high code coverage to ensure the quality of the project. Here are our current stats:
 
 [![codecov](https://codecov.io/gh/deveshsangwan/cricketScoreApi/graph/badge.svg?token=A3JMLLNTG4)](https://codecov.io/gh/deveshsangwan/cricketScoreApi)
-![Functions](https://img.shields.io/badge/functions-92.3%25-brightgreen.svg?style=flat)
-![Lines](https://img.shields.io/badge/lines-94.16%25-brightgreen.svg?style=flat)
+![Functions](https://img.shields.io/badge/functions-90.1%25-brightgreen.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-93.82%25-brightgreen.svg?style=flat)
 
 ## 🚀 Getting Started
 
-To get a copy of the project up and running on your local machine, follow these steps:
+To run this service locally inside the monorepo:
 
 1. Clone the repository: `git clone https://github.com/deveshsangwan/cricketScoreApi.git`
 2. Install pnpm if you haven't already: `npm install -g pnpm`
-3. Install dependencies: `pnpm install`
-4. Create a `.env` file in the root directory of the project. Add the MongoDB URL like so: `DATABASE_URL=<your-mongodb-url>`. Replace `<your-mongodb-url>` with your actual MongoDB URL.
-5. Generate Prisma client: `pnpm prisma generate`
-6. Start the server: `pnpm dev`
+3. From the repo root, install dependencies: `pnpm install`
+4. Create a `.env` file in `apps/cricketscoreapi/` with the required environment variables (see below)
+5. Generate Prisma client (from `apps/cricketscoreapi/`): `pnpm prisma generate`
+6. Start the backend server:
+   - From repo root: `pnpm backend:dev`
+   - Or from `apps/cricketscoreapi/`: `pnpm dev`
+
+### Environment Variables
+
+Create `apps/cricketscoreapi/.env` with at least:
+
+```env
+# Required
+DATABASE_URL="mongodb+srv://<user>:<password>@<cluster>/<db>?retryWrites=true&w=majority"
+CLERK_SECRET_KEY="sk_test_your_clerk_secret_key"
+
+# Optional
+NODE_PORT=3001               # Defaults to 3001
+OPTIMIZE_API_KEY=            # Optional Prisma Optimize key
+```
 
 You can also run the project with Docker:
 
-1. Build the Docker image: `docker build -t cricket-score-api .`
-2. Run the Docker container, passing the MongoDB URL as an environment variable: `docker run -p 3000:3000 -d -e DATABASE_URL=<your-mongodb-url> cricket-score-api`
+1. Build the Docker image (run inside `apps/cricketscoreapi`): `docker build -t cricket-score-api .`
+2. Run the Docker container (default port 3001) with required env vars:
+   ```bash
+   docker run -d \
+     -p 3001:3001 \
+     -e NODE_PORT=3001 \
+     -e DATABASE_URL="<your-mongodb-url>" \
+     -e CLERK_SECRET_KEY="<your-clerk-secret>" \
+     --name cricket-score-api cricket-score-api
+   ```
 
 Remember to replace `<your-mongodb-url>` with your actual MongoDB URL.
 
@@ -68,19 +93,26 @@ This project uses a number of technologies and tools:
 
 ## 📝 Usage
 
-All API endpoints except for public routes require authentication via Clerk. You'll need to include the Clerk session token in your requests.
+This service exposes a **tRPC API** mounted at `/trpc` on the configured port (defaults to `3001`). All procedures are protected by Clerk authentication.
 
-### Protected Routes (Require Authentication)
-- Make a GET request to `/liveMatches` to get the URLs of all the current live matches.
-- Make a GET request to `/matchStats` to get the statistics for all matches.
-- Make a GET request to `/matchStats/:matchId` to get the statistics for a single match. Replace `:matchId` with the ID of the match you want statistics for.
+### Available Procedures
+
+- `getLiveMatches` (query)
+- `getMatchStats` (query)
+- `getMatchStatsById` (query) — input: `{ matchId: string }` where `matchId` must be 16 alphanumeric characters
+- `subscribeMatchStatsById` (subscription) — input: `{ matchId: string }`, streams periodic updates via SSE
+
+<!-- Sequence Diagram moved to root README -->
 
 ### Authentication
-This API uses Clerk for authentication. To use the protected endpoints:
 
-1. Sign up and sign in using Clerk in your frontend application
-2. Clerk will automatically handle the authentication tokens
-3. Make requests from your frontend application with the Clerk session
+All procedures require a valid Clerk session. Include the token in the `Authorization` header:
+
+```
+Authorization: Bearer <CLERK_SESSION_TOKEN>
+```
+
+When used from the frontend in this monorepo, the token is automatically attached by the TRPC client (see `apps/cricket-score-frontend/src/components/providers/TrpcProvider.tsx`).
 
 ## 🧪 Running Tests
 
