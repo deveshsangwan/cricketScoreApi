@@ -1,0 +1,61 @@
+name: "🏗️ Build & Lint (Monorepo)"
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-build:
+    name: "🔍 Lint, Type Check & Build"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ "22.x" ]
+
+    steps:
+      - name: "📂 Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "📦 Setup pnpm"
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: "🔧 Setup Node.js ${{ matrix.node-version }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - name: "📥 Install dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "🔨 Generate Prisma Client"
+        run: pnpm --filter cricketscoreapi exec prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPTIMIZE_API_KEY: ${{ secrets.OPTIMIZE_API_KEY }}
+
+      - name: "🧹 Run ESLint"
+        run: pnpm run lint
+
+      - name: "🔨 Type check"
+        run: pnpm run typecheck
+
+      - name: "🏗️ Build applications"
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_APP_NAME: CricketScore
+          NEXT_PUBLIC_APP_DESCRIPTION: Your ultimate source for real-time cricket scores and updates
+          NEXT_PUBLIC_API_BASE_URL: https://cricketapi-r9zv.onrender.com
+          NEXT_PUBLIC_ENABLE_REAL_TIME: true
+          NEXT_PUBLIC_ENABLE_NOTIFICATIONS: false
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}

@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+type MatchstatsOnBatting {
+  player1 MatchstatsOnBattingPlayer1
+  player2 MatchstatsOnBattingPlayer2
+}
+
+type MatchstatsOnBattingPlayer1 {
+  balls String
+  name  String
+  runs  String
+}
+
+type MatchstatsOnBattingPlayer2 {
+  balls String
+  name  String
+  runs  String
+}
+
+type MatchstatsRunRate {
+  currentRunRate  Float
+  requiredRunRate Float
+}
+
+type MatchstatsTeam1 {
+  isBatting       Boolean?
+  name            String?
+  overs           String?
+  previousInnings MatchstatsTeam1PreviousInnings?
+  score           String?
+  wickets         String?
+}
+
+type MatchstatsTeam1PreviousInnings {
+  score   String
+  wickets String
+}
+
+type MatchstatsTeam2 {
+  isBatting       Boolean?
+  name            String?
+  overs           String?
+  previousInnings MatchstatsTeam2PreviousInnings?
+  score           String?
+  wickets         String?
+}
+
+type MatchstatsTeam2PreviousInnings {
+  score   String
+  wickets String
+}
+
+model livematches {
+  id        String   @id @map("_id")
+  v         Int?     @map("__v")
+  matchName String
+  matchUrl  String   @unique
+  createdAt DateTime @default(now()) @db.Date
+}
+
+type MatchstatsMatchCommentary {
+  over       String?
+  commentary String
+  hasOver    Boolean
+}
+
+model matchstats {
+  id              String                      @id @map("_id")
+  createdAt       DateTime                    @db.Date
+  isLive          Boolean
+  matchName       String
+  onBatting       MatchstatsOnBatting
+  runRate         MatchstatsRunRate
+  summary         String
+  team1           MatchstatsTeam1
+  team2           MatchstatsTeam2
+  tournamentName  String
+  matchCommentary MatchstatsMatchCommentary[]
+  keyStats        Json?
+
+  @@index([createdAt], map: "createdAt_1")
+}

@@ -1,0 +1,57 @@
+name: "Run Backend Tests"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Install pnpm"
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: "Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "pnpm"
+
+      - name: "Install Dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "Generate Prisma Client"
+        run: pnpm --filter cricketscoreapi exec prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPTIMIZE_API_KEY: ${{ secrets.OPTIMIZE_API_KEY }}
+
+      - name: "Run Build"
+        run: pnpm --filter cricketscoreapi build
+
+      - name: "Run Tests"
+        run: |
+          echo "Running tests with NODE_ENV=$NODE_ENV"
+          echo "Prisma version: $(pnpm --filter cricketscoreapi prisma -v)"
+          NODE_ENV=test pnpm --filter cricketscoreapi test:coverage
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TEST_USER_TOKEN: ${{ secrets.TEST_USER_TOKEN }}
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          OPTIMIZE_API_KEY: ${{ secrets.OPTIMIZE_API_KEY }}
+
+      - name: "Upload Coverage"
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: apps/cricketscoreapi/coverage/lcov.info
+          flags: backend

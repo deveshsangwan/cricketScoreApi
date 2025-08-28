@@ -1,39 +1,42 @@
-name: Deploy selfhost
+name: "Deploy selfhost (backend)"
+
 on:
   push:
     branches:
-      - main
+      - "main"
+
 jobs:
   deploy:
     runs-on: self-hosted
+
     steps:
-      - name: Checkout
+      - name: "Checkout"
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: "Setup Node.js"
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - name: "Install pnpm"
+        uses: pnpm/action-setup@v4
         with:
-          version: latest
+          version: 10
 
-      - name: Install dependencies
+      - name: "Install dependencies"
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma Client
-        run: pnpm prisma generate
+      - name: "Generate Prisma Client"
+        run: pnpm --filter cricketscoreapi prisma generate
 
-      - name: Install PM2
+      - name: "Install PM2"
         run: pnpm add -g pm2@latest
 
-      - name: Check PM2 status
+      - name: "Check PM2 status"
         run: pm2 ls
 
-      - name: Restart application
+      - name: "Restart application"
         run: pm2 restart crickety
 
-      - name: Verify restart
+      - name: "Verify restart"
         run: pm2 ls

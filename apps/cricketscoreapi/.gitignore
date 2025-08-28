@@ -1,0 +1,9 @@
+package-lock.json
+node_modules/*
+coverage
+.nyc_output
+.DS_Store
+*.map
+.env
+docs
+dist/
