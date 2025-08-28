@@ -68,6 +68,15 @@ class TrpcClient {
         }
     }
 
+    // Create a subscription iterator for subscribeMatchStatsById
+    // The caller is responsible for consuming and closing the iterator
+    public subscribeMatchStatsById(matchId: string): any {
+        const ctx = this.createMockContext();
+        const caller = appRouter.createCaller(ctx);
+        // Returns an AsyncGenerator that yields subscription payloads
+        return (caller as any).subscribeMatchStatsById({ matchId });
+    }
+
     public async getMatchStats(): Promise<TrpcTestResponse> {
         try {
             const ctx = this.createMockContext();

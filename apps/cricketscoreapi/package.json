@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsc -p . -w & cross-env NODE_ENV=development nodemon -r tsconfig-paths/register build/index.js",
     "start": "cross-env NODE_ENV=production node -r tsconfig-paths/register build/index.js",
-    "build": "tsc -p . & cross-env NODE_ENV=production",
+    "build": "tsc -p . && cross-env NODE_ENV=production",
     "test": "cross-env NODE_ENV=test mocha",
     "test:coverage": "cross-env NODE_ENV=test nyc mocha && pnpm run posttest",
     "posttest": "istanbul-badges-readme",

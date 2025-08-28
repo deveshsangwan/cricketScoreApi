@@ -32,7 +32,15 @@ describe('tRPC Features Tests', function () {
                 const response = await trpcClient.getMatchStatsById('');
                 assert.equal(response.status, 'error');
                 assert.property(response, 'error');
-                assert.include(response.error.message, 'Match ID is required');
+                const parsedError = JSON.parse(response.error.message);
+                assert.deepEqual(parsedError, [
+                    {
+                        validation: "regex",
+                        code: "invalid_string",
+                        message: "Match ID must be 16 alphanumeric characters",
+                        path: ["matchId"],
+                    },
+                ]);
             } catch (err) {
                 assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
             }
@@ -206,7 +214,7 @@ describe('tRPC Features Tests', function () {
             sandbox.stub(MatchStats.prototype, 'getMatchStats').rejects(specificError);
 
             try {
-                const response = await trpcClient.getMatchStatsById('nonexistentMatch123');
+                const response = await trpcClient.getMatchStatsById('nonexistentMatch');
                 assert.equal(response.status, 'error');
                 assert.property(response, 'error');
                 assert.include(response.error.message, 'Match not found in database');
@@ -324,6 +332,182 @@ describe('tRPC Features Tests', function () {
             } catch (err) {
                 assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
             }
+        });
+    });
+
+    describe('Subscriptions: subscribeMatchStatsById', function () {
+        this.timeout(TIMEOUT);
+
+        it('should require authentication for subscribeMatchStatsById', async function () {
+            const unauthenticatedClient = new TrpcClient(true);
+            const validMatchId = 'qz0G2tpXBlel5Jki';
+
+            try {
+                // Should throw immediately due to protectedProcedure
+                await unauthenticatedClient.subscribeMatchStatsById(validMatchId);
+                assert.fail('Expected authentication error but subscription promise resolved');
+            } catch (err) {
+                assert.instanceOf(err as any, Error);
+                assert.include((err as Error).message, 'Authentication Failed');
+            }
+        });
+
+        it('should validate matchId format before starting subscription', async function () {
+            const trpcClient = new TrpcClient();
+            const invalidMatchId = 'abc';
+
+            try {
+                await trpcClient.subscribeMatchStatsById(invalidMatchId);
+                assert.fail('Expected validation error but subscription promise resolved');
+            } catch (err) {
+                assert.instanceOf(err as any, Error);
+                assert.include((err as Error).message, 'Match ID must be 16 alphanumeric characters');
+            }
+        });
+
+        it('should emit initial payload and allow clean cancellation', async function () {
+            const trpcClient = new TrpcClient();
+            const matchId = 'qz0G2tpXBlel5Jki';
+
+            const initialResponse = { matchId, ok: true } as any;
+            const getStatsStub = sandbox.stub(MatchStats.prototype, 'getMatchStats').resolves(initialResponse);
+
+            try {
+                const iterator = (await trpcClient.subscribeMatchStatsById(matchId)) as AsyncGenerator<any, any, any>;
+                const first = await iterator.next();
+
+                assert.isFalse(first.done);
+                assert.property(first.value, 'status');
+                assert.equal(first.value.status, true);
+                assert.equal(first.value.message, 'Match Stats');
+                assert.deepEqual(first.value.response, initialResponse);
+                assert.equal(getStatsStub.callCount, 1, 'getMatchStats called only for initial emission');
+
+                if (typeof (iterator as any).return === 'function') {
+                    await (iterator as any).return(undefined);
+                }
+            } catch (err) {
+                assert.fail(`${ErrorMessage} ${err instanceof Error ? err.message : String(err)}`);
+            }
+        });
+
+        it('should propagate service errors on initial fetch', async function () {
+            const trpcClient = new TrpcClient();
+            const matchId = 'qz0G2tpXBlel5Jki';
+
+            sandbox.stub(MatchStats.prototype, 'getMatchStats').rejects(new Error('Service unavailable'));
+
+            try {
+                const iterator = (await trpcClient.subscribeMatchStatsById(matchId)) as AsyncGenerator<any, any, any>;
+                await iterator.next();
+                assert.fail('Expected error during initial emission');
+            } catch (err) {
+                assert.instanceOf(err as any, Error);
+                assert.include((err as Error).message, 'Service unavailable');
+            }
+        });
+
+        it('should execute sleep and emit again when timer fires, then cancel', async function () {
+            const trpcClient = new TrpcClient();
+            const matchId = 'qz0G2tpXBlel5Jki';
+
+            const getStatsStub = sandbox.stub(MatchStats.prototype, 'getMatchStats');
+            getStatsStub.onFirstCall().resolves({ matchId, ok: true } as any);
+            getStatsStub.onSecondCall().resolves({ matchId, ok: 'second' } as any);
+
+            // Remove jitter and use fake timers to fast-forward sleep
+            const randomStub = sandbox.stub(Math, 'random').returns(0);
+            const clock = sinon.useFakeTimers();
+
+            try {
+                const iterator = (await trpcClient.subscribeMatchStatsById(matchId)) as AsyncGenerator<any, any, any>;
+                const first = await iterator.next();
+                assert.isFalse(first.done);
+
+                // Begin next iteration which will await abortableSleep(25000)
+                const secondPromise = iterator.next();
+                // Fast-forward sleep duration
+                await clock.tickAsync(25000);
+
+                const second = await secondPromise;
+                assert.isFalse(second.done);
+                assert.equal(getStatsStub.callCount, 2, 'should fetch second time after sleep');
+
+                if (typeof (iterator as any).return === 'function') {
+                    await (iterator as any).return(undefined);
+                }
+            } finally {
+                randomStub.restore();
+                clock.restore();
+            }
+        });
+
+        it('should track active subscriber counters and per-match map across start/stop', async function () {
+            const trpcClient = new TrpcClient();
+            const matchId = 'qz0G2tpXBlel5Jki';
+
+            const getStatsStub = sandbox.stub(MatchStats.prototype, 'getMatchStats').resolves({ matchId, ok: true } as any);
+            const logSpy = sandbox.spy(console, 'log');
+
+            // Start first subscription
+            const iter1 = (await trpcClient.subscribeMatchStatsById(matchId)) as AsyncGenerator<any, any, any>;
+            await iter1.next();
+
+            const callsAfterFirst = logSpy.getCalls();
+            const firstCount = callsAfterFirst
+                .filter((c) => c.args[0] === 'activeSubscriberCount')
+                .pop()?.args[1] as number | undefined;
+            const firstMap = callsAfterFirst
+                .filter((c) => c.args[0] === 'activeSubscribersByMatch')
+                .pop()?.args[1] as Map<string, number> | undefined;
+
+            assert.isNumber(firstCount);
+            assert.instanceOf(firstMap as any, Map);
+            const firstMatchCount = (firstMap as Map<string, number>).get(matchId) ?? 0;
+
+            // Start second subscription for same match
+            const iter2 = (await trpcClient.subscribeMatchStatsById(matchId)) as AsyncGenerator<any, any, any>;
+            await iter2.next();
+
+            const callsAfterSecond = logSpy.getCalls();
+            const secondCount = callsAfterSecond
+                .filter((c) => c.args[0] === 'activeSubscriberCount')
+                .pop()?.args[1] as number | undefined;
+            const secondMap = callsAfterSecond
+                .filter((c) => c.args[0] === 'activeSubscribersByMatch')
+                .pop()?.args[1] as Map<string, number> | undefined;
+
+            assert.isNumber(secondCount);
+            assert.instanceOf(secondMap as any, Map);
+            const secondMatchCount = (secondMap as Map<string, number>).get(matchId) ?? 0;
+
+            // second should be exactly +1 over first
+            assert.equal(secondCount as number, (firstCount as number) + 1);
+            assert.equal(secondMatchCount, firstMatchCount + 1);
+
+            // Cancel both (releases should run twice)
+            if (typeof (iter1 as any).return === 'function') await (iter1 as any).return(undefined);
+            if (typeof (iter2 as any).return === 'function') await (iter2 as any).return(undefined);
+
+            // Start a new subscription again; counters should be back to first values
+            const iter3 = (await trpcClient.subscribeMatchStatsById(matchId)) as AsyncGenerator<any, any, any>;
+            await iter3.next();
+
+            const callsAfterThird = logSpy.getCalls();
+            const thirdCount = callsAfterThird
+                .filter((c) => c.args[0] === 'activeSubscriberCount')
+                .pop()?.args[1] as number | undefined;
+            const thirdMap = callsAfterThird
+                .filter((c) => c.args[0] === 'activeSubscribersByMatch')
+                .pop()?.args[1] as Map<string, number> | undefined;
+
+            assert.equal(thirdCount as number, firstCount as number);
+            assert.equal((thirdMap as Map<string, number>).get(matchId), firstMatchCount);
+
+            if (typeof (iter3 as any).return === 'function') await (iter3 as any).return(undefined);
+
+            // Ensure getMatchStats called three times (once per initial emission)
+            assert.equal(getStatsStub.callCount, 3);
         });
     });
 });

@@ -25,8 +25,8 @@ Welcome to the Cricket Score API! This project is designed to provide real-time 
 Our aim is to maintain high code coverage to ensure the quality of the project. Here are our current stats:
 
 [![codecov](https://codecov.io/gh/deveshsangwan/cricketScoreApi/graph/badge.svg?token=A3JMLLNTG4)](https://codecov.io/gh/deveshsangwan/cricketScoreApi)
-![Functions](https://img.shields.io/badge/functions-94.11%25-brightgreen.svg?style=flat)
-![Lines](https://img.shields.io/badge/lines-95.34%25-brightgreen.svg?style=flat)
+![Functions](https://img.shields.io/badge/functions-90.1%25-brightgreen.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-93.82%25-brightgreen.svg?style=flat)
 
 ## 🚀 Getting Started
 

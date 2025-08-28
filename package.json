@@ -9,9 +9,8 @@
     "test:coverage": "pnpm --filter cricketscoreapi test:coverage",
     "format": "pnpm --filter cricketscoreapi format && prettier --write \"apps/**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "pnpm --filter cricketscoreapi format:check && prettier --check \"apps/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "typecheck": "pnpm --filter cricket-score-frontend type-check && pnpm --filter cricketscoreapi typecheck",
+    "typecheck": "pnpm --filter cricketscoreapi build && pnpm --filter cricket-score-frontend type-check && pnpm --filter cricketscoreapi typecheck",
     "docs": "pnpm --filter cricketscoreapi docs",
-    "generate-schemas": "pnpm --filter cricketscoreapi generate-schemas",
     "frontend:dev": "pnpm --filter cricket-score-frontend dev",
     "frontend:build": "pnpm --filter cricket-score-frontend build",
     "frontend:start": "pnpm --filter cricket-score-frontend start",
@@ -28,7 +27,6 @@
     "backend:lint": "pnpm --filter cricketscoreapi lint",
     "backend:typecheck": "pnpm --filter cricketscoreapi typecheck",
     "backend:docs": "pnpm --filter cricketscoreapi docs",
-    "backend:generate-schemas": "pnpm --filter cricketscoreapi generate-schemas",
     "backend:format": "pnpm --filter cricketscoreapi format",
     "backend:format:check": "pnpm --filter cricketscoreapi format:check"
   },

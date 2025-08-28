@@ -1,13 +1,9 @@
-import HttpClient from './HttpClient';
+
 import { MatchStats } from '../app/src/services/MatchStats';
 import { getTeamData } from '../app/src/services/MatchStats/MatchUtils';
 import { testData } from './TestData/MatchStats';
-import chai, { assert } from 'chai';
+import { assert } from 'chai';
 import sinon from 'sinon';
-
-const ErrorMessage = 'Test failed due to error:';
-const httpClient = new HttpClient(chai);
-const TIMEOUT = 20000;
 
 function assertResultSubset(result: any, expectedOutput: any) {
     const resultSubset = Object.keys(expectedOutput).reduce((subset: any, key) => {

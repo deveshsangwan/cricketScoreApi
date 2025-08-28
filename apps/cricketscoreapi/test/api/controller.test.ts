@@ -1,5 +1,4 @@
-import { Request, Response } from 'express';
-import chai, { assert } from 'chai';
+import { assert } from 'chai';
 import sinon, { SinonStub, SinonSandbox } from 'sinon';
 import TrpcClient from '../TrpcClient';
 import { StubModule } from '../StubModule';
@@ -203,17 +202,17 @@ describe('tRPC Procedures Unit Tests', function () {
     describe('getMatchStatsById procedure', function () {
         it('should return match stats successfully', async function () {
             const mockMatchStatsResponse = {
-                matchId: 'validMatchId123',
+                matchId: 'validMatchId1234',
                 teams: ['Team A', 'Team B'],
                 scores: ['150/3', '45/2'],
             };
 
             matchStatsStub.resolves(mockMatchStatsResponse);
 
-            const response = await trpcClient.getMatchStatsById('validMatchId123');
+            const response = await trpcClient.getMatchStatsById('validMatchId1234');
 
             assert.equal(response.status, 'success');
-            assert.isTrue(matchStatsStub.calledWith('validMatchId123'));
+            assert.isTrue(matchStatsStub.calledWith('validMatchId1234'));
             assert.property(response.data, 'status');
             assert.equal(response.data.status, true);
             assert.equal(response.data.message, 'Match Stats');
@@ -225,10 +224,10 @@ describe('tRPC Procedures Unit Tests', function () {
             matchStatsStub.rejects(mockError);
             isErrorStub.withArgs(mockError).returns(true);
 
-            const response = await trpcClient.getMatchStatsById('validMatchId123');
+            const response = await trpcClient.getMatchStatsById('validMatchId1234');
 
             assert.equal(response.status, 'error');
-            assert.isTrue(matchStatsStub.calledWith('validMatchId123'));
+            assert.isTrue(matchStatsStub.calledWith('validMatchId1234'));
             assert.property(response, 'error');
             assert.include(response.error.message, 'Invalid match ID');
         });
@@ -238,7 +237,7 @@ describe('tRPC Procedures Unit Tests', function () {
             matchStatsStub.rejects(mockError);
             isErrorStub.withArgs(mockError).returns(false);
 
-            const response = await trpcClient.getMatchStatsById('validMatchId123');
+            const response = await trpcClient.getMatchStatsById('validMatchId1234');
 
             assert.equal(response.status, 'error');
             assert.property(response, 'error');
@@ -337,31 +336,38 @@ describe('tRPC Procedures Edge Cases', function () {
     it('should handle extremely long matchId in getMatchStatsById', async function () {
         const longMatchId = 'a'.repeat(1000);
 
-        const matchStatsStub = sandbox
-            .stub(MatchStats.prototype, 'getMatchStats')
-            .rejects(new Error('Invalid match ID'));
-        const isErrorStub = sandbox.stub(TypesUtils, 'isError').returns(true);
-
         const response = await trpcClient.getMatchStatsById(longMatchId);
-
+        console.log("response.status", response.status);
+        console.log("response.error", response.error);
         assert.equal(response.status, 'error');
-        assert.isTrue(matchStatsStub.calledWith(longMatchId));
         assert.property(response, 'error');
+        const parsedError = JSON.parse(response.error.message);
+        assert.deepEqual(parsedError, [
+            {
+                validation: "regex",
+                code: "invalid_string",
+                message: "Match ID must be 16 alphanumeric characters",
+                path: ["matchId"],
+            },
+        ]);
     });
 
     it('should handle special characters in matchId', async function () {
         const specialMatchId = 'match@#$%^&*()_+';
 
-        const matchStatsStub = sandbox
-            .stub(MatchStats.prototype, 'getMatchStats')
-            .rejects(new Error('Invalid match ID format'));
-        const isErrorStub = sandbox.stub(TypesUtils, 'isError').returns(true);
-
         const response = await trpcClient.getMatchStatsById(specialMatchId);
 
         assert.equal(response.status, 'error');
-        assert.isTrue(matchStatsStub.calledWith(specialMatchId));
         assert.property(response, 'error');
+        const parsedError = JSON.parse(response.error.message);
+        assert.deepEqual(parsedError, [
+            {
+                validation: "regex",
+                code: "invalid_string",
+                message: "Match ID must be 16 alphanumeric characters",
+                path: ["matchId"],
+            },
+        ]);
     });
 
     it('should handle concurrent requests to live matches', async function () {
