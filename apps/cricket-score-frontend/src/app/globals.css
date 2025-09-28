@@ -75,7 +75,7 @@
     radial-gradient(1200px 800px at 10% 10%, rgba(56, 189, 248, 0.10), transparent 40%),
     radial-gradient(1000px 700px at 90% 20%, rgba(168, 85, 247, 0.10), transparent 40%),
     radial-gradient(900px 700px at 50% 100%, rgba(16, 185, 129, 0.08), transparent 40%),
-    linear-gradient(180deg, #000 0%, #0b0b0f 100%);
+    linear-gradient(180deg, #000 0%, #0a0a0a 100%);
   --background-solid: #000000;
   --summary-text: 251 191 36; /* amber-400 */
   --summary-bg: 251 191 36; /* amber-400/10 */
@@ -139,6 +139,45 @@ html, body {
   }
 }
 
+/* Global scrollbar styling - matches Commentary component */
+html, body {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgb(209 213 219) rgb(243 244 246); /* thumb track */
+}
+
+/* Chromium, Safari, Edge */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0.125rem; /* w-0.5 */
+}
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: #f3f4f6; /* gray-100 */
+  border-radius: 9999px;
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: #d1d5db; /* gray-300 */
+  border-radius: 9999px;
+}
+
+/* Dark mode */
+html[data-theme="dark"]::-webkit-scrollbar-track,
+html[data-theme="dark"] body::-webkit-scrollbar-track {
+  background: #404040; /* neutral-700 */
+}
+html[data-theme="dark"]::-webkit-scrollbar-thumb,
+html[data-theme="dark"] body::-webkit-scrollbar-thumb {
+  background: #737373; /* neutral-500 */
+}
+
+/* Firefox dark mode */
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  scrollbar-color: #737373 #404040;
+}
+
 /* Theme-aware utility classes */
 @layer utilities {
   .text-foreground {
@@ -180,23 +219,52 @@ html, body {
   .bg-summary {
     background-color: rgb(var(--summary-bg) / 0.1);
   }
+
+  /* Scrollbar utility matching component styling */
+  .scrollbar {
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f3f4f6; /* thumb track */
+  }
+  .scrollbar::-webkit-scrollbar {
+    width: 0.25rem; /* w-1 */
+  }
+  .scrollbar::-webkit-scrollbar-track {
+    background: #f3f4f6; /* gray-100 */
+    border-radius: 9999px;
+  }
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #d1d5db; /* gray-300 */
+    border-radius: 9999px;
+  }
+}
+
+/* Dark mode for scrollbar utility */
+html[data-theme="dark"] .scrollbar::-webkit-scrollbar-track {
+  background: #404040; /* neutral-700 */
+}
+html[data-theme="dark"] .scrollbar::-webkit-scrollbar-thumb {
+  background: #737373; /* neutral-500 */
+}
+html[data-theme="dark"] .scrollbar {
+  scrollbar-color: #737373 #404040;
 }
 
 /* Reusable component styles */
 @layer components {
   .glass-card {
-    @apply bg-card/40 backdrop-blur-xl border border-border/50 rounded-2xl shadow-xl ring-1 ring-inset ring-black/5 dark:ring-white/5 relative overflow-hidden;
+    @apply bg-card/40 border border-border/50 rounded-2xl shadow-xl ring-1 ring-inset ring-black/5 dark:ring-white/5 relative overflow-hidden;
   }
 
   .glass-card::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: linear-gradient(
+    /* background-image: linear-gradient(
       to bottom right,
       rgb(var(--glass-from) / var(--glass-alpha-from)),
       rgb(var(--glass-to) / var(--glass-alpha-to))
-    );
+    ); */
     border-radius: inherit;
     pointer-events: none;
     z-index: -1;
@@ -222,7 +290,7 @@ html, body {
     @apply inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-sky-500/40 focus:outline-none;
   }
   .btn-primary {
-    @apply text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-lg hover:shadow-sky-500/25 border border-white/10;
+    @apply text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-lg hover:shadow-sky-500/25;
   }
   .btn-secondary {
     @apply text-sky-500 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 shadow-sm;
@@ -247,6 +315,6 @@ html, body {
     @apply glass-card p-4 rounded-lg border-l-4;
   }
   .alert-info {
-    @apply border-l-sky-500;
+    @apply border-l-teal-500;
   }
 }

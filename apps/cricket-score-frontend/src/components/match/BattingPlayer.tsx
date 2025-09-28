@@ -8,7 +8,7 @@ interface BattingPlayerProps {
 
 export const BattingPlayer = React.memo<BattingPlayerProps>(
   ({ player, isStriker }) => (
-    <div className={`flex justify-between items-center p-3 rounded-lg backdrop-blur-lg ${
+    <div className={`flex justify-between items-center p-3 rounded-lg ${
       isStriker 
         ? 'bg-sky-500/10 border border-sky-400/40' 
         : 'bg-muted/30 border border-muted/50'

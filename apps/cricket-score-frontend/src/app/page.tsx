@@ -39,7 +39,7 @@ export default function Home() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-5xl md:text-6xl lg:text-7xl font-extrabold heading-gradient mb-6"
         >
-          Welcome to <span className="bg-gradient-to-r from-sky-400 to-blue-500 bg-clip-text text-transparent">{config.app.name}</span>
+          Welcome to <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">{config.app.name}</span>
         </motion.h1>
         
         <motion.p 

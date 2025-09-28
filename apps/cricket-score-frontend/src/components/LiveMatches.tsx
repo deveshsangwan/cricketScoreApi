@@ -48,7 +48,7 @@ const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error,
     layout={false}
     className="flex flex-col items-center justify-center min-h-[400px] text-center p-8"
   >
-    <div className="w-16 h-16 mx-auto bg-red-500/30 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 border-2 border-red-500/50 shadow-xl">
+    <div className="w-16 h-16 mx-auto bg-red-500/30 rounded-full flex items-center justify-center mb-6 border-2 border-red-500/50 shadow-xl">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-8 w-8 text-red-400"
@@ -192,7 +192,7 @@ export default function LiveMatches() {
         layout={false}
         className="flex flex-col items-center justify-center min-h-[400px] text-center p-8"
       >
-        <div className="w-16 h-16 mx-auto bg-muted/50 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 border border-border">
+        <div className="w-16 h-16 mx-auto bg-muted/50 rounded-full flex items-center justify-center mb-6 border border-border">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-muted-foreground"
