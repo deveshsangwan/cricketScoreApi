@@ -290,7 +290,7 @@ html[data-theme="dark"] .scrollbar {
     @apply inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-sky-500/40 focus:outline-none;
   }
   .btn-primary {
-    @apply text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-lg hover:shadow-sky-500/25 border border-white/10;
+    @apply text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-lg hover:shadow-sky-500/25;
   }
   .btn-secondary {
     @apply text-sky-500 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 shadow-sm;
