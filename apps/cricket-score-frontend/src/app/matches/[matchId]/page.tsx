@@ -38,7 +38,7 @@ export default function MatchDetailsPage() {
     return <NotFoundDisplay />;
   }
 
-  const isBattingDataAvailable = matchStats.onBatting && (matchStats.onBatting.player1.runs || matchStats.onBatting.player2.runs);
+  const isBattingDataAvailable = matchStats?.onBatting && (matchStats.onBatting.player1?.runs || matchStats.onBatting.player2?.runs);
 
   // Main render with match data
   return (
