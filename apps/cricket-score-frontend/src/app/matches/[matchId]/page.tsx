@@ -38,6 +38,8 @@ export default function MatchDetailsPage() {
     return <NotFoundDisplay />;
   }
 
+  const isBattingDataAvailable = matchStats.onBatting && (matchStats.onBatting.player1.runs || matchStats.onBatting.player2.runs);
+
   // Main render with match data
   return (
     <div className="min-h-screen text-foreground antialiased bg-gradient-theme">
@@ -110,7 +112,7 @@ export default function MatchDetailsPage() {
           {/* Right Column: Additional Info */}
           <div className="space-y-6">
             {/* Current Batting */}
-            {matchStats.onBatting && (
+            {isBattingDataAvailable && (
               <InfoCard title="Current Batting">
                 <div className="space-y-2">
                   {matchStats.onBatting.player1 && (
@@ -131,7 +133,7 @@ export default function MatchDetailsPage() {
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium text-muted-foreground">Current Run Rate</p>
                       <p className="text-xl font-extrabold text-green-400 ml-3 min-w-[3rem] text-right">
-                        {matchStats.runRate.currentRunRate}
+                        {matchStats.runRate.currentRunRate ? matchStats.runRate.currentRunRate : 'N/A'}
                       </p>
                     </div>
                   )}
@@ -140,7 +142,7 @@ export default function MatchDetailsPage() {
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium text-muted-foreground">Required Run Rate</p>
                       <p className="text-xl font-extrabold text-amber-400 ml-3 min-w-[3rem] text-right">
-                        {matchStats.runRate.requiredRunRate}
+                        {matchStats.runRate.requiredRunRate ? matchStats.runRate.requiredRunRate : 'N/A'}
                       </p>
                     </div>
                   )}

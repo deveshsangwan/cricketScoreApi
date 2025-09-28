@@ -17,7 +17,7 @@ export const InfoCard = React.memo<InfoCardProps>(
       className={`glass-card p-6 flex flex-col ${className}`}
     >
       <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2 relative">
-        <div className="h-1 w-5 bg-gradient-to-r from-sky-400 to-purple-500 rounded-full"></div>
+        <div className="h-1 w-5 bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full"></div>
         {title}
       </h2>
       <div className="flex-grow space-y-5 relative">

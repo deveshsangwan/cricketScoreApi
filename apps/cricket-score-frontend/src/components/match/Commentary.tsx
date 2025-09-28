@@ -20,11 +20,10 @@ const CommentaryItem = React.memo<{ item: CommentaryItem; index: number }>(
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: index * 0.02 }}
-      className={`p-3 rounded-lg border-l-4 backdrop-blur-lg ${
-        item.hasOver && item.over
-          ? 'border-l-sky-500 bg-sky-500/10 border border-sky-400/40'
-          : 'border-l-muted bg-card/40 border border-border/60'
-      }`}
+      className={`p-3 rounded-lg border-l-4 backdrop-blur-lg ${item.hasOver && item.over
+        ? 'border-l-sky-500 bg-sky-500/10 border border-sky-400/40'
+        : 'border-l-muted bg-card/40 border border-border/60'
+        }`}
     >
       {item.hasOver && item.over && (
         <div className="flex items-center gap-2 mb-2">
@@ -36,9 +35,8 @@ const CommentaryItem = React.memo<{ item: CommentaryItem; index: number }>(
           </span>
         </div>
       )}
-      <p className={`text-sm leading-relaxed ${
-        item.hasOver && item.over ? 'text-foreground' : 'text-muted-foreground'
-      }`}>
+      <p className={`text-sm leading-relaxed ${item.hasOver && item.over ? 'text-foreground' : 'text-muted-foreground'
+        }`}>
         {item.commentary}
       </p>
     </motion.div>
@@ -59,7 +57,7 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
       <div className={`glass-card ${className}`}>
         <div className="p-6 border-b border-border/60 relative">
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <div className="h-1 w-5 bg-gradient-to-r from-sky-400 to-purple-500 rounded-full"></div>
+            <div className="h-1 w-5 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-full"></div>
             Live Commentary
           </h2>
         </div>
@@ -83,17 +81,16 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
     <div className={`glass-card ${className}`}>
       <div className="p-6 border-b border-border/60 relative">
         <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-          <div className="h-1 w-5 bg-gradient-to-r from-sky-400 to-purple-500 rounded-full"></div>
+          <div className="h-1 w-5 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-full"></div>
           Live Commentary
-          <span className="ml-auto text-xs font-medium text-muted-foreground bg-muted/40 backdrop-blur-sm px-2 py-1 rounded-full border border-muted/60">
+          <span className="ml-auto text-xs font-medium text-muted-foreground bg-muted/40  px-2 py-1 rounded-full border border-muted/60">
             {commentary.length} updates
           </span>
         </h2>
       </div>
-      
-      <div className={`p-6 overflow-y-auto scrollbar-thin scrollbar-track-muted scrollbar-thumb-muted-foreground hover:scrollbar-thumb-foreground relative ${
-        isExpanded ? 'h-[600px]' : 'h-auto max-h-[300px]'
-      }`}>
+
+      <div className={`max-h-100 p-6 overflow-y-auto scrollbar relative ${isExpanded ? 'h-[600px]' : 'h-auto max-h-[300px]'
+        }`}>
         <div className="space-y-4">
           <AnimatePresence mode="wait">
             {displayedCommentary.map((item, index) => (
@@ -103,7 +100,7 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
         </div>
 
         {!isExpanded && commentary.length > previewItems && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -121,18 +118,18 @@ export const Commentary: React.FC<CommentaryProps> = React.memo(({ commentary, c
 
       {showExpandButton && (
         <div className="border-t border-border/60">
-          <button 
+          <button
             onClick={toggleExpanded}
             className="btn btn-ghost w-full p-4 text-sm"
           >
             <span>
               {isExpanded ? 'Show Less' : `Show All ${commentary.length} Updates`}
             </span>
-            <motion.svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-4 w-4" 
-              fill="none" 
-              viewBox="0 0 24 24" 
+            <motion.svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
               animate={{ rotate: isExpanded ? 180 : 0 }}
               transition={{ duration: 0.2 }}

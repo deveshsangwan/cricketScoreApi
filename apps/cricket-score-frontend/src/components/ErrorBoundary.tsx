@@ -111,13 +111,13 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) 
       <div className="flex gap-3 justify-center">
         <button 
           onClick={onReset}
-          className="bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:from-sky-600 hover:to-blue-700 transition-all shadow-lg focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none border border-white/10"
+          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:from-teal-600 hover:to-emerald-700 transition-all shadow-lg focus-visible:ring-2 focus-visible:ring-teal-500/50 focus:outline-none border border-white/10"
         >
           Try Again
         </button>
         <button 
           onClick={() => window.location.href = '/'}
-          className="bg-muted/40 text-muted-foreground font-semibold px-5 py-2.5 rounded-lg hover:bg-muted/60 transition-all focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none border border-muted/60"
+          className="bg-muted/40 text-muted-foreground font-semibold px-5 py-2.5 rounded-lg hover:bg-muted/60 transition-all focus-visible:ring-2 focus-visible:ring-teal-500/50 focus:outline-none border border-muted/60"
         >
           Go Home
         </button>
