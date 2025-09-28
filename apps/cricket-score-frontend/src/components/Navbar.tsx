@@ -1,4 +1,5 @@
 // src/components/Navbar.tsx
+'use client';
 import Link from "next/link";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import ThemeToggle from "./ThemeToggle";
@@ -20,7 +21,7 @@ export default function Navbar() {
             </SignInButton>
           </SignedOut>
           <SignedIn>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton/>
           </SignedIn>
         </div>
       </div>
