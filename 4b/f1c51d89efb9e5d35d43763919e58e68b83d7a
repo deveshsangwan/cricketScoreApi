@@ -1,0 +1,29 @@
+pnpm-workspace.yaml
+  h_9c147e6399b95b 4-10
+apps/cricketscoreapi/app/src/trpc/router.ts
+  s_fe28111030a37a::t_28cb1cf56ec8fb 13,35,38,41,52
+  s_fe28111030a37a::t_b2e2a2463e6772 5,12,14-16,18,30,33
+apps/cricketscoreapi/package.json
+  s_fe28111030a37a::t_b9c6a68e9883d8 26-27,54,61,74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "4bf1c51d89efb9e5d35d43763919e58e68b83d7a",
+  "prompts": {},
+  "humans": {
+    "h_9c147e6399b95b": {
+      "author": "deveshsangwan <dev.sangwan2001@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_fe28111030a37a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ea19b-6278-7b73-bdce-478fbcef68cc",
+        "model": "gpt-5.5"
+      },
+      "human_author": "deveshsangwan <dev.sangwan2001@gmail.com>"
+    }
+  }
+}
