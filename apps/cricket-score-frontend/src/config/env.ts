@@ -47,7 +47,7 @@ const getBooleanEnvVar = (key: string, defaultValue: boolean = false): boolean =
 
 export const config: AppConfig = {
   api: {
-    baseUrl: getEnvVar('NEXT_PUBLIC_API_BASE_URL', 'https://cricketapi-r9zv.onrender.com'),
+    baseUrl: getEnvVar('NEXT_PUBLIC_API_BASE_URL', 'http://localhost:3001'),
     timeout: 10000, // 10 seconds
   },
   app: {

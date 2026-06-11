@@ -32,7 +32,8 @@ const router = t.router;
 // Protected procedure that requires authentication
 const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     const { auth, req } = ctx;
-    const userId = 'userId' in auth ? auth.userId : null;
+    const userId =
+        typeof auth === 'object' && auth !== null && 'userId' in auth ? auth.userId : null;
 
     writeLogInfo([
         `tRPC Request: ${req.method} ${req.originalUrl} - User ID: ${userId || 'Not Authenticated'}`,
