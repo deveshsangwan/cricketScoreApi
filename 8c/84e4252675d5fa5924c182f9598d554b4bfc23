@@ -1,0 +1,48 @@
+apps/cricketscoreapi/app/src/trpc/router.ts
+  s_2b55c1b6d8a601::t_43313eaff99dad 35-36
+apps/cricketscoreapi/test/LiveMatches-extended.test.ts
+  s_2b55c1b6d8a601::t_4677ce5ae66c75 1,6-11,47,61,69-83,86,88-91,93-102,105-106,108-110,112-113,118-130,133,135,137-142,146-147,149-151,155,157,161,163,167,169
+apps/cricketscoreapi/app/src/services/LiveMatches/index.ts
+  s_2b55c1b6d8a601::t_db9e1784c6bfb7 1,16-21,25-30,32-33,37,42,46,54,104-106,152,159,161-162,179,202-203,206,212-214,216-225,229,231-232,236-251,256-260,277-311
+apps/cricketscoreapi/app/src/utils/TypesUtils.ts
+  s_2b55c1b6d8a601::t_15dd7273581972 11
+apps/cricketscoreapi/app/src/services/Cricbuzz/CricbuzzUtils.ts
+  s_2b55c1b6d8a601::t_3445a04b3e9eba 1-78
+apps/cricketscoreapi/app/src/services/MatchStats/index.ts
+  s_2b55c1b6d8a601::t_7ab59ce7a6bb7e 299
+  s_2b55c1b6d8a601::t_2c8e0dd49081f8 11-18,21-171,177,183,221,253-260,263-274,297,301,305,309-315,317-336,338-340,356-359,361-363,365-370,372,386-392,395-399,401-403,407-409,411-416,418-426,431,436-502,504-506,508-545,548-646
+  s_2b55c1b6d8a601::t_7af44bd2883ae6 404,503,507
+apps/cricketscoreapi/test/MatchStats.test.ts
+  s_2b55c1b6d8a601::t_53f4041ab92614 7,147-149,171,213,217
+apps/cricketscoreapi/app/src/services/Cricbuzz/CricbuzzClient.ts
+  s_2b55c1b6d8a601::t_3445a04b3e9eba 1-101
+apps/cricketscoreapi/test/fixtures/Cricbuzz.ts
+  s_2b55c1b6d8a601::t_4677ce5ae66c75 1-204
+apps/cricket-score-frontend/src/config/env.ts
+  s_2b55c1b6d8a601::t_e029cd1560dcea 50
+apps/cricketscoreapi/test/MatchStats-extended.test.ts
+  s_2b55c1b6d8a601::t_aca3018d3e8e09 1,6,8-14,18,32-38,40,42-44,46-49,51-99,102-104,106-134,137-164,166,168-172,174-178,180-186,189-193,195,212-218,221-222,224,228-231,234-235,237,242-244,248-249,251,255,257-260,265-268,270-275
+  s_2b55c1b6d8a601::t_839446cb682e93 173
+  s_2b55c1b6d8a601::t_41bbf79afd27bf 197-209
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "8c84e4252675d5fa5924c182f9598d554b4bfc23",
+  "prompts": {},
+  "humans": {
+    "h_9c147e6399b95b": {
+      "author": "deveshsangwan <dev.sangwan2001@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_2b55c1b6d8a601": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eb50d-9701-7cd0-be3a-d36becac258e",
+        "model": "gpt-5.5"
+      },
+      "human_author": "deveshsangwan <dev.sangwan2001@gmail.com>"
+    }
+  }
+}
