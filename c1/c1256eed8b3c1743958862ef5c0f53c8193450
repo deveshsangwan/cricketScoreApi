@@ -1,0 +1,14 @@
+apps/cricket-score-frontend/package.json
+  h_9c147e6399b95b 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "c1c1256eed8b3c1743958862ef5c0f53c8193450",
+  "prompts": {},
+  "humans": {
+    "h_9c147e6399b95b": {
+      "author": "deveshsangwan <dev.sangwan2001@gmail.com>"
+    }
+  }
+}
