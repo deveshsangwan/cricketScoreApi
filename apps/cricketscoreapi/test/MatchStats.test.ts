@@ -4,6 +4,7 @@ import { getTeamData } from '../app/src/services/MatchStats/MatchUtils';
 import { testData } from './TestData/MatchStats';
 import { assert } from 'chai';
 import sinon from 'sinon';
+import { CricbuzzClient } from '../app/src/services/Cricbuzz/CricbuzzClient';
 
 const TIMEOUT = 20000;
 
@@ -90,32 +91,6 @@ describe('MatchStats | getTeamData function', function () {
     });
 });
 
-describe('MatchStats | getTournamentName function', function () {
-    this.timeout(TIMEOUT);
-    let $: sinon.SinonStub;
-    const matchStatsObj: MatchStats = new MatchStats();
-
-    beforeEach(() => {
-        $ = sinon.stub();
-    });
-
-    afterEach(() => {
-        sinon.restore();
-    });
-
-    it('throws an error if no elements found', async () => {
-        const { input, expectedOutput } = testData.getTournamentNameErrorHandling;
-        $.returns(input);
-        try {
-            await (matchStatsObj as any).getTournamentName($);
-            assert.fail('Expected getTournamentName to throw an error');
-        } catch (error) {
-            assert.isTrue($.calledWith('.cb-col.cb-col-100.cb-bg-white'));
-            assert.equal((error as Error).message, expectedOutput);
-        }
-    });
-});
-
 describe('MatchStats | InvalidMatchIdError handling', function () {
     this.timeout(TIMEOUT);
     let matchStatsObj: MatchStats;
@@ -155,7 +130,6 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
         // Stub mongo.findById to return mock data so it doesn't proceed to web scraping
         const mongoStub = sinon.stub(mongo, 'findById').resolves({
             id: 'abcDEF1234567890',
-            matchId: 'abcDEF1234567890', // Required by isMatchStatsResponse
             team1: { name: 'Team 1', score: '100', wickets: '2', isBatting: true },
             team2: { name: 'Team 2', score: '80', wickets: '3', isBatting: false },
             onBatting: {
@@ -170,6 +144,9 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
             matchName: 'Test Match',
             isLive: true,
         });
+        const fetchJsonStub = sinon
+            .stub(CricbuzzClient.prototype, 'fetchJson')
+            .rejects(new Error('Cricbuzz unavailable'));
 
         // Create MatchStats instance after stubbing
         const testMatchStatsObj = new MatchStats();
@@ -191,6 +168,7 @@ describe('MatchStats | InvalidMatchIdError handling', function () {
         } finally {
             getMatchesStub.restore();
             mongoStub.restore();
+            fetchJsonStub.restore();
         }
     });
 });
@@ -224,35 +202,6 @@ describe('MatchStats | MatchIdRequriedError handling', function () {
     });
 });
 
-describe('MatchStats | Error logging functionality', function () {
-    this.timeout(TIMEOUT);
-    let matchStatsObj: MatchStats;
-    let cheerioStub: sinon.SinonStub;
-
-    beforeEach(() => {
-        matchStatsObj = new MatchStats();
-        // Import the Logger module to stub the writeLogError function
-
-        // Create a stub for the cheerio API
-        cheerioStub = sinon.stub();
-        cheerioStub.throws(new Error('Mock error in getMatchStatsByMatchId'));
-    });
-
-    afterEach(() => {
-        sinon.restore();
-    });
-
-    it('throws error in getMatchStatsByMatchId', () => {
-        try {
-            // Access the private method using type casting to avoid TypeScript errors
-            (matchStatsObj as any).prepareMatchStats(cheerioStub, 'testMatchId');
-            assert.fail('Expected getMatchStatsByMatchId to throw an error');
-        } catch (error) {
-            assert.include((error as Error).message, 'Mock error in getMatchStatsByMatchId');
-        }
-    });
-});
-
 describe('MatchStats | NoMatchesFoundError handling', function () {
     this.timeout(TIMEOUT);
     let matchStatsObj: MatchStats;
@@ -261,9 +210,11 @@ describe('MatchStats | NoMatchesFoundError handling', function () {
     beforeEach(() => {
         // Import the LiveMatches class to stub its methods
         const { LiveMatches } = require('../app/src/services/LiveMatches');
+        const mongo = require('../app/src/core/BaseModel');
 
         // Stub liveMatchesObj.getMatches to return an empty object (no matches)
         getMatchesStub = sinon.stub(LiveMatches.prototype, 'getMatches').resolves({});
+        sinon.stub(mongo, 'findAll').resolves([]);
 
         // Create MatchStats instance after stubbing
         matchStatsObj = new MatchStats();

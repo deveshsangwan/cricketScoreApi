@@ -2,14 +2,20 @@ import { z } from 'zod';
 import { initTRPC, TRPCError } from '@trpc/server';
 import type { CreateExpressContextOptions } from '@trpc/server/adapters/express';
 import { getAuth } from '@clerk/express';
+import type { Request } from 'express';
 // Service-layer imports
 import { writeLogInfo } from '@core/Logger';
 import { LiveMatches } from '@services/LiveMatches';
 import { MatchStats } from '@services/MatchStats';
 import type { MatchStatsResponse } from '@types';
 
+export interface Context {
+    auth: ReturnType<typeof getAuth>;
+    req: Request;
+}
+
 // Create context function for tRPC
-export function createContext({ req }: CreateExpressContextOptions) {
+export function createContext({ req }: CreateExpressContextOptions): Context {
     const auth = getAuth(req);
     return {
         auth,
@@ -17,24 +23,23 @@ export function createContext({ req }: CreateExpressContextOptions) {
     };
 }
 
-export type Context = Awaited<ReturnType<typeof createContext>>;
-
 // Initialize tRPC with context
 const t = initTRPC.context<Context>().create();
 
 // Create router and procedures
-export const router = t.router;
-export const publicProcedure = t.procedure;
+const router = t.router;
 
 // Protected procedure that requires authentication
-export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     const { auth, req } = ctx;
+    const userId =
+        typeof auth === 'object' && auth !== null && 'userId' in auth ? auth.userId : null;
 
     writeLogInfo([
-        `tRPC Request: ${req.method} ${req.originalUrl} - User ID: ${auth?.userId || 'Not Authenticated'}`,
+        `tRPC Request: ${req.method} ${req.originalUrl} - User ID: ${userId || 'Not Authenticated'}`,
     ]);
 
-    if (!auth || !auth.userId) {
+    if (!userId) {
         writeLogInfo([
             `tRPC Authentication failed for: ${req.method} ${req.originalUrl} - IP: ${req.ip}`,
         ]);
@@ -45,7 +50,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     }
 
     writeLogInfo([
-        `tRPC Authentication successful for: ${req.method} ${req.originalUrl} - User: ${auth.userId}`,
+        `tRPC Authentication successful for: ${req.method} ${req.originalUrl} - User: ${userId}`,
     ]);
 
     return next({

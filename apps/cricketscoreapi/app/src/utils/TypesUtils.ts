@@ -8,7 +8,7 @@ export function isMatchStatsResponse(data: unknown): data is MatchStatsResponse 
     return (
         typeof data === 'object' &&
         data !== null &&
-        'matchId' in data &&
+        ('matchId' in data || 'id' in data) &&
         'team1' in data &&
         'team2' in data &&
         'onBatting' in data &&

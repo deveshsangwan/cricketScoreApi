@@ -1,4 +1,4 @@
-import { Utils } from '@utils/Utils';
+import * as cheerio from 'cheerio';
 import {
     writeLogError,
     writeLogDebug,
@@ -11,33 +11,39 @@ import { CustomError } from '@errors';
 import * as mongo from '@core/BaseModel';
 import type { ModelName } from '@core/BaseModel';
 import randomstring from 'randomstring';
-import _ from 'underscore';
-import { CheerioAPI } from 'cheerio';
-import { Element } from 'domhandler';
 import { isError, isLiveMatchesResponse } from '@utils/TypesUtils';
 import type { LiveMatchesDbResponse } from '@cricketscoreapi/types/db';
+import { CricbuzzClient } from '@services/Cricbuzz/CricbuzzClient';
+import {
+    buildMatchNameFromAnchor,
+    extractCricbuzzMatchIdFromUrl,
+    normalizeCricbuzzPath,
+} from '@services/Cricbuzz/CricbuzzUtils';
 
 const MATCH_URL = 'https://www.cricbuzz.com/cricket-match/live-scores';
 
+type ParsedCricbuzzMatch = {
+    cricbuzzMatchId: string;
+    matchUrl: string;
+    matchName: string;
+};
+
 /**
- * Class responsible for handling live cricket match data
- * Fetches and processes live match information from Cricbuzz
+ * Class responsible for handling live cricket match data.
+ * Fetches and processes live match information from Cricbuzz.
  */
 export class LiveMatches {
     private tableName: ModelName;
-    private utilsObj: Utils;
+    private cricbuzzClient: CricbuzzClient;
     private readonly MATCH_ID_LENGTH = 16;
 
     constructor() {
         this.tableName = 'livematches';
-        this.utilsObj = new Utils();
+        this.cricbuzzClient = new CricbuzzClient();
     }
 
     /**
-     * Handles error logging and rejection
-     * @param location - Location where error occurred for logging
-     * @param error - Error object to be handled
-     * @returns Rejected promise with CustomError
+     * Handles error logging and rejection.
      */
     private handleError(location: string, error: Error): Promise<never> {
         writeLogError([`${location} | error`, error]);
@@ -45,9 +51,7 @@ export class LiveMatches {
     }
 
     /**
-     * Gets match data either for a specific match or all matches
-     * @param matchId - Optional ID of specific match to fetch (defaults to '0' for all matches)
-     * @returns Promise resolving to match data
+     * Gets match data either for a specific match or all matches.
      */
     public async getMatches(matchId = '0'): Promise<MatchData | Record<string, MatchData>> {
         const startTime = Date.now();
@@ -96,10 +100,10 @@ export class LiveMatches {
                     matchUrl: String(mongoData.matchUrl),
                     matchName: String(mongoData.matchName),
                 };
-            } else {
-                writeLogError(['LiveMatches: getMatchById - No match found', { matchId }]);
-                throw new Error(`No match found with id: ${matchId}`);
             }
+
+            writeLogError(['LiveMatches: getMatchById - No match found', { matchId }]);
+            throw new Error(`No match found with id: ${matchId}`);
         } catch (error) {
             return this.handleError(
                 'LiveMatches | getMatchById',
@@ -145,17 +149,17 @@ export class LiveMatches {
     ): Promise<Record<string, MatchData>> {
         const startTime = Date.now();
         writeLogDebug([
-            'LiveMatches: scrapeData - Starting web scraping',
+            'LiveMatches: scrapeData - Starting Cricbuzz match discovery',
             {
                 existingDataCount: mongoData.length,
             },
         ]);
 
         try {
-            const response = await this.utilsObj.fetchData(MATCH_URL);
+            const html = await this.cricbuzzClient.fetchHtml(MATCH_URL);
 
-            writeLogDebug(['LiveMatches: scrapeData - Processing scraped data']);
-            let matchesData = this.processData(response, mongoData);
+            writeLogDebug(['LiveMatches: scrapeData - Processing Cricbuzz live scores page']);
+            const matchesData = this.processData(html, mongoData);
 
             const newMatchesCount = Object.keys(matchesData[1]).length;
             if (newMatchesCount > 0) {
@@ -165,7 +169,6 @@ export class LiveMatches {
                         newMatchesCount,
                     },
                 ]);
-                // Non-blocking insertion - run asynchronously
                 insertDataToLiveMatchesTable(matchesData[1]).catch((error) => {
                     writeLogError(['LiveMatches: scrapeData - Async insertion failed', error]);
                 });
@@ -173,7 +176,7 @@ export class LiveMatches {
                 writeLogDebug(['LiveMatches: scrapeData - No new matches to insert']);
             }
 
-            let mergedMatchesData = { ...matchesData[0], ...matchesData[1] };
+            const mergedMatchesData = { ...matchesData[0], ...matchesData[1] };
             const totalDuration = Date.now() - startTime;
 
             writeLogDebug([
@@ -196,67 +199,65 @@ export class LiveMatches {
     }
 
     /**
-     * Processes HTML data to extract match information
-     * @param $ - Cheerio instance containing parsed HTML
-     * @param mongoData - Existing match data from database
-     * @returns Tuple of [existing matches, new matches]
-     * @throws Error if no matches are found
+     * Processes Cricbuzz's current Next-rendered HTML to extract match links.
+     * Existing app IDs are reused by Cricbuzz numeric match ID so slug changes do not create duplicates.
      */
     private processData(
-        $: CheerioAPI,
+        html: string,
         mongoData: LiveMatchesDbResponse[]
     ): [Record<string, MatchData>, Record<string, MatchData>] {
         const existingMatches: Record<string, MatchData> = {};
         const newMatches: Record<string, MatchData> = {};
 
-        // Create a Map for O(1) lookup performance instead of O(n) array.find()
-        const existingMatchesMap = new Map<string, LiveMatchesDbResponse>();
+        const existingMatchesByCricbuzzId = new Map<string, LiveMatchesDbResponse>();
+        const existingMatchesByUrl = new Map<string, LiveMatchesDbResponse>();
+
         mongoData.forEach((match) => {
-            existingMatchesMap.set(match.matchUrl, match);
+            const normalizedPath = normalizeCricbuzzPath(String(match.matchUrl));
+            const cricbuzzMatchId = extractCricbuzzMatchIdFromUrl(String(match.matchUrl));
+
+            if (cricbuzzMatchId) {
+                existingMatchesByCricbuzzId.set(cricbuzzMatchId, match);
+            }
+
+            if (normalizedPath) {
+                existingMatchesByUrl.set(normalizedPath, match);
+            }
         });
 
         writeLogDebug([
-            'LiveMatches: processData - Created lookup map',
+            'LiveMatches: processData - Created lookup maps',
             {
-                mapSize: existingMatchesMap.size,
+                cricbuzzIdMapSize: existingMatchesByCricbuzzId.size,
+                urlMapSize: existingMatchesByUrl.size,
             },
         ]);
 
-        const extractMatchInfo = (el: Element) => {
-            const matchUrl = $(el).find('.cb-lv-scr-mtch-hdr a').attr('href');
-            const matchName = $(el).find('.cb-billing-plans-text a').attr('title');
-            return { matchUrl, matchName };
-        };
+        const parsedMatches = this.parseLiveScoreMatches(html);
 
-        const handleExistingMatch = (
-            existingMatch: LiveMatchesDbResponse,
-            matchUrl: string,
-            matchName: string
-        ) => {
-            existingMatches[existingMatch.id] = { matchUrl, matchName, matchId: existingMatch.id };
-        };
+        parsedMatches.forEach((match) => {
+            const existingMatch =
+                existingMatchesByCricbuzzId.get(match.cricbuzzMatchId) ??
+                existingMatchesByUrl.get(match.matchUrl);
 
-        const handleNewMatch = (matchUrl: string, matchName: string) => {
+            if (existingMatch) {
+                existingMatches[existingMatch.id] = {
+                    matchUrl: match.matchUrl,
+                    matchName: match.matchName,
+                    matchId: existingMatch.id,
+                };
+                return;
+            }
+
             const matchId = randomstring.generate({
                 length: this.MATCH_ID_LENGTH,
                 charset: 'alphanumeric',
             });
-            newMatches[matchId] = { matchUrl, matchName, matchId };
-        };
-
-        $('.cb-col-100 .cb-col .cb-schdl').each((_: number, el: Element) => {
-            const { matchUrl, matchName } = extractMatchInfo(el);
-
-            if (matchUrl && matchName) {
-                // Use Map.get() for O(1) lookup instead of array.find() which is O(n)
-                const existingMatch = existingMatchesMap.get(matchUrl);
-
-                if (existingMatch) {
-                    handleExistingMatch(existingMatch, matchUrl, matchName);
-                } else {
-                    handleNewMatch(matchUrl, matchName);
-                }
-            }
+            newMatches[matchId] = {
+                matchUrl: match.matchUrl,
+                matchName: match.matchName,
+                matchId,
+            };
         });
 
         if (Object.keys(existingMatches).length === 0 && Object.keys(newMatches).length === 0) {
@@ -272,5 +273,41 @@ export class LiveMatches {
         ]);
 
         return [existingMatches, newMatches];
+    }
+
+    private parseLiveScoreMatches(html: string): ParsedCricbuzzMatch[] {
+        const $ = cheerio.load(html);
+        const seenCricbuzzMatchIds = new Set<string>();
+        const matches: ParsedCricbuzzMatch[] = [];
+
+        $('a[href*="/live-cricket-scores/"]').each((_, element) => {
+            const href = $(element).attr('href') ?? '';
+            const matchUrl = normalizeCricbuzzPath(href);
+            if (!matchUrl) {
+                return;
+            }
+
+            const cricbuzzMatchId = extractCricbuzzMatchIdFromUrl(matchUrl);
+            if (!cricbuzzMatchId || seenCricbuzzMatchIds.has(cricbuzzMatchId)) {
+                return;
+            }
+
+            const matchName = buildMatchNameFromAnchor(
+                $(element).attr('title'),
+                $(element).text()
+            );
+            if (!matchName) {
+                return;
+            }
+
+            seenCricbuzzMatchIds.add(cricbuzzMatchId);
+            matches.push({
+                cricbuzzMatchId,
+                matchUrl,
+                matchName,
+            });
+        });
+
+        return matches;
     }
 }
